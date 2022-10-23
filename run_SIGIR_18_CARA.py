@@ -18,7 +18,7 @@ from Conferences.SIGIR.CARA_our_interface.Brightkite.BrightkiteReader import Bri
 from Conferences.SIGIR.CARA_our_interface.CARA_RecommenderWrapper import CARA_RecommenderWrapper
 from Conferences.SIGIR.CARA_our_interface.EvaluatorContextWrapper import EvaluatorContextWrapper
 
-from Base.Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
+from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 
 
