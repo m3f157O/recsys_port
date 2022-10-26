@@ -1,11 +1,10 @@
-from dataset import get_dataset
-from model import get_model
-from trainer import get_trainer
+from Conferences.IGN_CF.igcncf_github.dataset import get_dataset
+from Conferences.IGN_CF.igcncf_github.model import get_model
+from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
 import torch
-from utils import init_run
+from Conferences.IGN_CF.igcncf_github.utils import init_run
 from tensorboardX import SummaryWriter
-from config import get_gowalla_config, get_yelp_config, get_amazon_config
-from sklearn.preprocessing import normalize
+from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 
 def main():
@@ -14,7 +13,7 @@ def main():
 
     device = torch.device('cuda')
     config = get_gowalla_config(device)
-    dataset_config, model_config, trainer_config = config[5]
+    dataset_config, model_config, trainer_config = config[8]
     dataset_config['path'] = dataset_config['path'][:-4] + '0_dropui'
 
     writer = SummaryWriter(log_path)
@@ -28,8 +27,8 @@ def main():
     new_dataset = get_dataset(dataset_config)
     model.config['dataset'] = new_dataset
     model.n_users, model.n_items = new_dataset.n_users, new_dataset.n_items
-    data_mat = model.get_data_mat(new_dataset)[:, :dataset.n_items]
-    model.normalized_data_mat = normalize(data_mat, axis=1, norm='l2')
+    model.norm_adj = model.generate_graph(new_dataset)
+    model.feat_mat = model.generate_feat(new_dataset)
     trainer = get_trainer(trainer_config, new_dataset, model)
     trainer.inductive_eval(dataset.n_users, dataset.n_items)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-from dataset import get_dataset
-from utils import set_seed
+from Conferences.IGN_CF.igcncf_github.dataset import get_dataset
+from Conferences.IGN_CF.igcncf_github.utils import set_seed
 
 
 def resize_dataset(dataset, ratio):

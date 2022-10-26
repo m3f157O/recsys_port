@@ -5,4 +5,11 @@
     <orderEntry type="jdk" jdkName="Python 3.8 (recsys_port)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/Conferences" />
+      </list>
+    </option>
+  </component>
 </module>

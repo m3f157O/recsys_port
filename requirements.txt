@@ -11,6 +11,11 @@ tqdm==4.59.0
 lightfm==1.16
 tensorflow==2.8.0
 tables==3.7.0
-torch
+torch~=1.10.2
 torchvision
 torchaudio
+tensorboardx~=2.2
+sortedcontainers~=2.4.0
+networkx~=2.8.4
+setuptools~=63.4.1
+dgl~=0.9.1
