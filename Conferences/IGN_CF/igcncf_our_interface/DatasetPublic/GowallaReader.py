@@ -43,6 +43,7 @@ class GowallaReader(object):
 
         dataset = acquire_dataset(log_path, config)
 
+        ##TODO PUT ^ IN EXCEPTION, CORRECTLY DOWNLOAD DATA IF NOT THERE ;) (OvO)
         try:
 
             print("GowallaReader: Attempting to load pre-splitted data")
