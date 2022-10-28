@@ -55,7 +55,6 @@ class AmazonReader(object):
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # binarize the data (only keep ratings >= 3) and users and items must have more than 10 interactions
-            for i in range URM_all
             item_recommended = ((URM_all.tocsc().indptr)!=0).sum(0)
             user_recommended = np.argsort(np.ediff1d(URM_all.tocsr().indptr))
             URM_all.data = user_recommended >= 10
