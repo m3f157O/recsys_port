@@ -3,11 +3,20 @@
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
 from Data_manager.Gowalla.GowallaReader import GowallaReader
 from Data_manager.Yelp.YelpReader import YelpReader
+
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
+
+from Conferences.IGN_CF.igcncf_github.utils import init_run
+
+from dataset import get_dataset
+from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+import torch
+from tensorboardX import SummaryWriter
+import sys
 
 from functools import partial
 import numpy as np
@@ -34,20 +43,28 @@ def read_data_split_and_search(dataset_name,
     #  The two datareaders correspond to two examples, CiteULike as an example of dataset provided int the original repository
     #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
     #  already available in this repository could be used
+    log_path = __file__[:-3]
+    init_run(log_path, 2021)
+    device = torch.device('cpu')
 
     if dataset_name == "yelp":
-        dataset = YelpReader(data_folder_path)
-
+        config = get_yelp_config(device)
     elif dataset_name == "amazon-book":
-        dataset = AmazonReader(data_folder_path)
+        config = get_amazon_config(device)
     elif dataset_name == "gowalla":
-        dataset = GowallaReader(data_folder_path)
-
+        config = get_gowalla_config(device)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
 
-    print('Current dataset is: {}'.format(dataset_name))
+    dataset_config, model_config, trainer_config = config[2]
+    dataset_config['path'] = dataset_config['path'][:-4] + str(1)
+    writer = SummaryWriter(log_path)
+
+    dataset = get_dataset(dataset_config)
+    # print(dataset)
+
+    # print('Current dataset is: {}'.format(dataset_name))
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
@@ -246,7 +263,6 @@ def read_data_split_and_search(dataset_name,
                                                      n_evaluation_users=n_test_users,
                                                      table_title=None)
 
-
 if __name__ == '__main__':
 
     # Done: Replace with algorithm and conference name
@@ -274,4 +290,3 @@ if __name__ == '__main__':
                                    flag_DL_article_default=input_flags.DL_article_default,
                                    flag_print_results=input_flags.print_results,
                                    )
-

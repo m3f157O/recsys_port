@@ -25,8 +25,8 @@ def init_run(log_path, seed):
     if not os.path.exists(log_path): os.mkdir(log_path)
     f = open(os.path.join(log_path, 'log.txt'), 'w')
     f = Unbuffered(f)
-    sys.stderr = f
-    sys.stdout = f
+    #sys.stderr = f
+    #sys.stdout = f  //todo decomment after finish
 
 
 def get_sparse_tensor(mat, device):
