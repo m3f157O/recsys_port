@@ -6,36 +6,17 @@ Created on 08/11/18
 @author: Maurizio Ferrari Dacrema
 """
 
-from Recommenders.DataIO import DataIO
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
-import os
 
-from HyperparameterTuning.SearchSingleCase import SearchSingleCase
-from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
-from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
-from Recommenders.Recommender_import_list import *
-from Utils.ResultFolderLoader import ResultFolderLoader
+from Recommenders.DataIO import DataIO
 
-from Conferences.IGN_CF.igcncf_github.utils import init_run
 from IGN_CFReader import *
-from dataset import get_dataset
+
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
-import torch
-from tensorboardX import SummaryWriter
-import sys
 
-from functools import partial
-import numpy as np
-import os, traceback, argparse, multiprocessing
 
-from Conferences.CIKM.ExampleAlgorithm_our_interface.ExampleDatasetProvided.CiteulikeReader import CiteulikeReader
-from Conferences.CIKM.ExampleAlgorithm_our_interface.ExampleDatasetPublic.Movielens20MReader import Movielens20MReader
-
-from Conferences.CIKM.ExampleAlgorithm_our_interface.Example_RecommenderWrapper import Example_RecommenderWrapper
-
-from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
-from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
+import os
 from Data_manager.Gowalla.GowallaReader import GowallaReader as GowallaReader_DataManager
 
 
@@ -50,11 +31,13 @@ class GowallaReader(object):
         pre_splitted_path += "data_split/"
         pre_splitted_filename = "splitted_data_"
 
+        dataIO = DataIO(pre_splitted_path)
+
         # If directory does not exist, create
         if not os.path.exists(pre_splitted_path):
             os.makedirs(pre_splitted_path)
 
-        device,log_path=init_file_and_device()
+        device, log_path = init_file_and_device()
 
         config = get_gowalla_config(device)
 
@@ -74,7 +57,7 @@ class GowallaReader(object):
 
             print("GowallaReader: loading URM")
 
-            # TODO Replace this with the publicly available dataset you need
+            # DO Replace this with the publicly available dataset you need
             #  The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
             data_reader = GowallaReader_DataManager()
             dataset = data_reader.load_data()

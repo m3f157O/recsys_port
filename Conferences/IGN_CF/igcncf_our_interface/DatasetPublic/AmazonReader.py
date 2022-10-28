@@ -11,7 +11,7 @@ from Recommenders.DataIO import DataIO
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
 import scipy.sparse as sp
-
+import os
 from Data_manager.AmazonReviewData.AmazonBooksReader import AmazonBooksReader as AmazonBookReader_DataManager
 
 
