@@ -9,7 +9,9 @@ from utils import customized_data_preparation
 from rgcf import RGCF
 
 
-def run(model=None, dataset=None, config_file_list=None, config_dict=None, saved=True):
+def run(model=None, dataset="ml-1m", config_file_list=None, config_dict=None, saved=True):
+    ##todo what the hell??? ^^^^^^^
+
     r""" A fast running api, which includes the complete process of
     training and testing a model on a specified dataset
 
