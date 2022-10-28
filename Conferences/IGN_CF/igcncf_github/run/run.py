@@ -18,8 +18,16 @@ def main():
 
     writer = SummaryWriter(log_path)
     dataset = get_dataset(dataset_config)
+
+    ##todo implement wrapper
+    print("thats the model")
     model = get_model(model_config, dataset)
+    print(model)
+
+    print("thats the trainer")
     trainer = get_trainer(trainer_config, dataset, model)
+    print("trainer")
+
     trainer.train(verbose=True, writer=writer)
     writer.close()
     results, _ = trainer.eval('test')
