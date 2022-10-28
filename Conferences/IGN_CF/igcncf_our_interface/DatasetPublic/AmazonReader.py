@@ -8,14 +8,14 @@ Created on 08/11/18
 import numpy as np
 
 from Recommenders.DataIO import DataIO
-from Data_manager.split_functions.split_train_validation_random_holdout import split_train_in_two_percentage_global_sample
-import os
+from Data_manager.split_functions.split_train_validation_random_holdout import \
+    split_train_in_two_percentage_global_sample
+import scipy.sparse as sp
 
 from Data_manager.AmazonReviewData.AmazonBooksReader import AmazonBooksReader as AmazonBookReader_DataManager
 
 
 class AmazonReader(object):
-
     URM_DICT = {}
     ICM_DICT = {}
 
@@ -37,7 +37,7 @@ class AmazonReader(object):
             print("AmazonReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
-                 self.__setattr__(attrib_name, attrib_object)
+                self.__setattr__(attrib_name, attrib_object)
 
 
         except FileNotFoundError:
@@ -58,19 +58,26 @@ class AmazonReader(object):
 
             # TODO MUST BE CHECKED Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # binarize the data (only keep ratings >= 3) and users and items must have more than 10 interactions
-            item_recommended = ((URM_all.tocsc().indptr)!=0).sum(0)
-            user_recommended = np.argsort(np.ediff1d(URM_all.tocsr().indptr))
-            URM_all.data = user_recommended >= 10
-            URM_all.data = item_recommended >= 10
             URM_all.data = URM_all.data >= 3.0
+            URM_all.eliminate_zeros()
+            for user_id in range(np.shape(URM_all)[0]):
+                start_pos = URM_all.tocsr.indptr[user_id]
+                end_pos = URM_all.tocsr.indptr[user_id + 1]
+                if sum(URM_all.tocsr.indices[start_pos:end_pos]) < 10:
+                    URM_all.tocsr.indices[start_pos:end_pos] = 0
+            URM_all.eliminate_zeros()
+            for item_id in range(np.shape(URM_all)[0]):
+                start_pos = URM_all.tocsc.indptr[item_id]
+                end_pos = URM_all.tocsc.indptr[item_id + 1]
+                if sum(URM_all.tocsc.indices[start_pos:end_pos]) < 10:
+                    URM_all.tocsc.indices[start_pos:end_pos] = 0
             URM_all.eliminate_zeros()
 
             # Done select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
             # Split the data in train 70, validation 10 and test 20
-            URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage = 0.7)
-            URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage = 0.9)
-
+            URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.7)
+            URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.9)
 
             # TODO get the sparse matrices in the correct dictionary with the correct name
             # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
@@ -85,7 +92,6 @@ class AmazonReader(object):
                 "URM_validation": URM_validation,
             }
 
-
             # You likely will not need to modify this part
             data_dict_to_save = {
                 "ICM_DICT": self.ICM_DICT,
@@ -96,6 +102,3 @@ class AmazonReader(object):
             dataIO.save_data(pre_splitted_filename, data_dict_to_save=data_dict_to_save)
 
             print("AmazonBookReader: loading complete")
-
-
-
