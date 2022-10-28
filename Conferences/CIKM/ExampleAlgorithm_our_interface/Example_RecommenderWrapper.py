@@ -48,7 +48,7 @@ class Example_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ea
 
         # Do not modify this
         # Create the full data structure that will contain the item scores
-        item_sco/home/gigi/PycharmProjects/RecSys_Porting_Project-masterres = - np.ones((len(user_id_array), self.n_items)) * np.inf
+        item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
 
         if items_to_compute is not None:
             item_indices = items_to_compute
