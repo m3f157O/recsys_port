@@ -81,8 +81,9 @@ def read_data_split_and_search(dataset_name,
         os.makedirs(result_folder_path)
 
     # Done Replace metric to optimize and cutoffs
-    metric_to_optimize = 'BPR'
-    cutoff_to_optimize = 10
+    metric_to_optimize = ['Recall', 'Precision', 'NDCG']
+    # when the early stopping must terminate
+    cutoff_to_optimize = 50
 
     # All cutoffs that will be evaluated are listed here (?)
     cutoff_list = [5, 10, 20, 30, 40, 50, 100]
@@ -93,10 +94,7 @@ def read_data_split_and_search(dataset_name,
     n_processes = 5
     resume_from_saved = True
 
-    # TODO Select the evaluation protocol
-    # evaluator_validation = EvaluatorNegativeItemSample(URM_validation, URM_test_negative, cutoff_list=cutoff_list_validation)
-    # evaluator_test = EvaluatorNegativeItemSample(URM_test, URM_test_negative, cutoff_list=cutoff_list_test)
-    evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
+    # Done Select the evaluation protocol
     evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
     evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
 
@@ -109,6 +107,7 @@ def read_data_split_and_search(dataset_name,
 
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
+            # TODO doppio check se mancano altri hyperparameters
             article_hyperparameters = {
                 "batch_size": 2048,
                 "epochs": 1000,
@@ -123,7 +122,7 @@ def read_data_split_and_search(dataset_name,
             earlystopping_hyperparameters = {"validation_every_n": 5,
                                              "stop_on_validation": True,
                                              "lower_validations_allowed": 5,
-                                             "evaluator_object": evaluator_validation,
+                                             "evaluator_object": evaluator_validation_earlystopping,
                                              "validation_metric": metric_to_optimize,
                                              }
 
@@ -138,7 +137,7 @@ def read_data_split_and_search(dataset_name,
 
             # Fit the DL model, select the optimal number of epochs and save the result
             hyperparameterSearch = SearchSingleCase(Example_RecommenderWrapper,
-                                                    evaluator_validation=evaluator_validation,
+                                                    evaluator_validation=evaluator_validation_earlystopping,
                                                     evaluator_test=evaluator_test)
 
             # Specify which attributes are needed. In this case the constructor only required the URM train,
@@ -217,7 +216,7 @@ def read_data_split_and_search(dataset_name,
                                                  resume_from_saved=True,
                                                  save_model="best",
                                                  evaluate_on_test="best",
-                                                 evaluator_validation=evaluator_validation,
+                                                 evaluator_validation=evaluator_validation_earlystopping,
                                                  evaluator_test=evaluator_test,
                                                  max_total_time=max_total_time,
                                                  evaluator_validation_earlystopping=evaluator_validation_earlystopping,
@@ -264,12 +263,11 @@ def read_data_split_and_search(dataset_name,
                                                      n_evaluation_users=n_test_users,
                                                      table_title=None)
 
-
 if __name__ == '__main__':
 
-    # TODO: Replace with algorithm and conference name
-    ALGORITHM_NAME = "ALGORITHM_NAME"
-    CONFERENCE_NAME = "CONFERENCE_NAME"
+    # Done: Replace with algorithm and conference name
+    ALGORITHM_NAME = "INMO"
+    CONFERENCE_NAME = "IGN_CF"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--baseline_tune', help="Baseline hyperparameter search", type=bool, default=True)
@@ -283,8 +281,8 @@ if __name__ == '__main__':
     # Reporting only the cosine similarity is enough
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
-    # TODO: Replace with dataset names
-    dataset_list = ["gowalla"]  # , "yelp" , "amazon-books"]
+    # Done: Replace with dataset names
+    dataset_list = ["yelp", "gowalla", "amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
