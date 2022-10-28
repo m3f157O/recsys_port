@@ -53,7 +53,10 @@ class AmazonReader(object):
 
             URM_all = dataset.get_URM_all()
 
-            # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
+            # matrix is sparse
+            sp.csr_matrix(URM_all)
+
+            # TODO MUST BE CHECKED Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # binarize the data (only keep ratings >= 3) and users and items must have more than 10 interactions
             item_recommended = ((URM_all.tocsc().indptr)!=0).sum(0)
             user_recommended = np.argsort(np.ediff1d(URM_all.tocsr().indptr))
@@ -62,7 +65,7 @@ class AmazonReader(object):
             URM_all.data = URM_all.data >= 3.0
             URM_all.eliminate_zeros()
 
-            # TODO select the data splitting that you need, almost certainly there already is a function that does the splitting
+            # Done select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
             # Split the data in train 70, validation 10 and test 20
             URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage = 0.7)
@@ -71,7 +74,9 @@ class AmazonReader(object):
 
             # TODO get the sparse matrices in the correct dictionary with the correct name
             # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
-            self.ICM_DICT = {}
+            self.ICM_DICT = {
+                ""
+            }
             self.UCM_DICT = {}
 
             self.URM_DICT = {
