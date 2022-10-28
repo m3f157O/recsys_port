@@ -63,16 +63,17 @@ def read_data_split_and_search(dataset_name,
     if not os.path.exists(result_folder_path):
         os.makedirs(result_folder_path)
 
-    # TODO Replace metric to optimize and cutoffs
-    metric_to_optimize = 'NDCG'
+    # Done Replace metric to optimize and cutoffs
+    metric_to_optimize = 'BPR'
     cutoff_to_optimize = 10
 
-    # All cutoffs that will be evaluated are listed here
+    # All cutoffs that will be evaluated are listed here (?)
     cutoff_list = [5, 10, 20, 30, 40, 50, 100]
     max_total_time = 14 * 24 * 60 * 60  # 14 days
 
-    n_cases = 50
-    n_processes = 3
+    # parameters taken from the articles section 5.1
+    n_cases = 20
+    n_processes = 5
     resume_from_saved = True
 
     # TODO Select the evaluation protocol
@@ -90,22 +91,14 @@ def read_data_split_and_search(dataset_name,
     if flag_DL_article_default:
 
         try:
-            # TODO fill this dictionary with the hyperparameters of the algorithm
+            # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
-                "batch_size": 512,
-                "epochs": 300,
-                "epochs_MFBPR": 500,
-                "embedding_size": 64,
-                "hidden_size": 128,
-                "negative_sample_per_positive": 1,
-                "negative_instances_per_positive": 4,
-                "regularization_users_items": 0.01,
-                "regularization_weights": 10,
-                "regularization_filter_weights": 1,
-                "learning_rate_embeddings": 0.05,
-                "learning_rate_CNN": 0.05,
-                "channel_size": [32, 32, 32, 32, 32, 32],
-                "dropout": 0.0,
+                "batch_size": 2048,
+                "epochs": 1000,
+                "learning_rate_embeddings": [0.0001, 0.001, 0.01],
+                "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
+                "dropout": [0.0, 0.1, 0.3, 0.5, 0.7, 0.9],
+                "sampling_size_IDCF_LGCN": 50,
                 "epoch_verbose": 1,
             }
 

@@ -118,7 +118,7 @@ def read_data_split_and_search(dataset_name,
                                   "learning_rate_CNN":0.05,
                                   "channel_size":[32, 32, 32, 32, 32, 32],
                                   "dropout":0.0,
-                                  "epoch_verbose":1,
+                                  "epoch_verbose": 1,
                                   }
 
             # Do not modify earlystopping
