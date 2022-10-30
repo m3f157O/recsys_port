@@ -28,26 +28,41 @@ class GowallaReader(object):
 
         super(GowallaReader, self).__init__()
 
-        pre_splitted_path += "data_split/"
-        pre_splitted_filename = "splitted_data_"
+        pre_splitted_path = "DatasetPublic/data/Gowalla/" ##local path, as described in recsys_port README.md
 
-        dataIO = DataIO(pre_splitted_path)
+        dataIO = DataIO(pre_splitted_path)       ##initialize cool data manager
 
         # If directory does not exist, create
-        if not os.path.exists(pre_splitted_path):
+        if not os.path.exists(pre_splitted_path):##avoid eventual crash if directory doesn't exist
             os.makedirs(pre_splitted_path)
 
-        device, log_path = init_file_and_device()
-
-        config = get_gowalla_config(device)
-
-        dataset = acquire_dataset(log_path, config)
 
         ##TODO PUT ^ IN EXCEPTION, CORRECTLY DOWNLOAD DATA IF NOT THERE ;) (OvO)
         try:
 
             print("GowallaReader: Attempting to load pre-splitted data")
 
+            device, log_path = init_file_and_device()
+
+            config = get_gowalla_config(device)
+
+            ##todo very bad code sorry
+            temp=config[0]
+            temp2=temp[0]
+            temp2['path']='DatasetPublic/data/Gowalla/time' ##fix runtime config to comply with recsys_port README.md
+            print(temp2)
+            print(config[0])
+
+            dataset = acquire_dataset(log_path, config)
+            print(dataset.val_data)
+
+
+            ##attrib name is file name
+            ##attrib object is panda object
+            pre_splitted_filename='time.zip'
+
+            #todo find an integration to fix the crash here, txt not supported,
+            #all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                 self.__setattr__(attrib_name, attrib_object)
 
