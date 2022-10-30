@@ -6,6 +6,7 @@ from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp
 from tensorboardX import SummaryWriter
 
 
+###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
 def init_file_and_device():
     log_path = __file__[:-3]
     init_run(log_path, 2021)

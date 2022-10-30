@@ -44,6 +44,9 @@ class GowallaReader(object):
 
             device, log_path = init_file_and_device()
 
+            ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
+            ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
+            ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
             config = get_gowalla_config(device)
 
             ##todo very bad code sorry
@@ -65,6 +68,7 @@ class GowallaReader(object):
             #all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                 self.__setattr__(attrib_name, attrib_object)
+                print(attrib_name, attrib_object)
 
 
         except FileNotFoundError:
