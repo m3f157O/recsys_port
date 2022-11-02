@@ -81,11 +81,11 @@ def read_data_split_and_search(dataset_name,
         os.makedirs(result_folder_path)
 
     # Done Replace metric to optimize and cutoffs
-    metric_to_optimize = ['Recall', 'Precision', 'NDCG']
+    metric_to_optimize = 'NDCG'
     # when the early stopping must terminate
-    cutoff_to_optimize = 50
+    cutoff_to_optimize = 20
 
-    # All cutoffs that will be evaluated are listed here (?)
+    # All cutoffs that will be evaluated are listed here
     cutoff_list = [5, 10, 20, 30, 40, 50, 100]
     max_total_time = 14 * 24 * 60 * 60  # 14 days
 
@@ -110,12 +110,22 @@ def read_data_split_and_search(dataset_name,
             # TODO doppio check se mancano altri hyperparameters
             article_hyperparameters = {
                 "batch_size": 2048,
-                "epochs": 1000,
+                "epochs_MFBPR": 500,
+                "embedding_size": 64,
+                "hidden_size": 128,
+                "negative_sample_per_positive": 1,
+                "negative_instances_per_positive": 4,
+                "regularization_users_items": 0.01,
+                "regularization_weights": 10,
+                "regularization_filter_weights": 1,
                 "learning_rate_embeddings": [0.0001, 0.001, 0.01],
-                "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
+                "learning_rate_CNN": 0.05,
+                "channel_size": [32, 32, 32, 32, 32, 32],
                 "dropout": [0.0, 0.1, 0.3, 0.5, 0.7, 0.9],
-                "sampling_size_IDCF_LGCN": 50,
                 "epoch_verbose": 1,
+
+                # TODO "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01] which parameter?
+                # TODO"sampling_size_IDCF_LGCN": 50 which parameter?
             }
 
             # Do not modify earlystopping
