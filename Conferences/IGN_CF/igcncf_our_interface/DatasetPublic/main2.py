@@ -1,7 +1,6 @@
 import GowallaReader
 def main():
-    pre_splitted_path = "data_split/"
-
+    pre_splitted_path = "DatasetPublic/data/Gowalla/"
     reader = GowallaReader.GowallaReader(pre_splitted_path)
 
 
