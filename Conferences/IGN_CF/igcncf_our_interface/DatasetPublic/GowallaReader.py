@@ -42,8 +42,11 @@ class GowallaReader(DataReader):
             raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
+
+
             ##attrib name is file name
             ##attrib object is panda object
+            pre_splitted_filename = 'time.zip'
 
             # all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -77,36 +80,42 @@ class GowallaReader(DataReader):
             temp2['path'] = '../../../Data_manager_split_datasets/Gowalla/time'
             print(config[0])
 
+
+
             # DO Replace this with the publicly available dataset you need
             # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
-            # todo find an integration to fix the crash here, txt not supported,
 
             import zipfile
             with zipfile.ZipFile("../../../Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
                 zip_ref.extractall("../../../Data_manager_split_datasets/")
 
             dataset = acquire_dataset(log_path, config)
+
             print(dataset.val_data)
 
+            URM_val = dataset.val_data
 
-            # TODO Apply data preprocessing if required (for example binarizing the data, removing users ...)
+            # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
+            # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
-            URM_all.data = URM_all.data >= 4.0
-            URM_all.eliminate_zeros()
-            for user_id in range(np.shape(URM_all)[0]):
-                start_pos = URM_all.tocsr.indptr[user_id]
-                end_pos = URM_all.tocsr.indptr[user_id + 1]
-                if sum(URM_all.tocsr.indices[start_pos:end_pos]) < 10:
-                    URM_all.tocsr.indices[start_pos:end_pos] = 0
-            URM_all.eliminate_zeros()
-            for item_id in range(np.shape(URM_all)[0]):
-                start_pos = URM_all.tocsc.indptr[item_id]
-                end_pos = URM_all.tocsc.indptr[item_id + 1]
-                if sum(URM_all.tocsc.indices[start_pos:end_pos]) < 10:
-                    URM_all.tocsc.indices[start_pos:end_pos] = 0
-            URM_all.eliminate_zeros()
 
-            # TODO select the data splitting that you need, almost certainly there already is a function that does the splitting
+            URM_val = URM_val >= 4.0
+
+            URM_val.eliminate_zeros()
+            for user_id in range(np.shape(URM_val)[0]):
+                start_pos = URM_val.tocsr.indptr[user_id]
+                end_pos = URM_val.tocsr.indptr[user_id + 1]
+                if sum(URM_val.tocsr.indices[start_pos:end_pos]) < 10:
+                    URM_val.tocsr.indices[start_pos:end_pos] = 0
+            URM_val.eliminate_zeros()
+            for item_id in range(np.shape(URM_val)[0]):
+                start_pos = URM_val.tocsc.indptr[item_id]
+                end_pos = URM_val.tocsc.indptr[item_id + 1]
+                if sum(URM_val.tocsc.indices[start_pos:end_pos]) < 10:
+                    URM_val.tocsc.indices[start_pos:end_pos] = 0
+            URM_val.eliminate_zeros()
+
+            # Useless because we already have presplitted data select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
             # Split the data in train, validation and test
             #URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)

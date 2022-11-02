@@ -123,9 +123,9 @@ def read_data_split_and_search(dataset_name,
                 "channel_size": [32, 32, 32, 32, 32, 32],
                 "dropout": [0.0, 0.1, 0.3, 0.5, 0.7, 0.9],
                 "epoch_verbose": 1,
-
-                # TODO "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01] which parameter?
-                # TODO"sampling_size_IDCF_LGCN": 50 which parameter?
+                # new parameters
+                "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
+                "sampling_size_IDCF_LGCN": 50
             }
 
             # Do not modify earlystopping
