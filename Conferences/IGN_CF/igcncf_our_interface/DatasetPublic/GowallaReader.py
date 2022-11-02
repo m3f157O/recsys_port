@@ -16,8 +16,7 @@ from IGN_CFReader import *
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 import os
-from Data_manager.Gowalla.GowallaReader import GowallaReader as GowallaReader_DataManager
-
+import numpy as np
 
 class GowallaReader(DataReader):
     URM_DICT = {}
@@ -89,6 +88,18 @@ class GowallaReader(DataReader):
             # binarize the data (only keep ratings >= 4)
             URM_all.data = URM_all.data >= 4.0
             URM_all.eliminate_zeros()
+            for user_id in range(np.shape(URM_all)[0]):
+                start_pos = URM_all.tocsr.indptr[user_id]
+                end_pos = URM_all.tocsr.indptr[user_id + 1]
+                if sum(URM_all.tocsr.indices[start_pos:end_pos]) < 10:
+                    URM_all.tocsr.indices[start_pos:end_pos] = 0
+            URM_all.eliminate_zeros()
+            for item_id in range(np.shape(URM_all)[0]):
+                start_pos = URM_all.tocsc.indptr[item_id]
+                end_pos = URM_all.tocsc.indptr[item_id + 1]
+                if sum(URM_all.tocsc.indices[start_pos:end_pos]) < 10:
+                    URM_all.tocsc.indices[start_pos:end_pos] = 0
+            URM_all.eliminate_zeros()
 
             # TODO select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
@@ -116,4 +127,4 @@ class GowallaReader(DataReader):
 
             dataIO.save_data(pre_splitted_filename, data_dict_to_save=data_dict_to_save)
 
-            print("Movielens20MReader: loading complete")
+            print("GowallaReader: loading complete")
