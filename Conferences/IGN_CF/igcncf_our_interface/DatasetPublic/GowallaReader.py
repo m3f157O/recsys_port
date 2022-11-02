@@ -5,12 +5,14 @@ Created on 08/11/18
 
 @author: Maurizio Ferrari Dacrema
 """
+import time
+
 from Data_manager.DataReader import DataReader
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
 
 from Recommenders.DataIO import DataIO
-
+import networkx
 from IGN_CFReader import *
 import gdown as gd
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
@@ -41,8 +43,6 @@ class GowallaReader(DataReader):
 
             raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
-
-
 
             ##attrib name is file name
             ##attrib object is panda object
@@ -80,8 +80,6 @@ class GowallaReader(DataReader):
             temp2['path'] = '../../../Data_manager_split_datasets/Gowalla/time'
             print(config[0])
 
-
-
             # DO Replace this with the publicly available dataset you need
             # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
 
@@ -91,9 +89,16 @@ class GowallaReader(DataReader):
 
             dataset = acquire_dataset(log_path, config)
 
-            print(dataset.val_data)
+            from scipy import sparse
+            n_items = 40988
+            n_users = 29858
 
-            URM_val = dataset.val_data
+            datas, rows, cols = adjacencyList2COO(dataset.val_data)
+
+            M = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
+
+
+            URM_val = M
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
@@ -103,23 +108,23 @@ class GowallaReader(DataReader):
 
             URM_val.eliminate_zeros()
             for user_id in range(np.shape(URM_val)[0]):
-                start_pos = URM_val.tocsr.indptr[user_id]
-                end_pos = URM_val.tocsr.indptr[user_id + 1]
-                if sum(URM_val.tocsr.indices[start_pos:end_pos]) < 10:
-                    URM_val.tocsr.indices[start_pos:end_pos] = 0
+                start_pos = URM_val.tocsr().indptr[user_id]
+                end_pos = URM_val.tocsr().indptr[user_id + 1]
+                if sum(URM_val.tocsr().indices[start_pos:end_pos]) < 10:
+                    URM_val.tocsr().indices[start_pos:end_pos] = 0
             URM_val.eliminate_zeros()
             for item_id in range(np.shape(URM_val)[0]):
-                start_pos = URM_val.tocsc.indptr[item_id]
-                end_pos = URM_val.tocsc.indptr[item_id + 1]
-                if sum(URM_val.tocsc.indices[start_pos:end_pos]) < 10:
-                    URM_val.tocsc.indices[start_pos:end_pos] = 0
+                start_pos = URM_val.tocsc().indptr[item_id]
+                end_pos = URM_val.tocsc().indptr[item_id + 1]
+                if sum(URM_val.tocsc().indices[start_pos:end_pos]) < 10:
+                    URM_val.tocsc().indices[start_pos:end_pos] = 0
             URM_val.eliminate_zeros()
 
             # Useless because we already have presplitted data select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
             # Split the data in train, validation and test
-            #URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
-            #URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
+            # URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
+            # URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
 
             # TODO get the sparse matrices in the correct dictionary with the correct name
             # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required

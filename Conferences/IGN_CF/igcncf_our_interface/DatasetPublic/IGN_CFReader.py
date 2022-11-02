@@ -5,6 +5,8 @@ from dataset import get_dataset
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 from tensorboardX import SummaryWriter
 import os, sys
+import numpy as np
+import time
 
 ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
 def init_file_and_device():
@@ -29,3 +31,22 @@ def txt_to_csv(folder):
         oldbase = os.path.splitext(filename)
         newname = infilename.replace('.txt', '.csv')
         os.rename(infilename, newname)
+
+
+def adjacencyList2COO(toCOOarray):
+    start = time.time()
+    cols = np.array([])
+    rows = np.array([])
+    datas = np.array([])
+    for index in range(len(toCOOarray)):
+        adj = np.array(toCOOarray[index])  # get number of elements on given row
+        data = np.ones_like(adj)  # all data is both 0 or 1
+        row = np.ones_like(adj)
+        row.fill(index)  # get correct row number
+        col = adj  # useless
+        datas = np.append(datas, data)  # concatenate to all
+        rows = np.append(rows, row)
+        cols = np.append(cols, col)
+    end = time.time()
+    print(end-start)
+    return datas, rows, cols
