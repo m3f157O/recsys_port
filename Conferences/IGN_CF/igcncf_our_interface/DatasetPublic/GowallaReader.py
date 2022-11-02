@@ -12,7 +12,7 @@ from Data_manager.split_functions.split_train_validation_random_holdout import \
 from Recommenders.DataIO import DataIO
 
 from IGN_CFReader import *
-
+import gdown as gd
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 import os
@@ -34,16 +34,16 @@ class GowallaReader(DataReader):
         if not os.path.exists(pre_splitted_path):  ##avoid eventual crash if directory doesn't exist
             os.makedirs(pre_splitted_path)
 
-        ##TODO PUT ^ IN EXCEPTION, CORRECTLY DOWNLOAD DATA IF NOT THERE ;) (OvO)
+        pre_splitted_filename = 'time.zip'
+
+        ##txt_to_csv("DatasetPublic/data/Amazon/time")
         try:
 
+            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
-
-
 
             ##attrib name is file name
             ##attrib object is panda object
-            pre_splitted_filename = 'time.zip'
 
             # all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -57,7 +57,11 @@ class GowallaReader(DataReader):
 
             print("GowallaReader: loading URM")
 
+            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
+            output = "../../../Data_manager_split_datasets/dataset.zip"
 
+            if os.path.isfile(output) != True:
+                gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
             device, log_path = init_file_and_device()
 
@@ -66,23 +70,24 @@ class GowallaReader(DataReader):
             ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
             config = get_gowalla_config(device)
 
-            ##todo very bad code sorry
+            # todo very bad code sorry
             temp = config[0]
             temp2 = temp[0]
-            temp2['path'] = '../../../Data_manager_split_datasets/Gowalla'  ##fix runtime config to comply with recsys_port README.md
-            temp2['name'] = 'GowallaDataset'  ##fix runtime config to comply with recsys_port README.md
-            print(temp2)
+            # fix runtime config to comply with recsys_port README.md
+            temp2['path'] = '../../../Data_manager_split_datasets/Gowalla/time'
             print(config[0])
 
-
-
             # DO Replace this with the publicly available dataset you need
-            #  The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
+            # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
             # todo find an integration to fix the crash here, txt not supported,
+
+            import zipfile
+            with zipfile.ZipFile("../../../Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
+                zip_ref.extractall("../../../Data_manager_split_datasets/")
+
             dataset = acquire_dataset(log_path, config)
             print(dataset.val_data)
 
-            URM_all = dataset.get_URM_all()
 
             # TODO Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # binarize the data (only keep ratings >= 4)
@@ -104,8 +109,8 @@ class GowallaReader(DataReader):
             # TODO select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
             # Split the data in train, validation and test
-            URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
-            URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
+            #URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
+            #URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
 
             # TODO get the sparse matrices in the correct dictionary with the correct name
             # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
@@ -113,9 +118,9 @@ class GowallaReader(DataReader):
             self.UCM_DICT = {}
 
             self.URM_DICT = {
-                "URM_train": dataset.get_URM_all(),
-                "URM_test": URM_test,
-                "URM_validation": URM_validation,
+                "URM_train": dataset.train_data,
+                "URM_test": dataset.test_data,
+                "URM_validation": dataset.val_data,
             }
 
             # You likely will not need to modify this part
