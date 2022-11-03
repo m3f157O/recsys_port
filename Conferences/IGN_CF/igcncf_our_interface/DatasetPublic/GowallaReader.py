@@ -20,6 +20,7 @@ from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp
 import os
 import numpy as np
 
+
 class GowallaReader(DataReader):
     URM_DICT = {}
     ICM_DICT = {}
@@ -46,7 +47,6 @@ class GowallaReader(DataReader):
 
             ##attrib name is file name
             ##attrib object is panda object
-            pre_splitted_filename = 'time.zip'
 
             # all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -73,12 +73,8 @@ class GowallaReader(DataReader):
             ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
             config = get_gowalla_config(device)
 
-            # todo very bad code sorry
-            temp = config[0]
-            temp2 = temp[0]
             # fix runtime config to comply with recsys_port README.md
-            temp2['path'] = '../../../Data_manager_split_datasets/Gowalla/time'
-            print(config[0])
+            config[0][0]["path"] = '../../../Data_manager_split_datasets/Gowalla/time'
 
             # DO Replace this with the publicly available dataset you need
             # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader

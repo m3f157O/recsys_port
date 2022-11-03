@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
-from Data_manager.Gowalla.GowallaReader import GowallaReader
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YeldReader
 from Data_manager.Yelp.YelpReader import YelpReader
 
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
@@ -47,21 +48,20 @@ def read_data_split_and_search(dataset_name,
     init_run(log_path, 2021)
     device = torch.device('cpu')
 
+    pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
+
     if dataset_name == "yelp":
-        config = get_yelp_config(device)
+        dataset = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
-        config = get_amazon_config(device)
+        dataset = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
-        config = get_gowalla_config(device)
+        dataset = GowallaReader(pre_splitted_path)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
 
-    dataset_config, model_config, trainer_config = config[2]
-    dataset_config['path'] = dataset_config['path'][:-4] + str(1)
-    writer = SummaryWriter(log_path)
 
-    dataset = get_dataset(dataset_config)
+
     # print(dataset)
 
     # print('Current dataset is: {}'.format(dataset_name))
