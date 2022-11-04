@@ -111,23 +111,22 @@ class GowallaReader(DataReader):
                 interactions_train = URM_train_csr.getrow(user_id).count_nonzero()
                 interactions_test = URM_test_csr.getrow(user_id).count_nonzero()
                 if (interactions_val + interactions_train + interactions_test) < 10:
-                    # TODO shift
-                    print("AIUTO")
+                    #removing the row with user who has less than 10 interactions
+                    np.delete(URM_val_csr, user_id, 0)
+                    np.delete(URM_train_csr, user_id, 0)
+                    np.delete(URM_test_csr, user_id, 0)
 
-            URM_val_csc = URM_val.tocsc()
-            URM_train_csc = URM_train.tocsc()
-            URM_test_csc = URM_test.tocsc()
+            URM_val_csc = URM_val_csr.tocsc()
+            URM_train_csc = URM_train_csr.tocsc()
+            URM_test_csc = URM_test_csr.tocsc()
             for item_id in range(n_items):
                 interactions_val = URM_val_csc.getcol(item_id).count_nonzero()
                 interactions_train = URM_train_csc.getcol(item_id).count_nonzero()
                 interactions_test = URM_test_csc.getcol(item_id).count_nonzero()
                 if (interactions_val + interactions_train + interactions_test) < 10:
-                    # TODO shift
-                    print("AIUTO")
-
-
-
-
+                    np.delete(URM_val_csc, item_id, 0)
+                    np.delete(URM_train_csc, item_id, 0)
+                    np.delete(URM_test_csc, item_id, 0)
 
 
 
