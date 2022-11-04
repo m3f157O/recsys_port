@@ -103,30 +103,7 @@ class GowallaReader(DataReader):
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_val_csr = URM_val.tocsr()
-            URM_train_csr = URM_train.tocsr()
-            URM_test_csr = URM_test.tocsr()
-            for user_id in range(n_users):
-                interactions_val = URM_val_csr.getrow(user_id).count_nonzero()
-                interactions_train = URM_train_csr.getrow(user_id).count_nonzero()
-                interactions_test = URM_test_csr.getrow(user_id).count_nonzero()
-                if (interactions_val + interactions_train + interactions_test) < 10:
-                    #removing the row with user who has less than 10 interactions
-                    np.delete(URM_val_csr, user_id, 0)
-                    np.delete(URM_train_csr, user_id, 0)
-                    np.delete(URM_test_csr, user_id, 0)
-
-            URM_val_csc = URM_val_csr.tocsc()
-            URM_train_csc = URM_train_csr.tocsc()
-            URM_test_csc = URM_test_csr.tocsc()
-            for item_id in range(n_items):
-                interactions_val = URM_val_csc.getcol(item_id).count_nonzero()
-                interactions_train = URM_train_csc.getcol(item_id).count_nonzero()
-                interactions_test = URM_test_csc.getcol(item_id).count_nonzero()
-                if (interactions_val + interactions_train + interactions_test) < 10:
-                    np.delete(URM_val_csc, item_id, 0)
-                    np.delete(URM_train_csc, item_id, 0)
-                    np.delete(URM_test_csc, item_id, 0)
+            URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_val, URM_train, URM_test)
 
 
 
@@ -142,9 +119,9 @@ class GowallaReader(DataReader):
             self.UCM_DICT = {}
 
             self.URM_DICT = {
-                "URM_train": dataset.train_data,
-                "URM_test": dataset.test_data,
-                "URM_validation": dataset.val_data,
+                "URM_train": URM_train,
+                "URM_test": URM_test,
+                "URM_validation": URM_val,
             }
 
             # You likely will not need to modify this part
