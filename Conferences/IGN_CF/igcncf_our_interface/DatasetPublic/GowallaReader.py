@@ -103,17 +103,29 @@ class GowallaReader(DataReader):
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_val_csr = URM_val.tocsr().toarray()
-            URM_train_csr = URM_train.tocsr().toarray()
-            URM_test_csr = URM_test.tocsr().toarray()
-
-            for user_id in range(np.shape(URM_val_csr)[0]):
-                interactions_val = np.count_nonzero(URM_val_csr[user_id])
-                interactions_train = np.count_nonzero(URM_train_csr[user_id])
-                interactions_test = np.count_nonzero(URM_test_csr[user_id])
+            URM_val_csr = URM_val.tocsr()
+            URM_train_csr = URM_train.tocsr()
+            URM_test_csr = URM_test.tocsr()
+            for user_id in range(n_users):
+                interactions_val = URM_val_csr.getrow(user_id).count_nonzero()
+                interactions_train = URM_train_csr.getrow(user_id).count_nonzero()
+                interactions_test = URM_test_csr.getrow(user_id).count_nonzero()
                 if (interactions_val + interactions_train + interactions_test) < 10:
                     # TODO shift
                     print("AIUTO")
+
+            URM_val_csc = URM_val.tocsc()
+            URM_train_csc = URM_train.tocsc()
+            URM_test_csc = URM_test.tocsc()
+            for item_id in range(n_items):
+                interactions_val = URM_val_csc.getcol(item_id).count_nonzero()
+                interactions_train = URM_train_csc.getcol(item_id).count_nonzero()
+                interactions_test = URM_test_csc.getcol(item_id).count_nonzero()
+                if (interactions_val + interactions_train + interactions_test) < 10:
+                    # TODO shift
+                    print("AIUTO")
+
+
 
 
 
