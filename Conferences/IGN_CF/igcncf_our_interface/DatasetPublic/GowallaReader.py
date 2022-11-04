@@ -90,31 +90,34 @@ class GowallaReader(DataReader):
             n_users = 29858
 
             datas, rows, cols = adjacencyList2COO(dataset.val_data)
+            URM_val = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
-            M = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
+            datas, rows, cols = adjacencyList2COO(dataset.train_data)
+            URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
+            datas, rows, cols = adjacencyList2COO(dataset.test_data)
+            URM_test = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
-            URM_val = M
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_val = URM_val >= 4.0
+            URM_val_csr = URM_val.tocsr().toarray()
+            URM_train_csr = URM_train.tocsr().toarray()
+            URM_test_csr = URM_test.tocsr().toarray()
 
-            URM_val.eliminate_zeros()
-            for user_id in range(np.shape(URM_val)[0]):
-                start_pos = URM_val.tocsr().indptr[user_id]
-                end_pos = URM_val.tocsr().indptr[user_id + 1]
-                if sum(URM_val.tocsr().indices[start_pos:end_pos]) < 10:
-                    URM_val.tocsr().indices[start_pos:end_pos] = 0
-            URM_val.eliminate_zeros()
-            for item_id in range(np.shape(URM_val)[0]):
-                start_pos = URM_val.tocsc().indptr[item_id]
-                end_pos = URM_val.tocsc().indptr[item_id + 1]
-                if sum(URM_val.tocsc().indices[start_pos:end_pos]) < 10:
-                    URM_val.tocsc().indices[start_pos:end_pos] = 0
-            URM_val.eliminate_zeros()
+            for user_id in range(np.shape(URM_val_csr)[0]):
+                interactions_val = np.count_nonzero(URM_val_csr[user_id])
+                interactions_train = np.count_nonzero(URM_train_csr[user_id])
+                interactions_test = np.count_nonzero(URM_test_csr[user_id])
+                if (interactions_val + interactions_train + interactions_test) < 10:
+                    # TODO shift
+                    print("AIUTO")
+
+
+
+
 
             # Useless because we already have presplitted data select the data splitting that you need, almost certainly there already is a function that does the splitting
             #  in the way you need, if you are not sure, ask me via email
