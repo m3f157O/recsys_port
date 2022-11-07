@@ -6,16 +6,15 @@ Created on 08/11/18
 @author: Maurizio Ferrari Dacrema
 """
 import time
-
 from Data_manager.DataReader import DataReader
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
 
 from Recommenders.DataIO import DataIO
 import networkx
-from IGN_CFReader import *
 import gdown as gd
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 import os
 import numpy as np
@@ -42,7 +41,6 @@ class GowallaReader(DataReader):
         ##txt_to_csv("DatasetPublic/data/Amazon/time")
         try:
 
-            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -76,6 +74,9 @@ class GowallaReader(DataReader):
             # fix runtime config to comply with recsys_port README.md
             config[0][0]["path"] = '../../../Data_manager_split_datasets/Gowalla/time'
 
+            #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0} gowala
+            #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.0, 'feature_ratio': 1.0} amz
+            #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0}
             # DO Replace this with the publicly available dataset you need
             # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
 

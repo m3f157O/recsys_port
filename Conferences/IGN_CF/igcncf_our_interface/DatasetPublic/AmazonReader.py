@@ -11,8 +11,9 @@ from Data_manager.split_functions.split_train_validation_random_holdout import \
 
 from Recommenders.DataIO import DataIO
 
-from IGN_CFReader import *
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
+import gdown as gd
 from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 import numpy as np
@@ -41,138 +42,98 @@ class AmazonReader(DataReader):
 
         try:
 
-            raise FileNotFoundError
             print("AmazonReader: Attempting to load pre-splitted data")
 
+            ##attrib name is file name
+            ##attrib object is panda object
+
+            # all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                 self.__setattr__(attrib_name, attrib_object)
+                print(attrib_name, attrib_object)
 
 
         except FileNotFoundError:
 
-            super(GowallaReader, self).__init__()
+            print("AmazonReader: Pre-splitted data not found, building new one")
 
-            pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
+            print("AmazonReader: loading URM")
 
-            dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
+            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
+            output = "../../../Data_manager_split_datasets/dataset.zip"
 
-            # If directory does not exist, create
-            if not os.path.exists(pre_splitted_path):  ##avoid eventual crash if directory doesn't exist
-                os.makedirs(pre_splitted_path)
+            if os.path.isfile(output) != True:
+                gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
-            pre_splitted_filename = 'time.zip'
+            device, log_path = init_file_and_device()
 
-            ##txt_to_csv("DatasetPublic/data/Amazon/time")
-            try:
+            ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
+            ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
+            ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
+            config = get_gowalla_config(device)
 
-                raise FileNotFoundError
-                print("GowallaReader: Attempting to load pre-splitted data")
+            # fix runtime config to comply with recsys_port README.md
+            config[0][0]["path"] = '../../../Data_manager_split_datasets/Amazon/time'
 
-                ##attrib name is file name
-                ##attrib object is panda object
+            # DO Replace this with the publicly available dataset you need
+            # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
 
-                # all files should become like ./Gowalla/time.zip
-                for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
-                    self.__setattr__(attrib_name, attrib_object)
-                    print(attrib_name, attrib_object)
+            import zipfile
+            with zipfile.ZipFile("../../../Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
+                zip_ref.extractall("../../../Data_manager_split_datasets/")
 
+            dataset = acquire_dataset(log_path, config)
 
-            except FileNotFoundError:
+            from scipy import sparse
+            n_items = 96421
+            n_users = 109730
 
-                print("AmazonReader: Pre-splitted data not found, building new one")
+            print(max(dataset.test_data))
+            start = time.time()
 
-                print("AmazonReader: loading URM")
+            datas, rows, cols = adjacencyList2COO(dataset.test_data)
+            URM_test = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
-                url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-                output = "../../../Data_manager_split_datasets/dataset.zip"
+            datas, rows, cols = adjacencyList2COO(dataset.val_data)
+            URM_val = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
-                if os.path.isfile(output) != True:
-                    gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            datas, rows, cols = adjacencyList2COO(dataset.train_data)
+            URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
-                device, log_path = init_file_and_device()
+            # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
+            # we checked if the preprocessing is correct or not
+            # binarize the data (only keep ratings >= 4)
 
-                ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
-                ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
-                ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
-                config = get_gowalla_config(device)
+            end = time.time()
+            print(end - start)
 
-                # fix runtime config to comply with recsys_port README.md
-                config[0][0]["path"] = '../../../Data_manager_split_datasets/Amazon/time'
+            URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_val, URM_train, URM_test)
 
-                # DO Replace this with the publicly available dataset you need
-                # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
+            # Useless because we already have presplitted data select the data splitting that you need, almost certainly there already is a function that does the splitting
+            #  in the way you need, if you are not sure, ask me via email
+            # Split the data in train, validation and test
+            # URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
+            # URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
 
-                import zipfile
-                with zipfile.ZipFile("../../../Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-                    zip_ref.extractall("../../../Data_manager_split_datasets/")
+            # TODO get the sparse matrices in the correct dictionary with the correct name
+            # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
+            self.ICM_DICT = {}
+            self.UCM_DICT = {}
 
-                dataset = acquire_dataset(log_path, config)
+            self.URM_DICT = {
+                "URM_train": URM_train,
+                "URM_test": URM_test,
+                "URM_validation": URM_val,
+            }
 
-                from scipy import sparse
-                n_items = 40988
-                n_users = 29858
+            # You likely will not need to modify this part
+            data_dict_to_save = {
+                "ICM_DICT": self.ICM_DICT,
+                "UCM_DICT": self.UCM_DICT,
+                "URM_DICT": self.URM_DICT,
+            }
 
-                datas, rows, cols = adjacencyList2COO(dataset.val_data)
+            dataIO.save_data(pre_splitted_filename, data_dict_to_save=data_dict_to_save)
 
-                URM_val = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
+            print("AmazonReader: loading complete")
 
-                # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
-                # we checked if the preprocessing is correct or not
-                # binarize the data (only keep ratings >= 4)
-
-                URM_val = URM_val >= 4.0
-
-                start = time.time()
-                URM_train = dataset.train_data
-                URM_test = dataset.test_data
-                URM_val = sparse.csr_matrix(URM_val)
-                # URM_val.eliminate_zeros()
-                print(str(URM_val[0]))
-                for user_id in range(np.shape(URM_val)[0]):
-                    # interactions = URM_val[user_id]
-                    # start_pos = np.count_nonzero(interactions)
-                    print("STARTPOS" + str(start_pos))
-                    # summation = sum(URM_val.tocsr().indices[start_pos:end_pos])
-                    # sum += sum(URM_val.tocsr().indices[start_pos:end_pos])
-
-                    # if sum(URM_val.tocsr().indices[start_pos:end_pos]) < 10:
-                    # print(summation)
-                    # URM_val.tocsr().indices[start_pos:end_pos] = 0
-                URM_val.eliminate_zeros()
-                # for item_id in range(np.shape(URM_val)[0]):
-                #    start_pos = URM_val.tocsc().indptr[item_id]
-                #    end_pos = URM_val.tocsc().indptr[item_id + 1]
-                #    if sum(URM_val.tocsc().indices[start_pos:end_pos]) < 10:
-                #        URM_val.tocsc().indices[start_pos:end_pos] = 0
-                # URM_val.eliminate_zeros()
-
-                end = time.time()
-                print(end - start)
-
-                # Useless because we already have presplitted data select the data splitting that you need, almost certainly there already is a function that does the splitting
-                #  in the way you need, if you are not sure, ask me via email
-                # Split the data in train, validation and test
-                # URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
-                # URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
-
-                # TODO get the sparse matrices in the correct dictionary with the correct name
-                # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
-                self.ICM_DICT = {}
-                self.UCM_DICT = {}
-
-                self.URM_DICT = {
-                    "URM_train": dataset.train_data,
-                    "URM_test": dataset.test_data,
-                    "URM_validation": dataset.val_data,
-                }
-
-                # You likely will not need to modify this part
-                data_dict_to_save = {
-                    "ICM_DICT": self.ICM_DICT,
-                    "UCM_DICT": self.UCM_DICT,
-                    "URM_DICT": self.URM_DICT,
-                }
-
-                dataIO.save_data(pre_splitted_filename, data_dict_to_save=data_dict_to_save)
-
-                print("AmazonReader: loading complete")
