@@ -13,13 +13,13 @@ from Recommenders.Incremental_Training_Early_Stopping import Incremental_Trainin
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
 
+import torch
 import numpy as np
 import tensorflow as tf
 import os, shutil
 import scipy.sparse as sps
 
-from Conferences.CIKM.ExampleAlgorithm_github.main import get_model
-
+from model import get_model
 
 
 # Done replace the recommender class name with the correct one
@@ -30,11 +30,22 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
 
     def __init__(self, URM_train, ICM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        ICM_train = BaseItemCBFRecommender(URM_train, ICM_train).ICM_train
+        # ICM_train = BaseItemCBFRecommender(URM_train, ICM_train).ICM_train
         super(IGN_CF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
 
         # This is used in _compute_item_score
-        self._item_indices = np.arange(0, self.n_items, dtype=np.int)
+        #self._item_indices = np.arange(0, self.n_items, dtype=np.int)
+
+    def test(self):
+        # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
+        # ICM_train = BaseItemCBFRecommender(URM_train, ICM_train).ICM_train
+        self._init_model()
+        device = torch.device('cpu')
+        model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3, 'feature_ratio': 1.0}
+        get_model(model_config,)
+
+        # This is used in _compute_item_score
+        #self._item_indices = np.arange(0, self.n_items, dtype=np.int)
 
 
     def _compute_item_score(self, user_id_array, items_to_compute=None):
@@ -87,26 +98,17 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         :return:
         """
 
-        tf.reset_default_graph()
+        #tf.reset_default_graph()
 
         # TODO Instantiate the model
+        # TODO GRAB dataset address
+        # TODO steal CORRECT MODEL CONFIG (config[2][1])
+        # todo call get model with hardcoded stuff ;)
         # Always clear the default graph if using tehsorflow
 
 
 
-        self.model = get_model(num_users = self.n_users,
-                          num_items = self.n_items,
-                          num_factors=num_factors,
-                          params=self._params,
-                          input_dim = input_dim,
-                          dims=dimensions_vae,
-                          n_z=num_factors,
-                          activations=activations,
-                          loss_type='cross-entropy',
-                          lr=learning_rate_cvae,
-                          random_seed=random_seed,
-                          print_step=10,
-                          verbose=False)
+
 
 
 

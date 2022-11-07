@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YeldReader
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YelpReader
 from Data_manager.Yelp.YelpReader import YelpReader
 
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
@@ -44,17 +44,21 @@ def read_data_split_and_search(dataset_name,
     #  The two datareaders correspond to two examples, CiteULike as an example of dataset provided int the original repository
     #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
     #  already available in this repository could be used
+
     log_path = __file__[:-3]
     init_run(log_path, 2021)
     device = torch.device('cpu')
 
-    pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
+    #pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
 
     if dataset_name == "yelp":
+        pre_splitted_path = "DatasetPublic/data/Yelp/"
         dataset = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
+        pre_splitted_path = "DatasetPublic/data/Amazon/"
         dataset = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
+        pre_splitted_path = "DatasetPublic/data/Gowalla/"
         dataset = GowallaReader(pre_splitted_path)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
@@ -292,7 +296,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["yelp", "gowalla", "amazon-book"]
+    dataset_list = ["yelp","gowalla", "amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

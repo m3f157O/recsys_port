@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import scipy.sparse as sp
 import numpy as np
+#from Conferences.IGN_CF.igcncf_github.utils import get_sparse_tensor, graph_rank_nodes, generate_daj_mat  //TODO BROKEN DEPENDENCY
 from utils import get_sparse_tensor, graph_rank_nodes, generate_daj_mat
 from torch.nn.init import kaiming_uniform_, xavier_normal, normal_, zeros_, ones_
 import sys
