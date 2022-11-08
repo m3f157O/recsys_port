@@ -25,7 +25,7 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
 
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "IGN_CF_RecommenderWrapper"
-
+    dataset_hold = []
     def __init__(self, URM_train, ICM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
         super(IGN_CF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
@@ -89,18 +89,14 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         # Done call get model with hardcoded stuff ;)
         device = torch.device('cpu')
         model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,'feature_ratio': 1.0}
-        get_model(model_config, self.dataset)
-        #tf.reset_default_graph()
+        get_model(model_config, self.dataset_original)
 
-        # TODO Instantiate the model
-        # TODO GRAB dataset address
-        # TODO steal CORRECT MODEL CONFIG (config[2][1])
-        # todo call get model with hardcoded stuff ;)
-        # Always clear the default graph if using tehsorflow
-
-
-
-
+    def set_original_data(self):
+        """
+        This function instantiates the model, it should only rely on attributes and not function parameters
+        It should be used both in the fit function and in the load_model function
+        :return:
+        """
 
 
 

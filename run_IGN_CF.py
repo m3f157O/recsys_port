@@ -13,11 +13,7 @@ from Utils.ResultFolderLoader import ResultFolderLoader
 
 from Conferences.IGN_CF.igcncf_github.utils import init_run
 
-from dataset import get_dataset
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 import torch
-from tensorboardX import SummaryWriter
-import sys
 
 from functools import partial
 import numpy as np
@@ -25,6 +21,40 @@ import os, traceback, argparse, multiprocessing
 
 from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
+
+""""
+    Class to build the dataset with the sparse matrices taken by the IGN_CFReader
+"""
+class OriginalDataset:
+    def __init__(self, train, validation, test):
+        self.train = train
+        self.validation = validation
+        self.test = test
+
+""""
+    Convert a sparse matrix to an adjacent list
+"""
+def from_matrix_to_adjlist(matrix):
+    list = []
+    column = (matrix.col).copy()
+    row = (matrix.row).copy()
+    number_users = np.unique(column)
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        items = items_to_add
+        column = column[count:]
+        list.append(items)
+    return list
+
+""""
+    Converts each matrix to a adjacent list
+"""
+def create_dataset(URM_train, URM_validation, URM_test):
+    train_adjlist = from_matrix_to_adjlist(URM_train)
+    validation_adjlist = from_matrix_to_adjlist(URM_validation)
+    test_adjlist = from_matrix_to_adjlist(URM_test)
+    return train_adjlist, validation_adjlist, test_adjlist
 
 
 def read_data_split_and_search(dataset_name,
@@ -66,6 +96,10 @@ def read_data_split_and_search(dataset_name,
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
     URM_test = dataset.URM_DICT["URM_test"].copy()
+
+    dataset_train, dataset_validation, dataset_test = create_dataset(URM_train, URM_validation, URM_test)
+
+    original_dataset = OriginalDataset(train=dataset_train, validation=dataset_validation, test=dataset_test)
 
     URM_train_last_test = URM_train + URM_validation
 
