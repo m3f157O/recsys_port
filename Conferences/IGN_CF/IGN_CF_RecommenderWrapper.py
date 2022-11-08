@@ -30,7 +30,6 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
 
     def __init__(self, URM_train, ICM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        # ICM_train = BaseItemCBFRecommender(URM_train, ICM_train).ICM_train
         super(IGN_CF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
 
         # This is used in _compute_item_score
@@ -97,7 +96,13 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         It should be used both in the fit function and in the load_model function
         :return:
         """
-
+        # TODO Instantiate the model
+        # TODO GRAB dataset address
+        # Done steal CORRECT MODEL CONFIG (config[2][1])
+        # Done call get model with hardcoded stuff ;)
+        device = torch.device('cpu')
+        model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,'feature_ratio': 1.0}
+        get_model(model_config, self.dataset)
         #tf.reset_default_graph()
 
         # TODO Instantiate the model

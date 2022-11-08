@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from Conferences.IGN_CF.IGN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YelpReader
@@ -21,11 +22,6 @@ import sys
 from functools import partial
 import numpy as np
 import os, traceback, argparse, multiprocessing
-
-from Conferences.CIKM.ExampleAlgorithm_our_interface.ExampleDatasetProvided.CiteulikeReader import CiteulikeReader
-from Conferences.CIKM.ExampleAlgorithm_our_interface.ExampleDatasetPublic.Movielens20MReader import Movielens20MReader
-
-from Conferences.CIKM.ExampleAlgorithm_our_interface.Example_RecommenderWrapper import Example_RecommenderWrapper
 
 from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
@@ -149,7 +145,7 @@ def read_data_split_and_search(dataset_name,
             # evaluator_test.evaluateRecommender(recommender_instance)
 
             # Fit the DL model, select the optimal number of epochs and save the result
-            hyperparameterSearch = SearchSingleCase(Example_RecommenderWrapper,
+            hyperparameterSearch = SearchSingleCase(IGN_CF_RecommenderWrapper,
                                                     evaluator_validation=evaluator_validation_earlystopping,
                                                     evaluator_test=evaluator_test)
 
@@ -172,7 +168,7 @@ def read_data_split_and_search(dataset_name,
                                         metric_to_optimize=metric_to_optimize,
                                         cutoff_to_optimize=cutoff_to_optimize,
                                         output_folder_path=model_folder_path,
-                                        output_file_name_root=Example_RecommenderWrapper.RECOMMENDER_NAME,
+                                        output_file_name_root=IGN_CF_RecommenderWrapper.RECOMMENDER_NAME,
                                         resume_from_saved=resume_from_saved,
                                         save_model="best",
                                         evaluate_on_test="best",
@@ -182,7 +178,7 @@ def read_data_split_and_search(dataset_name,
 
         except Exception as e:
 
-            print("On recommender {} Exception {}".format(Example_RecommenderWrapper, str(e)))
+            print("On recommender {} Exception {}".format(IGN_CF_RecommenderWrapper, str(e)))
             traceback.print_exc()
 
     ################################################################################################
