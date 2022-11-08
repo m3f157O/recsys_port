@@ -28,7 +28,7 @@ class GowallaReader(DataReader):
 
         super(GowallaReader, self).__init__()
 
-        pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
+        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -59,7 +59,7 @@ class GowallaReader(DataReader):
             print("GowallaReader: loading URM")
 
             url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "../../../Data_manager_split_datasets/dataset.zip"
+            output = "Data_manager_split_datasets/dataset.zip"
 
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
@@ -72,7 +72,7 @@ class GowallaReader(DataReader):
             config = get_gowalla_config(device)
 
             # fix runtime config to comply with recsys_port README.md
-            config[0][0]["path"] = '../../../Data_manager_split_datasets/Gowalla/time'
+            config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
             #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0} gowala
             #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.0, 'feature_ratio': 1.0} amz
@@ -81,8 +81,8 @@ class GowallaReader(DataReader):
             # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
 
             import zipfile
-            with zipfile.ZipFile("../../../Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-                zip_ref.extractall("../../../Data_manager_split_datasets/")
+            with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
+                zip_ref.extractall("Data_manager_split_datasets/")
 
             dataset = acquire_dataset(log_path, config)
 

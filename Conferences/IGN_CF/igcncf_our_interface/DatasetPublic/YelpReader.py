@@ -29,7 +29,7 @@ class YelpReader(object):
 
         super(YelpReader, self).__init__()
 
-        pre_splitted_path = "DatasetPublic/data/Yelp/"  ##local path, as described in recsys_port README.md
+        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"  ##local path, as described in recsys_port README.md
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -39,8 +39,8 @@ class YelpReader(object):
 
         pre_splitted_filename = 'time.zip'
 
+        print("YelpReader: Attempting to load pre-splitted data")
         try:
-
             print("YelpReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -60,7 +60,7 @@ class YelpReader(object):
             print("YelpReader: loading URM")
 
             url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "../../../Data_manager_split_datasets/dataset.zip"
+            output = "Data_manager_split_datasets/dataset.zip"
 
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
@@ -73,14 +73,14 @@ class YelpReader(object):
             config = get_gowalla_config(device)
 
             # fix runtime config to comply with recsys_port README.md
-            config[0][0]["path"] = '../../../Data_manager_split_datasets/Yelp/time'
+            config[0][0]["path"] = "Data_manager_split_datasets/Yelp/time"
 
             # DO Replace this with the publicly available dataset you need
             # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
 
             import zipfile
-            with zipfile.ZipFile("../../../Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-                zip_ref.extractall("../../../Data_manager_split_datasets/")
+            with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
+                zip_ref.extractall("Data_manager_split_datasets/")
 
             dataset = acquire_dataset(log_path, config)
 

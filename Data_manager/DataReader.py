@@ -60,7 +60,7 @@ class DataReader(object):
         self.DATASET_SPLIT_ROOT_FOLDER = os.path.join(os.path.dirname(__file__), '..', self.__DATASET_SPLIT_SUBFOLDER)
         self.DATASET_OFFLINE_ROOT_FOLDER = os.path.join(os.path.dirname(__file__), '..', self.__DATASET_OFFLINE_SUBFOLDER)
 
-        self.reload_from_original_data = reload_from_original_data
+        self.reload_from_original_data = False
         if self.reload_from_original_data:
             self._print("reload_from_original_data is True, previously loaded data will be ignored")
 

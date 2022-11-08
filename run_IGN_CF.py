@@ -3,7 +3,6 @@
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YelpReader
-from Data_manager.Yelp.YelpReader import YelpReader
 
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
@@ -296,7 +295,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["yelp","gowalla", "amazon-book"]
+    dataset_list = ["gowalla"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
