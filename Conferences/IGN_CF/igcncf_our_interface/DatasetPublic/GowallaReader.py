@@ -114,8 +114,8 @@ class GowallaReader(DataReader):
             # URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
             # URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
 
-            # TODO get the sparse matrices in the correct dictionary with the correct name
-            # TODO ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
+            # Done get the sparse matrices in the correct dictionary with the correct name
+            # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case
             self.ICM_DICT = {}
             self.UCM_DICT = {}
 
