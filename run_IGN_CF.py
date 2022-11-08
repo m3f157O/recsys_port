@@ -44,7 +44,7 @@ def read_data_split_and_search(dataset_name,
     init_run(log_path, 2021)
     device = torch.device('cpu')
 
-    #pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
+    # pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
 
     if dataset_name == "yelp":
         pre_splitted_path = "DatasetPublic/data/Yelp/"
@@ -58,8 +58,6 @@ def read_data_split_and_search(dataset_name,
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
-
-
 
     # print(dataset)
 
@@ -137,7 +135,8 @@ def read_data_split_and_search(dataset_name,
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
-            # recommender_instance = Example_RecommenderWrapper(URM_train)
+            recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
+            IGN_CF_RecommenderWrapper.set_original_data(original_dataset)
             #
             # recommender_instance.fit(**article_hyperparameters,
             #                          **earlystopping_hyperparameters)
@@ -271,6 +270,7 @@ def read_data_split_and_search(dataset_name,
         result_loader.generate_latex_time_statistics(result_folder_path + "{}_latex_results.txt".format("time"),
                                                      n_evaluation_users=n_test_users,
                                                      table_title=None)
+
 
 if __name__ == '__main__':
 

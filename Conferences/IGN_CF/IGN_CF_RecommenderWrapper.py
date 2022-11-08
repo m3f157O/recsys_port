@@ -8,7 +8,6 @@ Created on 18/12/18
 
 
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
-from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
@@ -16,7 +15,6 @@ from Recommenders.DataIO import DataIO
 import torch
 import numpy as np
 import tensorflow as tf
-import os, shutil
 import scipy.sparse as sps
 
 from model import get_model
@@ -33,18 +31,7 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         super(IGN_CF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
 
         # This is used in _compute_item_score
-        #self._item_indices = np.arange(0, self.n_items, dtype=np.int)
-
-    def test(self):
-        # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        # ICM_train = BaseItemCBFRecommender(URM_train, ICM_train).ICM_train
-        self._init_model()
-        device = torch.device('cpu')
-        model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3, 'feature_ratio': 1.0}
-        get_model(model_config,)
-
-        # This is used in _compute_item_score
-        #self._item_indices = np.arange(0, self.n_items, dtype=np.int)
+        self._item_indices = np.arange(0, self.n_items, dtype=np.int)
 
 
     def _compute_item_score(self, user_id_array, items_to_compute=None):
