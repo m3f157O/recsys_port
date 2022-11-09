@@ -91,6 +91,18 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,'feature_ratio': 1.0}
         get_model(model_config, self.dataset_original)
 
+        ##todo not sure but probably dataset original should be of type <class 'Conferences.IGN_CF.igcncf_github.dataset.ProcessedDataset'>
+        ##train_array = np.array(dataset.train_array)
+        ##users, items = train_array[:, 0], train_array[:, 1]
+        ##row = np.concatenate([users, items + dataset.n_users], axis=0)
+        ##column = np.concatenate([items + dataset.n_users, users], axis=0)
+        ##adj_mat = sp.coo_matrix((np.ones(row.shape), np.stack([row, column], axis=0)),
+        ##                        shape=(dataset.n_users + dataset.n_items, dataset.n_users + dataset.n_items),
+        ##                        dtype=np.float32).tocsr()
+        ##  todo the dataset is needed for its attribute "train_array" and n_users, n_items
+        ##  todo train_array is a stupid coo row+col -> go in gowalla and test the build_train_array from the freshly generated COO matrix
+        ##  todo for n items and n users its just stupid 
+        ##  return adj_mat
     def set_original_data(self):
         """
         This function instantiates the model, it should only rely on attributes and not function parameters
