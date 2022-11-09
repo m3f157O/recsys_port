@@ -53,6 +53,7 @@ def adjacencyList2COO(toCOOarray):
     return datas, rows, cols
 
 def preprocessing(n_users, n_items,URM_val,URM_train,URM_test):
+
     items_train = (URM_train.col).copy()
     users_train = (URM_train.row).copy()
     items_val = (URM_val.col).copy()
