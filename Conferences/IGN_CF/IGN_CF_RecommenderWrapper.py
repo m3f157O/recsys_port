@@ -158,6 +158,8 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         self._params.n_epochs = epochs
 
 
+
+
         # These are the train instances as a list of lists
         # The following code processed the URM into the data structure the model needs to train
         self._train_users = []
