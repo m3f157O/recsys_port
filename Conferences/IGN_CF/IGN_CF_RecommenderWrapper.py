@@ -148,6 +148,7 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
 
 
         self._params = Params()
+
         self._params.lambda_u = lambda_u
         self._params.lambda_v = lambda_v
         self._params.lambda_r = lambda_r
