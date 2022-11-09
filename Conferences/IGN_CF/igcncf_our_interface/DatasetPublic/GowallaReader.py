@@ -89,7 +89,6 @@ class GowallaReader(DataReader):
 
             dataset = acquire_dataset(log_path, config)
 
-            from scipy import sparse
             n_items = 40988
             n_users = 29858
 

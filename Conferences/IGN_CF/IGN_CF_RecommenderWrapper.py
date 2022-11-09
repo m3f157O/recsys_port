@@ -5,7 +5,7 @@ Created on 18/12/18
 
 @author: Maurizio Ferrari Dacrema
 """
-
+import logging
 
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
@@ -17,6 +17,7 @@ import numpy as np
 import tensorflow as tf
 import scipy.sparse as sps
 
+from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommender
 from model import get_model
 
 
@@ -28,7 +29,7 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
     dataset_hold = []
     def __init__(self, URM_train, ICM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        super(IGN_CF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
+        super(IGN_CF_RecommenderWrapper, self).__init__(URM_train)
 
         # This is used in _compute_item_score
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
@@ -43,7 +44,6 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         # In order to compute the prediction the model may need a Session. The session is an attribute of this Wrapper.
         # There are two possible scenarios for the creation of the session: at the beginning of the fit function (training phase)
         # or at the end of the fit function (before loading the best model, testing phase)
-
         # Do not modify this
         # Create the full data structure that will contain the item scores
         item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
@@ -103,7 +103,7 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
     def fit(self,
             epochs = 100,
 
-            # TODO replace those hyperparameters with the ones you need
+            # TODO replace those hyperparameters with the ones you need --> CHIEDI
             learning_rate_vae = 1e-2,
             learning_rate_cvae = 1e-3,
             num_factors = 50,
@@ -130,6 +130,7 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         # TODO replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
+
 
         # The following code contains various operations needed by another wrapper
 
