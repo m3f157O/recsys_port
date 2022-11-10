@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from Conferences.IGN_CF.IGN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
+from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import init_file_and_device, acquire_dataset
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YelpReader
 
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
@@ -170,8 +172,9 @@ def read_data_split_and_search(dataset_name,
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
-            #recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
-            IGN_CF_RecommenderWrapper.set_original_data(original_dataset)
+            recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
+            IGN_CF_RecommenderWrapper.create_dataset(recommender_instance, dataset_original)
+
             #
             # recommender_instance.fit(**article_hyperparameters,
             #                          **earlystopping_hyperparameters)
@@ -248,8 +251,8 @@ def read_data_split_and_search(dataset_name,
         ]
 
         model_cases_list = _get_model_list_given_dataset(recommender_class_list, KNN_similarity_to_report_list,
-                                                         dataset.ICM_DICT,
-                                                         dataset.UCM_DICT)
+                                                         dataset_reader.ICM_DICT,
+                                                         dataset_reader.UCM_DICT)
 
         _optimize_single_model_partial = partial(_optimize_single_model,
                                                  URM_train=URM_train,
@@ -285,8 +288,8 @@ def read_data_split_and_search(dataset_name,
                                            base_algorithm_list=None,
                                            other_algorithm_list=None,
                                            KNN_similarity_list=KNN_similarity_to_report_list,
-                                           ICM_names_list=dataset.ICM_DICT.keys(),
-                                           UCM_names_list=dataset.UCM_DICT.keys(),
+                                           ICM_names_list=dataset_reader.ICM_DICT.keys(),
+                                           UCM_names_list=dataset_reader.UCM_DICT.keys(),
                                            )
 
         result_loader.generate_latex_results(result_folder_path + "{}_latex_results.txt".format("accuracy_metrics"),
