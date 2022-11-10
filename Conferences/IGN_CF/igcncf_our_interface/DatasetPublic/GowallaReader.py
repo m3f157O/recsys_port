@@ -6,6 +6,8 @@ Created on 08/11/18
 @author: Maurizio Ferrari Dacrema
 """
 import time
+
+from Conferences.IGN_CF.igcncf_github.dataset import ProcessedDataset
 from Data_manager.DataReader import DataReader
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
@@ -40,7 +42,6 @@ class GowallaReader(DataReader):
 
         ##txt_to_csv("DatasetPublic/data/Amazon/time")
         try:
-            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
