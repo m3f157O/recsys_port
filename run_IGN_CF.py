@@ -169,8 +169,8 @@ def read_data_split_and_search(dataset_name,
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
-            #recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
-            IGN_CF_RecommenderWrapper.set_original_data(original_dataset)
+            recommender_instance = IGN_CF_RecommenderWrapper(URM_train,[])
+            IGN_CF_RecommenderWrapper.set_original_data(recommender_instance,original_dataset)
             #
             # recommender_instance.fit(**article_hyperparameters,
             #                          **earlystopping_hyperparameters)

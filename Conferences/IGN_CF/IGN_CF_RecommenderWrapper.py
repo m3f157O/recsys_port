@@ -91,12 +91,13 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,'feature_ratio': 1.0}
         get_model(model_config, self.dataset_original)
 
-    def set_original_data(self):
+    def set_original_data(self,OriginalDataset):
         """
         This function instantiates the model, it should only rely on attributes and not function parameters
         It should be used both in the fit function and in the load_model function
         :return:
         """
+        #todo set original data variable to be used in init model ecc.
 
 
 
