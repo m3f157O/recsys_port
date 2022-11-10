@@ -70,7 +70,9 @@ class AmazonReader(DataReader):
             ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
             ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
             ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
-            config = get_gowalla_config(device)
+            # TODO
+            print("Correct Amazon Config")
+            config = get_amazon_config(device)
 
             # fix runtime config to comply with recsys_port README.md
             config[0][0]["path"] = 'Data_manager_split_datasets/Amazon/time'

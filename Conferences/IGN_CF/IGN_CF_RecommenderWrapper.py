@@ -7,7 +7,9 @@ Created on 18/12/18
 """
 import logging
 
+from Conferences.IGN_CF.igcncf_github.dataset import ProcessedDataset
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
+from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
@@ -22,12 +24,13 @@ from model import get_model
 
 
 # Done replace the recommender class name with the correct one
-class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
-
+class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_Training_Early_Stopping,
+                                BaseTempFolder):
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "IGN_CF_RecommenderWrapper"
-    dataset_hold = []
-    def __init__(self, URM_train, ICM_train):
+    dataset = []
+
+    def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
         super(IGN_CF_RecommenderWrapper, self).__init__(URM_train)
 
@@ -36,14 +39,15 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
 
 
     def _compute_item_score(self, user_id_array, items_to_compute=None):
-        # TODO if the model in the end is either a matrix factorization algorithm or an ItemKNN/UserKNN
-        #  you can have this class inherit from BaseMatrixFactorization, BaseItemSimilarityMatrixRecommender
+        #  Done if the model in the end is either a matrix factorization algorithm (INMO USES MF)
+        #  Done you can have this class inherit from BaseMatrixFactorization, BaseItemSimilarityMatrixRecommender
         #  or BaseUSerSimilarityMatrixRecommender
-        #  in which case you do not have to re-implement this function, you only need to set the
+        #  Done in which case you do not have to re-implement this function, you only need to set the
         #  USER_factors, ITEM_factors (see PureSVD) or W_Sparse (see ItemKNN) data structures in the FIT function
         # In order to compute the prediction the model may need a Session. The session is an attribute of this Wrapper.
         # There are two possible scenarios for the creation of the session: at the beginning of the fit function (training phase)
         # or at the end of the fit function (before loading the best model, testing phase)
+
         # Do not modify this
         # Create the full data structure that will contain the item scores
         item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
@@ -83,32 +87,23 @@ class IGN_CF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Ear
         It should be used both in the fit function and in the load_model function
         :return:
         """
-        # TODO Instantiate the model
-        # TODO GRAB dataset address
         # Done steal CORRECT MODEL CONFIG (config[2][1])
         # Done call get model with hardcoded stuff ;)
-        device = torch.device('cpu')
-        model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,'feature_ratio': 1.0}
-        get_model(model_config, self.dataset_original)
+        self.dataset = dataset_original
 
-        ##todo not sure but probably dataset original should be of type <class 'Conferences.IGN_CF.igcncf_github.dataset.ProcessedDataset'>
-        ##train_array = np.array(dataset.train_array)
-        ##users, items = train_array[:, 0], train_array[:, 1]
-        ##row = np.concatenate([users, items + dataset.n_users], axis=0)
-        ##column = np.concatenate([items + dataset.n_users, users], axis=0)
-        ##adj_mat = sp.coo_matrix((np.ones(row.shape), np.stack([row, column], axis=0)),
-        ##                        shape=(dataset.n_users + dataset.n_items, dataset.n_users + dataset.n_items),
-        ##                        dtype=np.float32).tocsr()
-        ##  todo the dataset is needed for its attribute "train_array" and n_users, n_items
-        ##  todo train_array is a stupid coo row+col -> go in gowalla and test the build_train_array from the freshly generated COO matrix
-        ##  todo for n items and n users its just stupid 
-        ##  return adj_mat
-    def set_original_data(self):
-        """
-        This function instantiates the model, it should only rely on attributes and not function parameters
-        It should be used both in the fit function and in the load_model function
-        :return:
-        """
+
+
+    """
+    This function instantiates the model, it should only rely on attributes and not function parameters
+    It should be used both in the fit function and in the load_model function
+    :return:
+     """
+    def _init_model(self):
+        device = torch.device('cpu')
+        model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,
+                        'feature_ratio': 1.0}
+        get_model(model_config, self.dataset)
+
 
 
 

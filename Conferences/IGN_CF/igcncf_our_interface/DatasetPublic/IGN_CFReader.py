@@ -10,6 +10,8 @@ import scipy.sparse as sp
 import time
 
 ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
+
+
 def init_file_and_device():
     log_path = __file__[:-3]
     init_run(log_path, 2021)

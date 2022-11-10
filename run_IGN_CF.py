@@ -25,11 +25,6 @@ from Utils.assertions_on_data_for_experiments import assert_implicit_data, asser
 """"
     Class to build the dataset with the sparse matrices taken by the IGN_CFReader
 """
-class OriginalDataset:
-    def __init__(self, train, validation, test):
-        self.train = train
-        self.validation = validation
-        self.test = test
 
 """"
     Convert a sparse matrix to an adjacent list
@@ -76,30 +71,33 @@ def read_data_split_and_search(dataset_name,
 
     # pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
 
+
     if dataset_name == "yelp":
         pre_splitted_path = "DatasetPublic/data/Yelp/"
-        dataset = YelpReader(pre_splitted_path)
+        dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
         pre_splitted_path = "DatasetPublic/data/Amazon/"
-        dataset = AmazonReader(pre_splitted_path)
+        dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
         pre_splitted_path = "DatasetPublic/data/Gowalla/"
-        dataset = GowallaReader(pre_splitted_path)
+        dataset_reader = GowallaReader(pre_splitted_path)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
 
     # print(dataset)
 
-    # print('Current dataset is: {}'.format(dataset_name))
+    device, log_path = init_file_and_device()
+    config = get_gowalla_config(device)
+    config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
-    URM_train = dataset.URM_DICT["URM_train"].copy()
-    URM_validation = dataset.URM_DICT["URM_validation"].copy()
-    URM_test = dataset.URM_DICT["URM_test"].copy()
+    # dataset_original must be passed to the model due to strong coupling between dataset and model,
+    dataset_original = acquire_dataset(log_path, config)
 
-    dataset_train, dataset_validation, dataset_test = create_dataset(URM_train, URM_validation, URM_test)
-
-    original_dataset = OriginalDataset(train=dataset_train, validation=dataset_validation, test=dataset_test)
+    # fix runtime config to comply with recsys_port README.md
+    URM_train = dataset_reader.URM_DICT["URM_train"].copy()
+    URM_validation = dataset_reader.URM_DICT["URM_validation"].copy()
+    URM_test = dataset_reader.URM_DICT["URM_test"].copy()
 
     URM_train_last_test = URM_train + URM_validation
 
@@ -166,6 +164,9 @@ def read_data_split_and_search(dataset_name,
                                              "evaluator_object": evaluator_validation_earlystopping,
                                              "validation_metric": metric_to_optimize,
                                              }
+
+
+
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
