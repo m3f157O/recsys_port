@@ -60,7 +60,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Create the full data structure that will contain the item scores
         # item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
         item_scores = super()._compute_item_score(user_id_array, items_to_compute)
-
+        self.USER_factors
         if items_to_compute is not None:
             item_indices = items_to_compute
         else:
