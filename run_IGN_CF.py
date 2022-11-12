@@ -23,6 +23,7 @@ import os, traceback, argparse, multiprocessing
 
 from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
+from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 """"
     Class to build the dataset with the sparse matrices taken by the IGN_CFReader
@@ -31,6 +32,12 @@ from Utils.assertions_on_data_for_experiments import assert_implicit_data, asser
 """"
     Convert a sparse matrix to an adjacent list
 """
+
+class DatasetOriginal():
+    train_array = []
+    device = torch.device('cpu')
+    n_items = 0
+    n_users = 0
 def from_matrix_to_adjlist(matrix):
     list = []
     column = (matrix.col).copy()
@@ -67,21 +74,17 @@ def read_data_split_and_search(dataset_name,
     #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
     #  already available in this repository could be used
 
-    log_path = __file__[:-3]
-    init_run(log_path, 2021)
-    device = torch.device('cpu')
 
-    # pre_splitted_path = "DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
 
 
     if dataset_name == "yelp":
-        pre_splitted_path = "DatasetPublic/data/Yelp/"
+        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"
         dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
-        pre_splitted_path = "DatasetPublic/data/Amazon/"
+        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Amazom/"
         dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
-        pre_splitted_path = "DatasetPublic/data/Gowalla/"
+        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Gowalla/"
         dataset_reader = GowallaReader(pre_splitted_path)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
@@ -89,12 +92,8 @@ def read_data_split_and_search(dataset_name,
 
     # print(dataset)
 
-    device, log_path = init_file_and_device()
-    config = get_gowalla_config(device)
-    config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
-    # dataset_original must be passed to the model due to strong coupling between dataset and model,
-    dataset_original = acquire_dataset(log_path, config)
+
 
     # fix runtime config to comply with recsys_port README.md
     URM_train = dataset_reader.URM_DICT["URM_train"].copy()
@@ -169,15 +168,25 @@ def read_data_split_and_search(dataset_name,
 
 
 
+            ##todo fix this
+            device, log_path = init_file_and_device()
+            config = get_gowalla_config(device)
+            config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
+            # dataset_original must be passed to the model due to strong coupling between dataset and model,
+            dataset_original = acquire_dataset(log_path, config)
+
+            print(URM_train.shape)
+            print(URM_train.row)
+            print(URM_train.col)
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
             recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
             IGN_CF_RecommenderWrapper.create_dataset(recommender_instance, dataset_original)
-
+            recommender_instance.fit()
             #
             # recommender_instance.fit(**article_hyperparameters,
-            #                          **earlystopping_hyperparameters)
+            #                          **earlystopping_hyperparameters)9
             #
             # evaluator_test.evaluateRecommender(recommender_instance)
 

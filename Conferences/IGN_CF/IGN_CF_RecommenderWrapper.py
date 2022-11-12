@@ -22,6 +22,14 @@ import scipy.sparse as sps
 from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommender
 from model import get_model
 
+class Params():
+    lambda_u = 0
+    lambda_v = 0
+    lambda_r = 0
+    a = 0
+    b = 0
+    M = 0
+    n_epochs = 0
 
 # Done replace the recommender class name with the correct one
 class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_Training_Early_Stopping,
@@ -100,7 +108,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         device = torch.device('cpu')
         model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,
                         'feature_ratio': 1.0}
-        print(get_model(model_config, self.dataset))
+        self.model = get_model(model_config, self.dataset)
+        print(self.model)
 
 
     def fit(self,
@@ -142,7 +151,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self._params.b = b
         self._params.M = M
         self._params.n_epochs = epochs
-
         # These are the train instances as a list of lists
         # The following code processed the URM into the data structure the model needs to train
         self._train_users = []
@@ -169,8 +177,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self.URM_train = sps.csr_matrix(self.URM_train)
 
-        self._init_model()
-
         # TODO Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
         self.sess.close()
@@ -180,7 +186,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         ### This is a standard training with early stopping part, most likely you won't need to change it
 
         self._update_best_model()
-
+        print("[!][!][!] STARTING TRAINING WITH EARLY STOPPING [!][!][!]")
         self._train_with_early_stopping(epochs,
                                         algorithm_name=self.RECOMMENDER_NAME,
                                         **earlystopping_kwargs)

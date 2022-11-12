@@ -20,7 +20,7 @@ from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import a
 
 import os
 import numpy as np
-
+import scipy.sparse as sparse
 
 class GowallaReader(DataReader):
     URM_DICT = {}
@@ -30,7 +30,6 @@ class GowallaReader(DataReader):
 
         super(GowallaReader, self).__init__()
 
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Gowalla/"  ##local path, as described in recsys_port README.md
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -50,7 +49,6 @@ class GowallaReader(DataReader):
             # all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                 self.__setattr__(attrib_name, attrib_object)
-                print(attrib_name, attrib_object)
 
 
         except FileNotFoundError:
@@ -101,7 +99,6 @@ class GowallaReader(DataReader):
 
             datas, rows, cols = adjacencyList2COO(dataset.test_data)
             URM_test = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
-
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not

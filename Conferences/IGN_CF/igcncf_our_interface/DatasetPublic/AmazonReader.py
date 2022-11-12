@@ -30,7 +30,6 @@ class AmazonReader(DataReader):
 
         super(AmazonReader, self).__init__()
 
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Amazon/"  ##local path, as described in recsys_port README.md
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -41,7 +40,6 @@ class AmazonReader(DataReader):
         pre_splitted_filename = 'time.zip'
 
         try:
-
             print("AmazonReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name

@@ -29,7 +29,6 @@ class YelpReader(object):
 
         super(YelpReader, self).__init__()
 
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"  ##local path, as described in recsys_port README.md
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -70,8 +69,7 @@ class YelpReader(object):
             ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
             ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
             ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
-            # TODO
-            print("Correct Yelp Config")
+
             config = get_yelp_config(device)
 
             # fix runtime config to comply with recsys_port README.md
