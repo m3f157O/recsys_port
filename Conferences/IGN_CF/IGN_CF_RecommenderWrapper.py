@@ -58,7 +58,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Do not modify this
         # Create the full data structure that will contain the item scores
-        item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
+        # item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
+        item_scores = super()._compute_item_score(user_id_array, items_to_compute)
 
         if items_to_compute is not None:
             item_indices = items_to_compute
@@ -69,13 +70,14 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
             user_id = user_id_array[user_index]
 
-            # TODO this predict function should be replaced by whatever code is needed to compute the prediction for a user
+            # Done this predict function should be replaced by whatever code is needed to compute the prediction for a user
 
             # The prediction requires a list of two arrays user_id, item_id of equal length
             # To compute the recommendations for a single user, we must provide its index as many times as the
             # number of items
-            item_score_user = self.model.predict([self._user_ones_vector * user_id, item_indices],
-                                                 batch_size=100, verbose=0)
+
+            # taken from IGN_CF in model.predict -> it requires only the use to calculate the scores
+            item_score_user = self.model.predict(user_id)
 
             # Do not modify this
             # Put the predictions in the correct items
