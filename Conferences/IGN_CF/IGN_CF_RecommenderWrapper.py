@@ -56,6 +56,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # There are two possible scenarios for the creation of the session: at the beginning of the fit function (training phase)
         # or at the end of the fit function (before loading the best model, testing phase)
 
+
+        ##todo discover
         # Do not modify this
         # Create the full data structure that will contain the item scores
         # item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
@@ -139,7 +141,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Get unique temporary folder
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
 
-        # TODO replace the following code with what needed to create an instance of the model.
+        # DONE replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
         self._init_model()
