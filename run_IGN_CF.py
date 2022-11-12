@@ -51,6 +51,16 @@ def from_matrix_to_adjlist(matrix):
         list.append(items)
     return list
 
+
+def restoreTrainArray(matrix):
+    list = []
+    column = (matrix.col).copy()
+    row = (matrix.row).copy()
+    number_users = np.unique(column)
+    for i in range(len(number_users)):
+        list.append([row[i], column[i]])
+    return list
+
 """"
     Converts each matrix to a adjacent list
 """
@@ -168,21 +178,26 @@ def read_data_split_and_search(dataset_name,
 
 
 
-            ##todo fix this
-            device, log_path = init_file_and_device()
-            config = get_gowalla_config(device)
-            config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
-            # dataset_original must be passed to the model due to strong coupling between dataset and model,
-            dataset_original = acquire_dataset(log_path, config)
+            users=URM_train.shape[0]
+            items=URM_train.shape[1]
 
-            print(URM_train.shape)
-            print(URM_train.row)
-            print(URM_train.col)
+
+
+
+            orignalDataset=DatasetOriginal()
+            orignalDataset.n_users=users
+            orignalDataset.n_items=items
+            orignalDataset.device=torch.device('cpu')
+            orignalDataset.train_array=restoreTrainArray(URM_train)
+
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
             recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
-            IGN_CF_RecommenderWrapper.create_dataset(recommender_instance, dataset_original)
+            IGN_CF_RecommenderWrapper.create_dataset(recommender_instance, orignalDataset)
+
+
+
             recommender_instance.fit()
             #
             # recommender_instance.fit(**article_hyperparameters,
