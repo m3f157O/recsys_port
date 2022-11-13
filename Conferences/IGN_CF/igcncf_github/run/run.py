@@ -19,11 +19,10 @@ def main():
     writer = SummaryWriter(log_path)
     dataset = get_dataset(dataset_config)
 
-    ##todo implement wrapper
-    print("thats the model")
     model = get_model(model_config, dataset)
     print(model)
 
+    ##todo implement wrapper
     print("thats the trainer")
     trainer = get_trainer(trainer_config, dataset, model)
     print("trainer")

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from Conferences.IGN_CF.IGN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config
+from Conferences.IGN_CF.igcncf_github.config import *
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import init_file_and_device, acquire_dataset
 from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YelpReader
-
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
@@ -35,9 +34,17 @@ from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import a
 
 class DatasetOriginal():
     train_array = []
+    train_data = []
     device = torch.device('cpu')
     n_items = 0
+    lenght = 0
     n_users = 0
+    def __len__(self):
+        return len(self.train_array)
+    ## ^^^ AS IN model.AuxiliaryDataset (wtf)
+
+
+
 def from_matrix_to_adjlist(matrix):
     list = []
     column = (matrix.col).copy()
@@ -57,7 +64,7 @@ def restoreTrainArray(matrix):
     column = (matrix.col).copy()
     row = (matrix.row).copy()
     number_users = np.unique(column)
-    for i in range(len(number_users)):
+    for i in range(len(column)):
         list.append([row[i], column[i]])
     return list
 
@@ -86,14 +93,20 @@ def read_data_split_and_search(dataset_name,
 
 
 
+    device=torch.device('cpu')
 
+
+    ##todo eventually pass config to reader
     if dataset_name == "yelp":
+        config = get_yelp_config(device)
         pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"
         dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Amazom/"
+        config = get_amazon_config(device)
+        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Amazon/"
         dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
+        config = get_gowalla_config(device)
         pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Gowalla/"
         dataset_reader = GowallaReader(pre_splitted_path)
     else:
@@ -103,6 +116,7 @@ def read_data_split_and_search(dataset_name,
     # print(dataset)
 
 
+    dataset_config, model_config, trainer_config = config[2]
 
 
     # fix runtime config to comply with recsys_port README.md
@@ -182,19 +196,29 @@ def read_data_split_and_search(dataset_name,
             items=URM_train.shape[1]
 
 
+            device, log_path = init_file_and_device()
 
+            config = get_gowalla_config(device)
+            config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
+            dataset = acquire_dataset(log_path, config)
+
+            print(len(dataset.train_array))
             orignalDataset=DatasetOriginal()
             orignalDataset.n_users=users
             orignalDataset.n_items=items
             orignalDataset.device=torch.device('cpu')
             orignalDataset.train_array=restoreTrainArray(URM_train)
+            orignalDataset.lenght=len(orignalDataset.train_array)
+            orignalDataset.train_data=from_matrix_to_adjlist(URM_train)
+            print(len(orignalDataset))
 
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
             recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
             IGN_CF_RecommenderWrapper.create_dataset(recommender_instance, orignalDataset)
+            IGN_CF_RecommenderWrapper.set_config(recommender_instance, model_config,trainer_config)
 
 
 

@@ -5,7 +5,9 @@ from torch.optim import Adam, SGD
 import time
 import numpy as np
 import os
-from utils import AverageMeter, get_sparse_tensor
+#from utils import AverageMeter, get_sparse_tensor
+from Conferences.IGN_CF.igcncf_github.utils import AverageMeter, get_sparse_tensor
+
 import torch.nn.functional as F
 import scipy.sparse as sp
 from dataset import AuxiliaryDataset
@@ -15,7 +17,9 @@ def get_trainer(config, dataset, model):
     config = config.copy()
     config['dataset'] = dataset
     config['model'] = model
-    trainer = getattr(sys.modules['trainer'], config['name'])
+
+    #trainer = getattr(sys.modules['trainer'], config['name'])
+    trainer = getattr(sys.modules['Conferences.IGN_CF.igcncf_github.trainer'], config['name'])
     trainer = trainer(config)
     return trainer
 
@@ -292,6 +296,7 @@ class IGCNTrainer(BasicTrainer):
         self.aux_reg = trainer_config['aux_reg']
 
     def train_one_epoch(self):
+        print("letsgooooo");
         losses = AverageMeter()
         for batch_data, a_batch_data in zip(self.dataloader, self.aux_dataloader):
             inputs = batch_data[:, 0, :].to(device=self.device, dtype=torch.int64)

@@ -21,6 +21,7 @@ import scipy.sparse as sps
 
 from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommender
 from model import get_model
+from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
 
 class Params():
     lambda_u = 0
@@ -37,7 +38,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "IGN_CF_RecommenderWrapper"
     dataset = []
-
+    model_config = {}
+    trainer_config = {}
+    trainer= {}
     def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
         # The model uses Matrix Factorization, so will inherit from it
@@ -100,8 +103,14 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Done call get model with hardcoded stuff ;)
         self.dataset = dataset_original
 
+    def set_config(self,modelconfig,trainerconfig):
+        self.trainer_config = trainerconfig
+        self.model_config = modelconfig
 
 
+    def create_trainer(self):
+        self.trainer=get_trainer(self.trainer_config, self.dataset, self.model)
+        print(self.trainer)
 
     """
     This function instantiates the model, it should only rely on attributes and not function parameters
@@ -109,10 +118,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     :return:
      """
     def _init_model(self):
-        device = torch.device('cpu')
-        model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device, 'dropout': 0.3,
-                        'feature_ratio': 1.0}
-        self.model = get_model(model_config, self.dataset)
+        self.model = get_model(self.model_config, self.dataset)
         print(self.model)
 
 
@@ -145,6 +151,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
         self._init_model()
+        ##todo get trainer here
+        self.create_trainer()
         # The following code contains various operations needed by another wrapper
 
         self._params = Params()
@@ -202,31 +210,18 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         print("{}: Training complete".format(self.RECOMMENDER_NAME))
 
     def _prepare_model_for_validation(self):
-        # TODO Most likely you won't need to change this function
         pass
 
     def _update_best_model(self):
-        # TODO Most likely you won't need to change this function
         self.save_model(self.temp_file_folder, file_name="_best_model")
 
     def _run_epoch(self, currentEpoch):
-        # TODO replace this with the train loop for one epoch of the model
+        # Done??? replace this with the train loop for one epoch of the model
 
-        n = self.ICM_train.shape[0]
+        avg_loss=self.trainer.train_one_epoch()
 
-        # for epoch in range(self._params.n_epochs):
-        num_iter = int(n / self._params.batch_size)
-        # gen_loss = self.cdl_estimate(data_x, params.cdl_max_iter)
-        gen_loss = self.model.cdl_estimate(self.ICM_train, num_iter)
-        self.model.m_theta[:] = self.model.transform(self.ICM_train)
-        likelihood = self.model.pmf_estimate(self._train_users, self._train_items, None, None, self._params)
-        loss = -likelihood + 0.5 * gen_loss * n * self._params.lambda_r
-
-        self.USER_factors = self.model.m_U.copy()
-        self.ITEM_factors = self.model.m_V.copy()
-
-        logging.info("[#epoch=%06d], loss=%.5f, neg_likelihood=%.5f, gen_loss=%.5f" % (
-            currentEpoch, loss, -likelihood, gen_loss))
+        logging.info("[#epoch=%06d], loss=%.5f, neg_likelihood=%.5f" % (
+            currentEpoch, avg_loss, self.trainer.epoch,)) ##NO GEN LOSS SORRY gen_loss))
 
     def save_model(self, folder_path, file_name=None):
 
