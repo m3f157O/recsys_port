@@ -49,7 +49,7 @@ def from_matrix_to_adjlist(matrix):
     list = []
     column = (matrix.col).copy()
     row = (matrix.row).copy()
-    number_users = np.unique(column)
+    number_users = np.unique(row)
     for i in range(len(number_users)):
         count = np.count_nonzero(row == i)
         items_to_add = column[:count]
@@ -198,7 +198,7 @@ def read_data_split_and_search(dataset_name,
 
             device, log_path = init_file_and_device()
 
-            config = get_gowalla_config(device)
+            config = get_yelp_config(device)
             config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
             dataset = acquire_dataset(log_path, config)
@@ -377,7 +377,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["gowalla"]
+    dataset_list = ["yelp"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
