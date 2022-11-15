@@ -121,21 +121,30 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
 
     def fit(self,
-            epochs=100,
-
-            # TODO replace those hyperparameters with the ones you need --> CHIEDI
+            #default params
             learning_rate_vae=1e-2,
             learning_rate_cvae=1e-3,
             num_factors=50,
             dimensions_vae=[200, 100],
             epochs_vae=[50, 50],
-            batch_size=128,
             lambda_u=0.1,
             lambda_v=10,
             lambda_r=1,
+            M=300,
+
+            #new hyperparameters from the paper
+            learning_rate=[0.0001, 0.001, 0.01],
+            regularization_coefficient=[0, 0.00001, 0.0001, 0.001, 0.01],
+            dropout_rate=[0, 0.1, 0.3, 0.5, 0.7, 0.9],
+            sampling_size=50,
+            batch_size=2048,
             a=1,
             b=0.01,
-            M=300,
+            epochs=1000,
+            embedding_size=64,
+
+
+
 
             # These are standard
             temp_file_folder=None,
@@ -150,7 +159,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
         self._init_model()
-        ##todo get trainer here
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
 

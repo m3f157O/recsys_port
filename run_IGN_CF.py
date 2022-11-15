@@ -161,25 +161,30 @@ def read_data_split_and_search(dataset_name,
 
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
-            # TODO doppio check se mancano altri hyperparameters
             article_hyperparameters = {
-                "batch_size": 2048,
-                "epochs_MFBPR": 500,
-                "embedding_size": 64,
-                "hidden_size": 128,
-                "negative_sample_per_positive": 1,
-                "negative_instances_per_positive": 4,
-                "regularization_users_items": 0.01,
-                "regularization_weights": 10,
-                "regularization_filter_weights": 1,
-                "learning_rate_embeddings": [0.0001, 0.001, 0.01],
-                "learning_rate_CNN": 0.05,
-                "channel_size": [32, 32, 32, 32, 32, 32],
-                "dropout": [0.0, 0.1, 0.3, 0.5, 0.7, 0.9],
-                "epoch_verbose": 1,
-                # new parameters
-                "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
-                "sampling_size_IDCF_LGCN": 50
+                #modified
+                  "batch_size": 2048,
+                  "epochs": 1000,
+                  "embedding_size": 64,
+
+                #default
+                  "epochs_MFBPR": 500,
+                  "hidden_size": 128,
+                  "negative_sample_per_positive": 1,
+                  "negative_instances_per_positive": 4,
+                  "regularization_users_items": 0.01,
+                  "regularization_weights": 10,
+                  "regularization_filter_weights": 1,
+                  "learning_rate_embeddings": 0.05,
+                  "learning_rate_CNN": 0.05,
+                  "channel_size": [32, 32, 32, 32, 32, 32],
+                  "dropout": 0.0,
+                  "epoch_verbose": 1,
+                # hyperparameter from the paper
+                  "learning_rate": [0.0001, 0.001, 0.01],
+                  "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
+                  "dropout_rate": [0, 0.1, 0.3, 0.5, 0.7, 0.9],
+                  "sampling_size": 50
             }
 
             # Do not modify earlystopping
