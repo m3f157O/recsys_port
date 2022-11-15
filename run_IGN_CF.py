@@ -382,7 +382,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["yelp"]
+    dataset_list = ["gowalla"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

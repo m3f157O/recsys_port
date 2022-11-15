@@ -6,8 +6,8 @@ Created on 18/12/18
 @author: Maurizio Ferrari Dacrema
 """
 import logging
-
-from Conferences.IGN_CF.igcncf_github.dataset import ProcessedDataset
+from Conferences.IGN_CF.igcncf_github.config import *
+from Conferences.IGN_CF.igcncf_github.dataset import *
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
 from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
@@ -22,6 +22,42 @@ import scipy.sparse as sps
 from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommender
 from model import get_model
 from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
+
+class DatasetOriginal(BasicDataset):
+    train_array = []
+    train_data = []
+    device = torch.device('cpu')
+    n_items = 0
+    lenght = 0
+    n_users = 0
+    def __len__(self):
+        return len(self.train_array)
+    ## ^^^ AS IN model.AuxiliaryDataset (wtf)
+
+
+
+def from_matrix_to_adjlist(matrix):
+    list = []
+    column = (matrix.col).copy()
+    row = (matrix.row).copy()
+    number_users = np.unique(row)
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        items = items_to_add
+        column = column[count:]
+        list.append(items)
+    return list
+
+
+def restoreTrainArray(matrix):
+    list = []
+    column = (matrix.col).copy()
+    row = (matrix.row).copy()
+    number_users = np.unique(column)
+    for i in range(len(column)):
+        list.append([row[i], column[i]])
+    return list
 
 class Params():
     lambda_u = 0
@@ -41,6 +77,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     model_config = {}
     trainer_config = {}
     trainer= {}
+    sess = tf.compat.v1.Session()
     def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
         # The model uses Matrix Factorization, so will inherit from it
@@ -62,7 +99,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Do not modify this
         # Create the full data structure that will contain the item scores
         # item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
-
         item_scores = super()._compute_item_score(user_id_array, items_to_compute)
         if items_to_compute is not None:
             item_indices = items_to_compute
@@ -116,7 +152,23 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     :return:
      """
     def _init_model(self):
-        self.model = get_model(self.model_config, self.dataset)
+        ##todo this is utterly wrong
+        config=get_gowalla_config(device=torch.device('cpu'))
+        dataset_config, model_config, trainer_config = config[2]
+        orignalDataset = DatasetOriginal(dataset_config)
+
+        self.trainer_config=trainer_config
+        URM_coo=self.URM_train.tocoo(copy=True)
+        orignalDataset.n_users = URM_coo.shape[0]
+        orignalDataset.n_items = URM_coo.shape[1]
+        orignalDataset.device = torch.device('cpu')
+        orignalDataset.train_array = restoreTrainArray(URM_coo)
+        orignalDataset.lenght = len(orignalDataset.train_array)
+        orignalDataset.train_data = from_matrix_to_adjlist(URM_coo)
+
+        self.dataset=orignalDataset
+
+        self.model = get_model(model_config, orignalDataset)
         print(self.model)
 
 
@@ -153,12 +205,14 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Get unique temporary folder
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
-        self.USER_factors = num_factors * self.n_users
-        self.ITEM_factors = num_factors * self.n_items
+        self.USER_factors = np.array([num_factors * self.n_users])
+        self.ITEM_factors = np.array([num_factors * self.n_items])
+
         # DONE replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
         self._init_model()
+
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
 
@@ -199,7 +253,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # TODO Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
         self.sess.close()
-        self.sess = tf.Session()
+        self.sess = tf.compat.v1.Session()
 
         ###############################################################################
         ### This is a standard training with early stopping part, most likely you won't need to change it
@@ -239,21 +293,15 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # TODO replace this with the Saver required by the model
         #  in this case the neural network will be saved with the _weights suffix, which is rather standard
-        self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
+        self.model.save(file_name)
 
         # TODO Alternativley you may save the tensorflow model with a session
-        saver = tf.train.Saver()
-        saver.save(self.sess, folder_path + file_name + "_session")
 
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
             #  the model when calling the load_model
             "n_users": self.n_users,
             "n_items": self.n_items,
-            "mf_dim": self.mf_dim,
-            "layers": self.layers,
-            "reg_layers": self.reg_layers,
-            "reg_mf": self.reg_mf,
         }
 
         # Do not change this

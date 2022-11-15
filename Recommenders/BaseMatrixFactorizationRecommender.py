@@ -50,7 +50,7 @@ class BaseMatrixFactorizationRecommender(BaseRecommender):
         :param items_to_compute:
         :return:
         """
-
+        ##todo what the fuck
         assert self.USER_factors.shape[1] == self.ITEM_factors.shape[1], \
             "{}: User and Item factors have inconsistent shape".format(self.RECOMMENDER_NAME)
 

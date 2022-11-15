@@ -118,8 +118,9 @@ class BasicDataset(Dataset):
 
     def __getitem__(self, index):
         user = random.randint(0, self.n_users - 1)
-        while not self.train_data[user]:
-            user = random.randint(0, self.n_users - 1)
+        ##todo utterly broken codes. Does not work outside of original implementation
+#        while not self.train_data[user]:
+#            user = random.randint(0, self.n_users - 1)
         pos_item = np.random.choice(self.train_data[user])
         data_with_negs = [[user, pos_item] for _ in range(self.negative_sample_ratio)]
         for idx in range(self.negative_sample_ratio):
