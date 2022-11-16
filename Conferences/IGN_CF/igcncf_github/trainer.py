@@ -148,6 +148,9 @@ class BasicTrainer:
         with torch.no_grad():
             for users in self.test_user_loader:
                 users = users[0]
+                print(users)
+                print(type(users))
+
                 scores = self.model.predict(users)
 
                 if val_or_test != 'train':
@@ -296,7 +299,7 @@ class IGCNTrainer(BasicTrainer):
         self.aux_reg = trainer_config['aux_reg']
 
     def train_one_epoch(self):
-        print("letsgooooo");
+        print("letsgooooo")
         losses = AverageMeter()
         for batch_data, a_batch_data in zip(self.dataloader, self.aux_dataloader):
             inputs = batch_data[:, 0, :].to(device=self.device, dtype=torch.int64)

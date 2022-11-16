@@ -98,12 +98,25 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Do not modify this
         # Create the full data structure that will contain the item scores
-        # item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
-        item_scores = super()._compute_item_score(user_id_array, items_to_compute)
+        item_scores = - np.ones((len(user_id_array), self.n_items)) * np.inf
+
         if items_to_compute is not None:
             item_indices = items_to_compute
         else:
             item_indices = self._item_indices
+
+        ##todo fix this, maybe take data in batches
+        toTorch = np.array(user_id_array)
+        t = torch.from_numpy(toTorch)
+
+        rep = self.model.get_rep()
+        users_r = rep[t, :]
+        all_items_r = rep[self.n_users:, :]
+
+        print(t.dtype)
+        scores = torch.mm(users_r, all_items_r.t())
+
+        item_score_user = scores
 
         for user_index in range(len(user_id_array)):
 
@@ -116,8 +129,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             # number of items
 
             # taken from IGN_CF in model.predict -> it requires only the use to calculate the scores
-            item_score_user = self.model.predict(user_id)
+            #t = torch.from_numpy(a)
 
+            ##todo verify correctness
+            item_score_user=scores[user_id]
             # Do not modify this
             # Put the predictions in the correct items
             if items_to_compute is not None:
@@ -215,7 +230,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
-
+        self._compute_item_score(np.array([1,2,3,4]))
         self._params = Params()
         self._params.lambda_u = lambda_u
         self._params.lambda_v = lambda_v
