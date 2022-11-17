@@ -76,7 +76,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     dataset = []
     model_config = {}
     trainer_config = {}
-    trainer= {}
+    trainer = {}
+
     sess = tf.compat.v1.Session()
     def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
@@ -117,12 +118,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         scores = torch.mm(users_r, all_items_r.t())
 
         item_score_user = scores
-
-        ##todo predictions come flattened
         for user_index in range(len(user_id_array)):
 
-
-            item_score_user=scores[user_index].detach().numpy()
+            # to pass from tensors to numpy
+            item_score_user = scores[user_index].detach().numpy()
 
             # Done this predict function should be replaced by whatever code is needed to compute the prediction for a user
 
@@ -130,10 +129,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             # To compute the recommendations for a single user, we must provide its index as many times as the
             # number of items
             # taken from IGN_CF in model.predict -> it requires only the use to calculate the scores
-            #t = torch.from_numpy(a)
-            ##todo verify correctness: its wrong
             # Do not modify this
             # Put the predictions in the correct items
+
             if items_to_compute is not None:
                 item_scores[user_index, items_to_compute] = item_score_user.ravel()[items_to_compute]
             else:
@@ -166,7 +164,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     :return:
      """
     def _init_model(self):
-        ##todo this is utterly wrong
+
+        ##todo fix because it is a bad practice
         config=get_gowalla_config(device=torch.device('cpu'))
         dataset_config, model_config, trainer_config = config[2]
         orignalDataset = DatasetOriginal(dataset_config)
@@ -229,7 +228,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
-        ##todo this is for debugging
+        ##todo delete after debugging
         #self._compute_item_score(np.array([3,12]))
 
 
@@ -267,7 +266,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self.URM_train = sps.csr_matrix(self.URM_train)
 
-        # TODO Close all sessions used for training and open a new one for the "_best_model"
+        # Done Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
         self.sess.close()
         self.sess = tf.compat.v1.Session()
@@ -308,11 +307,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self._print("Saving model in file '{}'".format(folder_path + file_name))
 
-        # TODO replace this with the Saver required by the model
+        # Done replace this with the Saver required by the model
         #  in this case the neural network will be saved with the _weights suffix, which is rather standard
         self.model.save(file_name)
 
-        # TODO Alternativley you may save the tensorflow model with a session
 
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
@@ -346,10 +344,12 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self._init_model()
         self.model.load_weights(folder_path + file_name + "_weights")
 
-        # TODO If you are using tensorflow, you may instantiate a new session here
-        # TODO reset the default graph to "clean" the tensorflow state
-        tf.reset_default_graph()
-        saver = tf.train.Saver()
+
+        # Done If you are using tensorflow, you may instantiate a new session here
+        # Done reset the default graph to "clean" the tensorflow state
+        # the version v1 of compact must be used because other versions are deprecated
+        tf.compat.v1.reset_default_graph()
+        saver = tf.compat.v1.train.Saver()
         saver.restore(self.sess, folder_path + file_name + "_session")
 
         self._print("Loading complete")
