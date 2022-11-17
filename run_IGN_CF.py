@@ -96,7 +96,6 @@ def read_data_split_and_search(dataset_name,
     device=torch.device('cpu')
 
 
-    ##todo eventually pass config to reader
     if dataset_name == "yelp":
         config = get_yelp_config(device)
         pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"

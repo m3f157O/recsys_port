@@ -228,7 +228,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # The following code contains various operations needed by another wrapper
         ##todo delete after debugging
         # self._compute_item_score(np.array([3,12]))
-        self.load_model("./","prova",)
+        #self.load_model("./","prova",)
 
 
         self._params = Params()
