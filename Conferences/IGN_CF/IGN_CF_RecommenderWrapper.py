@@ -121,19 +121,17 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         ##todo predictions come flattened
         for user_index in range(len(user_id_array)):
 
-            user_id = user_id_array[user_index]
+
+            item_score_user=scores[user_index].detach().numpy()
 
             # Done this predict function should be replaced by whatever code is needed to compute the prediction for a user
 
             # The prediction requires a list of two arrays user_id, item_id of equal length
             # To compute the recommendations for a single user, we must provide its index as many times as the
             # number of items
-
             # taken from IGN_CF in model.predict -> it requires only the use to calculate the scores
             #t = torch.from_numpy(a)
-
             ##todo verify correctness: its wrong
-            item_score_user=scores[user_id-1].detach().numpy()
             # Do not modify this
             # Put the predictions in the correct items
             if items_to_compute is not None:
@@ -232,7 +230,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
         ##todo this is for debugging
-        self._compute_item_score(np.array([3,12]))
+        #self._compute_item_score(np.array([3,12]))
 
 
         self._params = Params()
