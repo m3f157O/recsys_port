@@ -98,16 +98,19 @@ def read_data_split_and_search(dataset_name,
 
     if dataset_name == "yelp":
         config = get_yelp_config(device)
+        dataset_config, model_config, trainer_config = config[2]
         pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"
         dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
         config = get_amazon_config(device)
+        dataset_config, model_config, trainer_config = config[2]
         pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Amazon/"
         dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
         config = get_gowalla_config(device)
+        dataset_config, model_config, trainer_config = config[2]
         pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Gowalla/"
-        dataset_reader = GowallaReader(pre_splitted_path)
+        dataset_reader = GowallaReader(pre_splitted_path,config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
@@ -115,7 +118,6 @@ def read_data_split_and_search(dataset_name,
     # print(dataset)
 
 
-    dataset_config, model_config, trainer_config = config[2]
 
 
     # fix runtime config to comply with recsys_port README.md

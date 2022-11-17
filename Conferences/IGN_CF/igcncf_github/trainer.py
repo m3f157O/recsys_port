@@ -299,7 +299,6 @@ class IGCNTrainer(BasicTrainer):
         self.aux_reg = trainer_config['aux_reg']
 
     def train_one_epoch(self):
-        print("letsgooooo")
         losses = AverageMeter()
         for batch_data, a_batch_data in zip(self.dataloader, self.aux_dataloader):
             inputs = batch_data[:, 0, :].to(device=self.device, dtype=torch.int64)

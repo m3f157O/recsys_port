@@ -26,10 +26,11 @@ class GowallaReader(DataReader):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path):
+    def __init__(self, pre_splitted_path,config):
 
         super(GowallaReader, self).__init__()
 
+        config = config
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -41,6 +42,7 @@ class GowallaReader(DataReader):
 
         ##txt_to_csv("DatasetPublic/data/Amazon/time")
         try:
+            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -71,7 +73,6 @@ class GowallaReader(DataReader):
             ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
             ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
             ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
-            config = get_gowalla_config(device)
 
             # fix runtime config to comply with recsys_port README.md
             config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
