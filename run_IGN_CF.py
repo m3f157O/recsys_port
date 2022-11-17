@@ -201,23 +201,17 @@ def read_data_split_and_search(dataset_name,
             items=URM_train.shape[1]
 
 
-            device, log_path = init_file_and_device()
+            #device, log_path = init_file_and_device()
 
-            config = get_yelp_config(device)
-            config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
+            #config = get_yelp_config(device)
+            #config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
-            dataset = acquire_dataset(log_path, config)
-
-            a = np.array([[1, 2, 3], [2, 1, 3], [2, 3, 5], [5, 6, 4]])
-            print("a:", a)
-
-            print("Type of a :", type(a))
-            # Convert the numpy.ndarray to tensor
-            t = torch.from_numpy(a)
+            #dataset = acquire_dataset(log_path, config)
 
 
 
-            print(len(dataset.train_array))
+
+            #print(len(dataset.train_array))
             orignalDataset=DatasetOriginal()
             orignalDataset.n_users=users
             orignalDataset.n_items=items
@@ -227,11 +221,7 @@ def read_data_split_and_search(dataset_name,
             orignalDataset.train_data=from_matrix_to_adjlist(URM_train)
             print(len(orignalDataset))
 
-            print(t)
-            print(type(t))
-            cuda0 = torch.device('cuda:0')
-            t.to(cuda0)
-            print(t)
+
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
