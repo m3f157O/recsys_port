@@ -292,9 +292,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.save_model(self.temp_file_folder, file_name="_best_model")
 
     def _run_epoch(self, currentEpoch):
-        # Done??? replace this with the train loop for one epoch of the model
+        # Done replace this with the train loop for one epoch of the model
 
-        avg_loss=self.trainer.train_one_epoch()
+        ##todo remove evaluation part from training
+        avg_loss = self.trainer.train_one_epoch()
 
         logging.info("[#epoch=%06d], loss=%.5f, neg_likelihood=%.5f" % (
             currentEpoch, avg_loss, self.trainer.epoch,))  ##NO GEN LOSS SORRY gen_loss))
@@ -314,10 +315,33 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         #w=data_dict_to_save["w"]
         #embedding_weight=data_dict_to_save["embedding.weight"]
         data_dict_to_save = {
-            # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
+            # Done replace this with the hyperparameters and attribute list you need to re-instantiate
             #  the model when calling the load_model
             "n_users": self.n_users,
             "n_items": self.n_items,
+            # modified
+            "batch_size": 2048,
+            "epochs": 1000,
+            "embedding_size": 64,
+
+            # default
+            "epochs_MFBPR": 500,
+            "hidden_size": 128,
+            "negative_sample_per_positive": 1,
+            "negative_instances_per_positive": 4,
+            "regularization_users_items": 0.01,
+            "regularization_weights": 10,
+            "regularization_filter_weights": 1,
+            "learning_rate_embeddings": 0.05,
+            "learning_rate_CNN": 0.05,
+            "channel_size": [32, 32, 32, 32, 32, 32],
+            "dropout": 0.0,
+            "epoch_verbose": 1,
+            # hyperparameter from the paper
+            "learning_rate": [0.0001, 0.001, 0.01],
+            "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
+            "dropout_rate": [0, 0.1, 0.3, 0.5, 0.7, 0.9],
+            "sampling_size": 50
         }
 
         # Do not change this
@@ -340,10 +364,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         for attrib_name in data_dict.keys():
             self.__setattr__(attrib_name, data_dict[attrib_name])
 
-        # TODO replace this with what required to re-instantiate the model and load its weights,
+        # Done replace this with what required to re-instantiate the model and load its weights,
         #  Call the init_model function you created before
         self._init_model()
-        self.model.load_weights(folder_path + file_name + "_weights")
+        self.model.load(folder_path + file_name + "_weights")
 
         # Done If you are using tensorflow, you may instantiate a new session here
         # Done reset the default graph to "clean" the tensorflow state

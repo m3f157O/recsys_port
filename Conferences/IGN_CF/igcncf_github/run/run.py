@@ -22,7 +22,6 @@ def main():
     model = get_model(model_config, dataset)
     print(model)
 
-    ##todo implement wrapper
     print("thats the trainer")
     trainer = get_trainer(trainer_config, dataset, model)
     print("trainer")
