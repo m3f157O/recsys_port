@@ -23,6 +23,7 @@ from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommend
 from model import get_model
 from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
 
+
 class DatasetOriginal(BasicDataset):
     train_array = []
     train_data = []
@@ -30,10 +31,10 @@ class DatasetOriginal(BasicDataset):
     n_items = 0
     lenght = 0
     n_users = 0
+
     def __len__(self):
         return len(self.train_array)
     ## ^^^ AS IN model.AuxiliaryDataset (wtf)
-
 
 
 def from_matrix_to_adjlist(matrix):
@@ -59,6 +60,7 @@ def restoreTrainArray(matrix):
         list.append([row[i], column[i]])
     return list
 
+
 class Params():
     lambda_u = 0
     lambda_v = 0
@@ -67,6 +69,7 @@ class Params():
     b = 0
     M = 0
     n_epochs = 0
+
 
 # Done replace the recommender class name with the correct one
 class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_Training_Early_Stopping,
@@ -79,6 +82,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     trainer = {}
 
     sess = tf.compat.v1.Session()
+
     def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
         # The model uses Matrix Factorization, so will inherit from it
@@ -109,8 +113,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         ##todo fix this, maybe take data in batches
         toTorch = np.array(user_id_array)
         t = torch.from_numpy(toTorch)
-
-
 
         rep = self.model.get_rep()
         users_r = rep[t, :]
@@ -149,13 +151,12 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Done call get model with hardcoded stuff ;)
         self.dataset = dataset_original
 
-    def set_config(self,modelconfig,trainerconfig):
+    def set_config(self, modelconfig, trainerconfig):
         self.trainer_config = trainerconfig
         self.model_config = modelconfig
 
-
     def create_trainer(self):
-        self.trainer=get_trainer(self.trainer_config, self.dataset, self.model)
+        self.trainer = get_trainer(self.trainer_config, self.dataset, self.model)
         print(self.trainer)
 
     """
@@ -163,15 +164,16 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     It should be used both in the fit function and in the load_model function
     :return:
      """
+
     def _init_model(self):
 
         ##todo fix because it is a bad practice
-        config=get_gowalla_config(device=torch.device('cpu'))
+        config = get_gowalla_config(device=torch.device('cpu'))
         dataset_config, model_config, trainer_config = config[2]
         orignalDataset = DatasetOriginal(dataset_config)
 
-        self.trainer_config=trainer_config
-        URM_coo=self.URM_train.tocoo(copy=True)
+        self.trainer_config = trainer_config
+        URM_coo = self.URM_train.tocoo(copy=True)
         orignalDataset.n_users = URM_coo.shape[0]
         orignalDataset.n_items = URM_coo.shape[1]
         orignalDataset.device = torch.device('cpu')
@@ -179,14 +181,13 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         orignalDataset.lenght = len(orignalDataset.train_array)
         orignalDataset.train_data = from_matrix_to_adjlist(URM_coo)
 
-        self.dataset=orignalDataset
+        self.dataset = orignalDataset
 
         self.model = get_model(model_config, orignalDataset)
         print(self.model)
 
-
     def fit(self,
-            #default params
+            # default params
             learning_rate_vae=1e-2,
             learning_rate_cvae=1e-3,
             num_factors=50,
@@ -197,7 +198,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             lambda_r=1,
             M=300,
 
-            #new hyperparameters from the paper
+            # new hyperparameters from the paper
             learning_rate=[0.0001, 0.001, 0.01],
             regularization_coefficient=[0, 0.00001, 0.0001, 0.001, 0.01],
             dropout_rate=[0, 0.1, 0.3, 0.5, 0.7, 0.9],
@@ -207,9 +208,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             b=0.01,
             epochs=1000,
             embedding_size=64,
-
-
-
 
             # These are standard
             temp_file_folder=None,
@@ -229,7 +227,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
         ##todo delete after debugging
-        #self._compute_item_score(np.array([3,12]))
+        # self._compute_item_score(np.array([3,12]))
+        self.load_model("./","prova",)
 
 
         self._params = Params()
@@ -298,7 +297,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         avg_loss=self.trainer.train_one_epoch()
 
         logging.info("[#epoch=%06d], loss=%.5f, neg_likelihood=%.5f" % (
-            currentEpoch, avg_loss, self.trainer.epoch,)) ##NO GEN LOSS SORRY gen_loss))
+            currentEpoch, avg_loss, self.trainer.epoch,))  ##NO GEN LOSS SORRY gen_loss))
 
     def save_model(self, folder_path, file_name=None):
 
@@ -309,9 +308,11 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Done replace this with the Saver required by the model
         #  in this case the neural network will be saved with the _weights suffix, which is rather standard
-        self.model.save(file_name)
+        self.model.save(file_name+"_weights")
 
-
+        #data_dict_to_save = self.model.state_dict()
+        #w=data_dict_to_save["w"]
+        #embedding_weight=data_dict_to_save["embedding.weight"]
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
             #  the model when calling the load_model
@@ -343,7 +344,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         #  Call the init_model function you created before
         self._init_model()
         self.model.load_weights(folder_path + file_name + "_weights")
-
 
         # Done If you are using tensorflow, you may instantiate a new session here
         # Done reset the default graph to "clean" the tensorflow state
