@@ -137,17 +137,19 @@ class MyTestSuite(object):
             self.assertEqual(len(recommendations_sorted), cutoff)
             self.assertEqual(len(recommendations_not_sorted), cutoff)
 
-            # try:
+
             self.assertTrue(np.equal(recommendations_sorted, recommendations_not_sorted).all())
             self.assertTrue(np.allclose(scores_sorted, scores_not_sorted, atol=1e-5))
-
             self.assertTrue(np.allclose(scores_sorted[0,items_to_compute_sorted], scores_all[0,items_to_compute_sorted], atol=1e-5))
+
+
+
+
 
             scores_sorted[0,items_to_compute_sorted] = -np.inf
             self.assertTrue(np.isinf(scores_sorted).all())
             # except:
-            #     # np.where(np.logical_not(scores_sorted == scores_not_sorted))[1]
-            #     pass
+            #
 
         self.assertTrue(True, "Items to compute passed")
 
@@ -178,7 +180,7 @@ class MyTestSuite(object):
             for user_index_in_batch, user_id in enumerate(user_id_batch):
                 recommendations_user, scores_user = self.recommender_instance.recommend(user_id, cutoff = cutoff, items_to_compute = None, return_scores = True)
 
-                self.assertTrue(np.equal(recommendations_batch[user_index_in_batch], recommendations_user).all())
+                self.assertTrue(np.equal(recommendations_batch[user_index_in_batch], recommendations_user).all()) 
                 self.assertTrue(np.allclose(scores_batch[user_index_in_batch], scores_user, atol=1e-5))
 
 

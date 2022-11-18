@@ -15,7 +15,7 @@ import time
 def init_file_and_device():
     log_path = __file__[:-3]
     init_run(log_path, 2021)
-    device = torch.device('cpu')
+    device = torch.device('cuda')
     return device, log_path
 
 

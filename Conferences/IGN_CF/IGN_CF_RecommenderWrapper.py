@@ -27,7 +27,7 @@ from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
 class DatasetOriginal(BasicDataset):
     train_array = []
     train_data = []
-    device = torch.device('cpu')
+    device = torch.device('cuda')
     n_items = 0
     lenght = 0
     n_users = 0
@@ -81,7 +81,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     trainer_config = {}
     trainer = {}
 
-    sess = tf.compat.v1.Session()
+    #sess = tf.compat.v1.Session()
 
     def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
@@ -111,6 +111,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             item_indices = self._item_indices
 
         ##todo fix this, maybe take data in batches
+        self.model.training=False
         toTorch = np.array(user_id_array)
         t = torch.from_numpy(toTorch)
 
@@ -119,11 +120,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         all_items_r = rep[self.n_users:, :]
         scores = torch.mm(users_r, all_items_r.t())
 
-        item_score_user = scores
         for user_index in range(len(user_id_array)):
 
             # to pass from tensors to numpy
-            item_score_user = scores[user_index].detach().numpy()
+            item_score_user = scores[user_index].cpu().detach().numpy()
 
             # Done this predict function should be replaced by whatever code is needed to compute the prediction for a user
 
@@ -138,6 +138,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
                 item_scores[user_index, items_to_compute] = item_score_user.ravel()[items_to_compute]
             else:
                 item_scores[user_index, :] = item_score_user.ravel()
+
+        #print(item_scores)
+        self.model.training=True
 
         return item_scores
 
@@ -168,7 +171,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     def _init_model(self):
 
         ##todo fix because it is a bad practice
-        config = get_gowalla_config(device=torch.device('cpu'))
+        config = get_gowalla_config(device=torch.device('cuda'))
         dataset_config, model_config, trainer_config = config[2]
         orignalDataset = DatasetOriginal(dataset_config)
 
@@ -176,7 +179,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         URM_coo = self.URM_train.tocoo(copy=True)
         orignalDataset.n_users = URM_coo.shape[0]
         orignalDataset.n_items = URM_coo.shape[1]
-        orignalDataset.device = torch.device('cpu')
+        orignalDataset.device = torch.device('cuda')
         orignalDataset.train_array = restoreTrainArray(URM_coo)
         orignalDataset.lenght = len(orignalDataset.train_array)
         orignalDataset.train_data = from_matrix_to_adjlist(URM_coo)
@@ -227,7 +230,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
         ##todo delete after debugging
-        # self._compute_item_score(np.array([3,12]))
+        self._compute_item_score(np.array([3]))
+        self._compute_item_score(np.array([12]))
+        self._compute_item_score(np.array([3,12]))
+
         #self.load_model("./","prova",)
 
 
@@ -267,8 +273,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Done Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
-        self.sess.close()
-        self.sess = tf.compat.v1.Session()
+        #self.sess.close()
+        #self.sess = tf.compat.v1.Session()
 
         ###############################################################################
         ### This is a standard training with early stopping part, most likely you won't need to change it
@@ -309,7 +315,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Done replace this with the Saver required by the model
         #  in this case the neural network will be saved with the _weights suffix, which is rather standard
-        self.model.save(file_name+"_weights")
+        self.model.save(folder_path + file_name + "_weights")
 
         #data_dict_to_save = self.model.state_dict()
         #w=data_dict_to_save["w"]
@@ -372,8 +378,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Done If you are using tensorflow, you may instantiate a new session here
         # Done reset the default graph to "clean" the tensorflow state
         # the version v1 of compact must be used because other versions are deprecated
-        tf.compat.v1.reset_default_graph()
-        saver = tf.compat.v1.train.Saver()
-        saver.restore(self.sess, folder_path + file_name + "_session")
+        #tf.compat.v1.reset_default_graph()
+        #saver = tf.compat.v1.train.Saver()
+        #saver.restore(self.sess, folder_path + file_name + "_session")
 
         self._print("Loading complete")
