@@ -112,18 +112,19 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         ##todo fix this, maybe take data in batches
         self.model.training=False
-        toTorch = np.array(user_id_array)
-        t = torch.from_numpy(toTorch)
 
-        rep = self.model.get_rep()
-        users_r = rep[t, :]
-        all_items_r = rep[self.n_users:, :]
-        scores = torch.mm(users_r, all_items_r.t())
 
         for user_index in range(len(user_id_array)):
 
+            toTorch = np.array([user_id_array[user_index]])
+            t = torch.from_numpy(toTorch)
+
+            rep = self.model.get_rep()
+            users_r = rep[t, :]
+            all_items_r = rep[self.n_users:, :]
+            scores = torch.mm(users_r, all_items_r.t())
             # to pass from tensors to numpy
-            item_score_user = scores[user_index].cpu().detach().numpy()
+            item_score_user = scores.cpu().detach().numpy()
 
             # Done this predict function should be replaced by whatever code is needed to compute the prediction for a user
 
@@ -139,7 +140,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             else:
                 item_scores[user_index, :] = item_score_user.ravel()
 
-        #print(item_scores)
+        print(item_scores)
         self.model.training=True
 
         return item_scores
@@ -230,9 +231,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
         ##todo delete after debugging
-        #self._compute_item_score(np.array([3]))
-        #self._compute_item_score(np.array([12]))
-        #self._compute_item_score(np.array([3,12]))
 
         #self.load_model("./","prova",)
 
