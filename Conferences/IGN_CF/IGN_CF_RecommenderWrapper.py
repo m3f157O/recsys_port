@@ -152,8 +152,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
                 item_scores[user_index, items_to_compute] = item_score_user.ravel()[items_to_compute]
             else:
                 item_scores[user_index, :] = item_score_user.ravel()
+        print(item_scores)
 
-        self.model.training=True
 
         return item_scores
 
@@ -205,6 +205,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.dataset = orignalDataset
 
         self.model = get_model(model_config, orignalDataset)
+
         print(self.model)
 
     """
