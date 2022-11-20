@@ -110,10 +110,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         else:
             item_indices = self._item_indices
 
-        ##todo fix this, maybe take data in batches
         self.model.training=False
-
-
         for user_index in range(len(user_id_array)):
 
             toTorch = np.array([user_id_array[user_index]])
@@ -125,13 +122,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             scores = torch.mm(users_r, all_items_r.t())
             # to pass from tensors to numpy
             item_score_user = scores.cpu().detach().numpy()
-
-            # Done this predict function should be replaced by whatever code is needed to compute the prediction for a user
-
-            # The prediction requires a list of two arrays user_id, item_id of equal length
-            # To compute the recommendations for a single user, we must provide its index as many times as the
-            # number of items
             # taken from IGN_CF in model.predict -> it requires only the use to calculate the scores
+
             # Do not modify this
             # Put the predictions in the correct items
 
@@ -140,7 +132,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
             else:
                 item_scores[user_index, :] = item_score_user.ravel()
 
-        print(item_scores)
         self.model.training=True
 
         return item_scores
@@ -174,8 +165,8 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         ##todo fix because it is a bad practice
         config = get_gowalla_config(device=torch.device('cuda'))
         dataset_config, model_config, trainer_config = config[2]
-        orignalDataset = DatasetOriginal(dataset_config)
 
+        orignalDataset = DatasetOriginal(dataset_config)
         self.trainer_config = trainer_config
         URM_coo = self.URM_train.tocoo(copy=True)
         orignalDataset.n_users = URM_coo.shape[0]

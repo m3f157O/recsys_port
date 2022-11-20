@@ -35,7 +35,7 @@ from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import a
 class DatasetOriginal():
     train_array = []
     train_data = []
-    device = torch.device('cpu')
+    device = torch.device('gpu')
     n_items = 0
     lenght = 0
     n_users = 0
@@ -115,12 +115,10 @@ def read_data_split_and_search(dataset_name,
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
 
-    # print(dataset)
 
 
 
 
-    # fix runtime config to comply with recsys_port README.md
     URM_train = dataset_reader.URM_DICT["URM_train"].copy()
     URM_validation = dataset_reader.URM_DICT["URM_validation"].copy()
     URM_test = dataset_reader.URM_DICT["URM_test"].copy()
