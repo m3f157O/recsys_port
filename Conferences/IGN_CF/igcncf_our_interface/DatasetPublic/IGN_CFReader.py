@@ -11,7 +11,9 @@ import time
 
 ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
 
-
+""""
+    Creates a file and a device 
+"""
 def init_file_and_device():
     log_path = __file__[:-3]
     init_run(log_path, 2021)
@@ -19,6 +21,9 @@ def init_file_and_device():
     return device, log_path
 
 
+""""
+    Acquires the dataset from a specific config and path 
+"""
 def acquire_dataset(log_path, config):
     dataset_config, model_config, trainer_config = config[2]
     #dataset_config['path'] = dataset_config['path'][:-4] + str(1)
@@ -27,6 +32,9 @@ def acquire_dataset(log_path, config):
     return dataset
 
 
+""""
+    Transform a file txt into csv 
+"""
 def txt_to_csv(folder):
     for filename in os.listdir(folder):
         infilename = os.path.join(folder, filename)
@@ -36,6 +44,9 @@ def txt_to_csv(folder):
         os.rename(infilename, newname)
 
 
+""""
+    Transform an adjacency list into a coo matrix 
+"""
 def adjacencyList2COO(toCOOarray):
     start = time.time()
     cols = np.array([])
@@ -54,6 +65,11 @@ def adjacencyList2COO(toCOOarray):
     print(end-start)
     return datas, rows, cols
 
+
+
+""""
+    Method to make the preprocessing: checks if the number of interactions is greater than 10 
+"""
 def preprocessing(n_users, n_items,URM_val,URM_train,URM_test):
 
     items_train = (URM_train.col).copy()
