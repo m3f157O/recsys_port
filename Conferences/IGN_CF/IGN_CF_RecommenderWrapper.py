@@ -298,11 +298,14 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     def _run_epoch(self, currentEpoch):
         # Done replace this with the train loop for one epoch of the model
 
+        start=time.time()
         ##todo remove evaluation part from training
         avg_loss = self.trainer.train_one_epoch()
+        end=time.time()
 
-        logging.info("[#epoch=%06d], loss=%.5f, neg_likelihood=%.5f" % (
-            currentEpoch, avg_loss, self.trainer.epoch,))  ##NO GEN LOSS SORRY gen_loss))
+        print("loss=%.5f, duration:%ds" % (avg_loss,end-start))  ##NO GEN LOSS SORRY gen_loss))
+
+        logging.info("loss=%.5f" % (avg_loss))  ##NO GEN LOSS SORRY gen_loss))
 
     def save_model(self, folder_path, file_name=None):
 

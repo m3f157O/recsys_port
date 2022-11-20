@@ -11,7 +11,7 @@ from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
-
+import scipy.sparse as sps
 from Conferences.IGN_CF.igcncf_github.utils import init_run
 
 import torch
@@ -340,6 +340,7 @@ def read_data_split_and_search(dataset_name,
     ######
 
     if flag_print_results:
+        URM_test= sps.csr_matrix(URM_test)
         n_test_users = np.sum(np.ediff1d(URM_test.indptr) >= 1)
 
         result_loader = ResultFolderLoader(model_folder_path,
