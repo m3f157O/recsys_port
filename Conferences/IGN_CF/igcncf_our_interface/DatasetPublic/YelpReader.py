@@ -29,6 +29,12 @@ class YelpReader(object):
 
         super(YelpReader, self).__init__()
 
+        """"
+        CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
+        IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
+        WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
+        """
+
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -64,14 +70,25 @@ class YelpReader(object):
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
+            """"
+            THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
+
+            THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
+            THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
+            AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
+            """
+
             device, log_path = init_file_and_device()
 
             ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
             ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
             ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
 
+            """
+            FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
+            """
+            # TODO
             config = get_yelp_config(device)
-
             # fix runtime config to comply with recsys_port README.md
             config[0][0]["path"] = "Data_manager_split_datasets/Yelp/time"
 
