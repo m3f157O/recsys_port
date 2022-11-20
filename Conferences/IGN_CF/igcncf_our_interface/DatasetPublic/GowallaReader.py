@@ -30,6 +30,12 @@ class GowallaReader(DataReader):
 
         super(GowallaReader, self).__init__()
 
+        """"
+        CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
+        IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
+        WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
+        """
+
         config = config
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
@@ -40,7 +46,7 @@ class GowallaReader(DataReader):
 
         pre_splitted_filename = 'time.zip'
 
-        ##txt_to_csv("DatasetPublic/data/Amazon/time")
+
         try:
             print("GowallaReader: Attempting to load pre-splitted data")
 
@@ -66,21 +72,21 @@ class GowallaReader(DataReader):
 
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
-
+            """"
+            THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
+            
+            THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
+            THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
+            AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
+            """
             device, log_path = init_file_and_device()
 
-            ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
-            ##THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
-            ##AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
 
-            # fix runtime config to comply with recsys_port README.md
+
+            """
+            FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
+            """
             config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
-
-            #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0} gowala
-            #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.0, 'feature_ratio': 1.0} amz
-            #{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0}
-            # DO Replace this with the publicly available dataset you need
-            # The DataManagers are in the Data_Manager folder, if the dataset is already there use that data reader
 
             import zipfile
             with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
@@ -107,12 +113,6 @@ class GowallaReader(DataReader):
             URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_val, URM_train, URM_test)
 
 
-
-            # Useless because we already have presplitted data select the data splitting that you need, almost certainly there already is a function that does the splitting
-            #  in the way you need, if you are not sure, ask me via email
-            # Split the data in train, validation and test
-            # URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
-            # URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case
