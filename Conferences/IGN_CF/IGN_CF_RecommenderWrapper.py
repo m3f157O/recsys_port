@@ -24,6 +24,9 @@ from model import get_model
 from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
 
 
+"""
+    Builds the dataset original to convert from a matrix to the adjacent list to train the model 
+"""
 class DatasetOriginal(BasicDataset):
     train_array = []
     train_data = []
@@ -37,6 +40,9 @@ class DatasetOriginal(BasicDataset):
     ## ^^^ AS IN model.AuxiliaryDataset (wtf)
 
 
+"""
+    Convert from a matrix to the adjacent list 
+"""
 def from_matrix_to_adjlist(matrix):
     list = []
     column = (matrix.col).copy()
@@ -50,7 +56,10 @@ def from_matrix_to_adjlist(matrix):
         list.append(items)
     return list
 
-
+"""
+     Convert from a matrix to the customized list to train the model with the following format:
+     tuple : (row[index], col[index])
+"""
 def restoreTrainArray(matrix):
     list = []
     column = (matrix.col).copy()
@@ -60,7 +69,9 @@ def restoreTrainArray(matrix):
         list.append([row[i], column[i]])
     return list
 
-
+"""
+    Class to define the parameters used in the fit model
+"""
 class Params():
     lambda_u = 0
     lambda_v = 0
@@ -72,6 +83,9 @@ class Params():
 
 
 # Done replace the recommender class name with the correct one
+"""
+    Wrapper of the algorithm IGCN 
+"""
 class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_Training_Early_Stopping,
                                 BaseTempFolder):
     # Done replace the recommender name with the correct one
@@ -83,6 +97,10 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
     #sess = tf.compat.v1.Session()
 
+    """
+        IGCN model uses only Matrix Factorization without ICM_train, so it inherits from 
+        BaseMatrixFactorizationRecommender   
+    """
     def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
         # The model uses Matrix Factorization, so will inherit from it
@@ -91,6 +109,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # This is used in _compute_item_score
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
 
+    """
+        Computes item scores for each user 
+    """
     def _compute_item_score(self, user_id_array, items_to_compute=None):
         #  Done if the model in the end is either a matrix factorization algorithm (INMO USES MF)
         #  Done you can have this class inherit from BaseMatrixFactorization, BaseItemSimilarityMatrixRecommender
@@ -110,7 +131,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         else:
             item_indices = self._item_indices
 
-        ##todo fix this, maybe take data in batches
         self.model.training=False
 
 
@@ -145,28 +165,33 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         return item_scores
 
+    """
+            This function instantiates the model, it should only rely on attributes and not function parameters
+            It should be used both in the fit function and in the load_model function
+            :return:
+    """
     def create_dataset(self, dataset_original):
-        """
-        This function instantiates the model, it should only rely on attributes and not function parameters
-        It should be used both in the fit function and in the load_model function
-        :return:
-        """
         # Done steal CORRECT MODEL CONFIG (config[2][1])
         # Done call get model with hardcoded stuff ;)
         self.dataset = dataset_original
+
 
     def set_config(self, modelconfig, trainerconfig):
         self.trainer_config = trainerconfig
         self.model_config = modelconfig
 
+    """
+        Creates the trainer that has to be taken each epoch because using only the training loop would have implied
+        to change a lot of code, so we were obliged to take each epoch the trainer
+    """
     def create_trainer(self):
         self.trainer = get_trainer(self.trainer_config, self.dataset, self.model)
         print(self.trainer)
 
     """
-    This function instantiates the model, it should only rely on attributes and not function parameters
-    It should be used both in the fit function and in the load_model function
-    :return:
+        This function instantiates the model, it should only rely on attributes and not function parameters
+        It should be used both in the fit function and in the load_model function
+        :return:
      """
 
     def _init_model(self):
@@ -190,6 +215,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         self.model = get_model(model_config, orignalDataset)
         print(self.model)
 
+    """
+        Function to instantiate and train the model 
+    """
     def fit(self,
             # default params
             learning_rate_vae=1e-2,
@@ -230,9 +258,6 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self.create_trainer()
         # The following code contains various operations needed by another wrapper
-        ##todo delete after debugging
-
-        #self.load_model("./","prova",)
 
 
         self._params = Params()
@@ -292,11 +317,18 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
     def _prepare_model_for_validation(self):
         pass
 
+    """
+        Saves the best model after the training phase
+    """
     def _update_best_model(self):
         self.save_model(self.temp_file_folder, file_name="_best_model")
 
+    """
+        Train only one epoch
+    """
     def _run_epoch(self, currentEpoch):
-        # Done replace this with the train loop for one epoch of the model
+        # Done replace this with the train loop for one epoch of the model -> we couldn't because we would have to change
+        # most of the code, so each epoch we retrieve the trainer and train the model
 
         start=time.time()
         ##todo remove evaluation part from training
@@ -307,6 +339,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         logging.info("loss=%.5f" % (avg_loss))  ##NO GEN LOSS SORRY gen_loss))
 
+    """
+        Saves the model after training it
+    """
     def save_model(self, folder_path, file_name=None):
 
         if file_name is None:
@@ -357,6 +392,9 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         self._print("Saving complete")
 
+    """
+        Loads the model 
+    """
     def load_model(self, folder_path, file_name=None):
 
         if file_name is None:
