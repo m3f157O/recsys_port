@@ -128,10 +128,11 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         if items_to_compute is not None:
             item_indices = items_to_compute
+            items_to_compute=np.sort(items_to_compute)
         else:
             item_indices = self._item_indices
 
-        self.model.training=False
+        self.model.training = False
         for user_index in range(len(user_id_array)):
 
             toTorch = np.array([user_id_array[user_index]])

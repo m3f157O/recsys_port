@@ -58,8 +58,8 @@ class MyTestSuite(object):
         cls.UCM_all = dataSplitter.get_loaded_UCM_dict()["UCM_all"]
 
         evaluator = EvaluatorHoldout(cls.URM_test, [5], exclude_seen = True)
-        earlystopping_keywargs = {"epochs": 1,
-                                  "validation_every_n": 1,
+        earlystopping_keywargs = {"epochs": 20,
+                                  "validation_every_n": 5,
                                   "stop_on_validation": True,
                                   "evaluator_object": evaluator,
                                   "lower_validations_allowed": 5,
@@ -136,7 +136,16 @@ class MyTestSuite(object):
             self.assertEqual(len(recommendations_all), cutoff)
             self.assertEqual(len(recommendations_sorted), cutoff)
             self.assertEqual(len(recommendations_not_sorted), cutoff)
-
+            print("from sort:")
+            print(items_to_compute_sorted)
+            print("from unsort:")
+            print(items_to_compute_not_sorted)
+            print("user id:")
+            print(user_id)
+            print("recs:")
+            print(recommendations_sorted)
+            print("rec:")
+            print(recommendations_not_sorted)
 
             self.assertTrue(np.equal(recommendations_sorted, recommendations_not_sorted).all())
             self.assertTrue(np.allclose(scores_sorted, scores_not_sorted, atol=1e-5))
@@ -180,7 +189,18 @@ class MyTestSuite(object):
             for user_index_in_batch, user_id in enumerate(user_id_batch):
                 recommendations_user, scores_user = self.recommender_instance.recommend(user_id, cutoff = cutoff, items_to_compute = None, return_scores = True)
 
-                self.assertTrue(np.equal(recommendations_batch[user_index_in_batch], recommendations_user).all()) 
+                print("from batch:")
+                print(recommendations_batch[user_index_in_batch])
+                print(type(recommendations_batch[user_index_in_batch]))
+                print("from single:")
+                print(recommendations_user)
+                print(type(recommendations_user))
+                print("user id:")
+                print(user_id)
+
+
+
+                self.assertTrue(np.equal(recommendations_batch[user_index_in_batch], recommendations_user).all())
                 self.assertTrue(np.allclose(scores_batch[user_index_in_batch], scores_user, atol=1e-5))
 
 
@@ -265,6 +285,7 @@ class MyTestSuite_stochastic(MyTestSuite):
             self.assertEqual(len(recommendations_sorted), cutoff)
 
             scores_sorted[0,items_to_compute_sorted] = -np.inf
+
             self.assertTrue(np.isinf(scores_sorted).all())
 
         self.assertTrue(True, "Items to compute passed")

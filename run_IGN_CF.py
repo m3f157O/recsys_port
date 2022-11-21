@@ -35,7 +35,7 @@ from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import a
 class DatasetOriginal():
     train_array = []
     train_data = []
-    device = torch.device('gpu')
+    device = torch.device('cuda')
     n_items = 0
     lenght = 0
     n_users = 0
