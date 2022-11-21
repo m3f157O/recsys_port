@@ -177,9 +177,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         Creates the trainer that has to be taken each epoch because using only the training loop would have implied
         to change a lot of code, so we were obliged to take each epoch the trainer
     """
-    def create_trainer(self):
-        self.trainer = get_trainer(self.trainer_config, self.dataset, self.model)
-        print(self.trainer)
+
 
     """
         This function instantiates the model, it should only rely on attributes and not function parameters
@@ -187,32 +185,44 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         :return:
      """
 
-    def _init_model(self):
+    def _init_model(self, d_config=None, m_config=None, t_config=None):
 
-        ##todo fix because it is a bad practice
-        config = get_gowalla_config(device=torch.device('cuda'))
-        dataset_config, model_config, trainer_config = config[2]
+        ##DEFAULT CONFIG IS GOWALLA, IN CASE IT DOES NOT GET PASSED,
+        ##THE WRAPPER IS STILL ABLE TO RETRIEVE AND TRAIN THE MODEL
 
-        orignalDataset = DatasetOriginal(dataset_config)
-        self.trainer_config = trainer_config
+        if(d_config==None):
+            config = get_gowalla_config(device=torch.device('cuda'))
+            dataset_config, model_config, trainer_config = config[2]
+        else:
+            dataset_config = d_config
+            model_config = m_config
+            trainer_config = t_config
+
+        datasetOriginalFormat = DatasetOriginal(dataset_config)
         URM_coo = self.URM_train.tocoo(copy=True)
-        orignalDataset.n_users = URM_coo.shape[0]
-        orignalDataset.n_items = URM_coo.shape[1]
-        orignalDataset.device = torch.device('cuda')
-        orignalDataset.train_array = restoreTrainArray(URM_coo)
-        orignalDataset.lenght = len(orignalDataset.train_array)
-        orignalDataset.train_data = from_matrix_to_adjlist(URM_coo)
 
-        self.dataset = orignalDataset
+        datasetOriginalFormat.n_users = URM_coo.shape[0]
+        datasetOriginalFormat.n_items = URM_coo.shape[1]
+        datasetOriginalFormat.device = torch.device('cuda')
+        datasetOriginalFormat.train_array = restoreTrainArray(URM_coo)
+        datasetOriginalFormat.lenght = len(datasetOriginalFormat.train_array)
+        datasetOriginalFormat.train_data = from_matrix_to_adjlist(URM_coo)
 
-        self.model = get_model(model_config, orignalDataset)
+        ###model needs dataset as attribute to train and predict
+
+        self.model = get_model(model_config, datasetOriginalFormat)
 
         print(self.model)
 
+
+        self.trainer = get_trainer(trainer_config, datasetOriginalFormat, self.model)
+        print(self.trainer)
     """
         Function to instantiate and train the model 
     """
+
     def fit(self,
+            article_hyperparameters=None,
             # default params
             learning_rate_vae=1e-2,
             learning_rate_cvae=1e-3,
@@ -237,20 +247,27 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
             # These are standard
             temp_file_folder=None,
-            **earlystopping_kwargs
+            **earlystopping_kwargs,
+
             ):
 
         # Get unique temporary folder
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
-        self.USER_factors = np.array([num_factors * self.n_users])
-        self.ITEM_factors = np.array([num_factors * self.n_items])
+
 
         # DONE replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
-        self._init_model()
+        if(article_hyperparameters is not None):
+            dataset_config=article_hyperparameters['dataset_config']
+            model_config=article_hyperparameters['model_config']
+            trainer_config=article_hyperparameters['trainer_config']
+            self._init_model(d_config=dataset_config, m_config=model_config, t_config=trainer_config)
+        else:
+            self._init_model()
 
-        self.create_trainer()
+
+
         # The following code contains various operations needed by another wrapper
 
 

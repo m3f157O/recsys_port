@@ -93,7 +93,7 @@ def read_data_split_and_search(dataset_name,
 
 
 
-    device=torch.device('cpu')
+    device=torch.device('cuda')
 
 
     if dataset_name == "yelp":
@@ -155,18 +155,17 @@ def read_data_split_and_search(dataset_name,
     ######
     ######      DL ALGORITHM
     ######
+    dataset_config["path"] = 'Data_manager_split_datasets/Gowalla/time'
+
 
     if flag_DL_article_default:
 
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
-                #modified
-                  "batch_size": 2048,
-                  "epochs": 1000,
-                  "embedding_size": 64,
-
-                #default
+                  "dataset_config":dataset_config,
+                  "model_config": model_config,
+                  "trainer_config": trainer_config,
                   "epochs_MFBPR": 500,
                   "hidden_size": 128,
                   "negative_sample_per_positive": 1,
@@ -179,11 +178,26 @@ def read_data_split_and_search(dataset_name,
                   "channel_size": [32, 32, 32, 32, 32, 32],
                   "dropout": 0.0,
                   "epoch_verbose": 1,
-                # hyperparameter from the paper
+                  "learning_rate_vae":1e-2,
+                  "learning_rate_cvae":1e-3,
+                  "num_factors":50,
+                  "dimensions_vae":[200, 100],
+                  "epochs_vae":[50, 50],
+                  "lambda_u":0.1,
+                  "lambda_v":10,
+                  "lambda_r":1,
+                  "M":300,
                   "learning_rate": [0.0001, 0.001, 0.01],
                   "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
                   "dropout_rate": [0, 0.1, 0.3, 0.5, 0.7, 0.9],
-                  "sampling_size": 50
+                  "sampling_size":50,
+                  "batch_size":2048,
+                  "a":1,
+                  "b":0.01,
+                  "epochs":1000,
+                  "embedding_size":64,
+                  "temp_file_folder":None,
+
             }
 
             # Do not modify earlystopping
@@ -196,44 +210,19 @@ def read_data_split_and_search(dataset_name,
 
 
 
-            users=URM_train.shape[0]
-            items=URM_train.shape[1]
-
-
-            #device, log_path = init_file_and_device()
-
-            #config = get_yelp_config(device)
-            #config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
-
-            #dataset = acquire_dataset(log_path, config)
-
-
-
-
-            #print(len(dataset.train_array))
-            orignalDataset=DatasetOriginal()
-            orignalDataset.n_users=users
-            orignalDataset.n_items=items
-            orignalDataset.device=torch.device('cpu')
-            orignalDataset.train_array=restoreTrainArray(URM_train)
-            orignalDataset.lenght=len(orignalDataset.train_array)
-            orignalDataset.train_data=from_matrix_to_adjlist(URM_train)
-            print(len(orignalDataset))
-
 
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
             recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
-            IGN_CF_RecommenderWrapper.create_dataset(recommender_instance, orignalDataset)
-            IGN_CF_RecommenderWrapper.set_config(recommender_instance, model_config,trainer_config)
 
 
 
-            recommender_instance.fit()
+
+            recommender_instance.fit(article_hyperparameters,**earlystopping_hyperparameters)
             #
             # recommender_instance.fit(**article_hyperparameters,
-            #                          **earlystopping_hyperparameters)9
+            #                          **earlystopping_hyperparameters)
             #
             # evaluator_test.evaluateRecommender(recommender_instance)
 

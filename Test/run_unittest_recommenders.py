@@ -58,8 +58,8 @@ class MyTestSuite(object):
         cls.UCM_all = dataSplitter.get_loaded_UCM_dict()["UCM_all"]
 
         evaluator = EvaluatorHoldout(cls.URM_test, [5], exclude_seen = True)
-        earlystopping_keywargs = {"epochs": 20,
-                                  "validation_every_n": 5,
+        earlystopping_keywargs = {"epochs": 1,
+                                  "validation_every_n": 1,
                                   "stop_on_validation": True,
                                   "evaluator_object": evaluator,
                                   "lower_validations_allowed": 5,
