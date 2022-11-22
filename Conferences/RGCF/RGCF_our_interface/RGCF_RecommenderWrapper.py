@@ -24,11 +24,11 @@ from Conferences.CIKM.ExampleAlgorithm_github.main import get_model
 class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
 
     # Done replace the recommender name with the correct one
-    RECOMMENDER_NAME = "Example_RecommenderWrapper"
+    RECOMMENDER_NAME = "RGCF_RecommenderWrapper"
 
-    def __init__(self, URM_train, ICM_train):
-        # TODO remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        super(RGCF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
+    def __init__(self, URM_train):
+        # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
+        super(RGCF_RecommenderWrapper, self).__init__(URM_train)
 
         # This is used in _compute_item_score
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
