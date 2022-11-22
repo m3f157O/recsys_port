@@ -14,7 +14,7 @@ from Recommenders.DataIO import DataIO
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 import gdown as gd
-from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 import numpy as np
 import scipy.sparse as sp

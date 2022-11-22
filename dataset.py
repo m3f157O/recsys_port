@@ -1,1 +1,1 @@
-from Conferences.IGCN_CF.igcncf_github.dataset import *
+from Conferences.IGCN_CF.igcn_cf_github.dataset import *

@@ -1,1 +1,1 @@
-from Conferences.IGCN_CF.igcncf_github.model import *
+from Conferences.IGCN_CF.igcn_cf_github.model import *

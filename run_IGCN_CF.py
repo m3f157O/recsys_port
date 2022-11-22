@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from Conferences.IGCN_CF.IGN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
-from Conferences.IGCN_CF.igcncf_github.config import *
+from Conferences.IGCN_CF.IGCN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
+from Conferences.IGCN_CF.igcn_cf_github.config import *
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.AmazonReader import AmazonReader
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import init_file_and_device, acquire_dataset
@@ -12,7 +12,7 @@ from HyperparameterTuning.functions_for_parallel_model import _get_model_list_gi
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
 import scipy.sparse as sps
-from Conferences.IGCN_CF.igcncf_github.utils import init_run
+from Conferences.IGCN_CF.igcn_cf_github.utils import init_run
 
 import torch
 

@@ -6,7 +6,7 @@ import time
 import numpy as np
 import os
 #from utils import AverageMeter, get_sparse_tensor
-from Conferences.IGCN_CF.igcncf_github.utils import AverageMeter, get_sparse_tensor
+from Conferences.IGCN_CF.igcn_cf_github.utils import AverageMeter, get_sparse_tensor
 
 import torch.nn.functional as F
 import scipy.sparse as sp
@@ -19,7 +19,7 @@ def get_trainer(config, dataset, model):
     config['model'] = model
 
     #trainer = getattr(sys.modules['trainer'], config['name'])
-    trainer = getattr(sys.modules['Conferences.IGN_CF.igcncf_github.trainer'], config['name'])
+    trainer = getattr(sys.modules['Conferences.IGCN_CF.igcn_cf_github.trainer'], config['name'])
     trainer = trainer(config)
     return trainer
 

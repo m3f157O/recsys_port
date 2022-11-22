@@ -7,7 +7,7 @@ Created on 08/11/18
 """
 import time
 
-from Conferences.IGCN_CF.igcncf_github.dataset import ProcessedDataset
+from Conferences.IGCN_CF.igcn_cf_github.dataset import ProcessedDataset
 from Data_manager.DataReader import DataReader
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
@@ -15,7 +15,7 @@ from Data_manager.split_functions.split_train_validation_random_holdout import \
 from Recommenders.DataIO import DataIO
 import networkx
 import gdown as gd
-from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 import os
