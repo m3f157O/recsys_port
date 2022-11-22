@@ -11,6 +11,7 @@ from Data_manager.split_functions.split_train_validation_random_holdout import s
 import os
 from recbole.data import create_dataset, data_preparation
 from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movielens20MReader_DataManager
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
 
 
 class Movielens1MReader(object):
@@ -18,12 +19,12 @@ class Movielens1MReader(object):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path):
+    def __init__(self, pre_splitted_path,config):
 
         super(Movielens1MReader, self).__init__()
 
-        pre_splitted_path += "data_split/"
-        pre_splitted_filename = "splitted_data_"
+        #pre_splitted_path += "data_split/"
+        pre_splitted_filename = "ml-1m-processed"
 
         # If directory does not exist, create
         if not os.path.exists(pre_splitted_path):

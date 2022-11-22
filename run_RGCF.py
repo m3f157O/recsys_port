@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.MovieLens1MReader import Movielens1MReader
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
@@ -10,8 +11,6 @@ from Utils.ResultFolderLoader import ResultFolderLoader
 from functools import partial
 import numpy as np
 import os, traceback, argparse, multiprocessing
-from Conferences.CIKM.ExampleAlgorithm_our_interface.ExampleDatasetProvided.CiteulikeReader import CiteulikeReader
-from Conferences.CIKM.ExampleAlgorithm_our_interface.ExampleDatasetPublic.Movielens20MReader import Movielens20MReader
 
 from Conferences.CIKM.ExampleAlgorithm_our_interface.Example_RecommenderWrapper import Example_RecommenderWrapper
 
@@ -35,28 +34,43 @@ def read_data_split_and_search(dataset_name,
     #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
     #  already available in this repository could be used
     model=RGCF
-    config = Config(model=RGCF, dataset="ml-1m",
-                    config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml', './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
 
-    dataset = create_dataset(config)
-    print(dataset)
-    train_data, valid_data, test_data = data_preparation(config, dataset)
-    print(type(train_data.dataset))
-    cicic=train_data.dataset.inter_matrix(form='coo')
-    print(cicic)
-    print(type(cicic))
-    model = model(config, train_data.dataset).to(config['device'])
-    print(model)
-    return
+    config = Config(model=RGCF, dataset="ml-1m",
+                    config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                      './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+    #dataset = create_dataset(config)
+    #print(dataset)
+    #train_data, valid_data, test_data = data_preparation(config, dataset)
+    #print(type(train_data.dataset))
+    #cane2=enumerate(train_data.dataset)
+    #cicic=train_data.dataset.inter_matrix(form='coo')
+    #print(cicic.shape)
+    #print(type(cicic))
+    #cane1=enumerate(cicic)
+    #model = model(config, train_data.dataset).to(config['device'])
+    #print(model)
+    #trainer = customized_Trainer(config, model)
+    #print(trainer)
+    #_, best_valid_result = trainer.fit(
+    #    train_data, valid_data, saved=True, show_progress=config['show_progress'])
 
 
     if dataset_name == "movielens1m":
-        dataset = Movielens20MReader(data_folder_path)
+        config = Config(model=RGCF, dataset="ml-1m",
+                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset", config=config)
 
     elif dataset_name == "yelp":
-        dataset = YelpReader(data_folder_path)
+        config = Config(model=RGCF, dataset="ml-1m",
+                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset", config=config)
     elif dataset_name == "amazon-book":
-        dataset = AmazonReader(data_folder_path)
+        config = Config(model=RGCF, dataset="ml-1m",
+                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset", config=config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
