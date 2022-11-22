@@ -1,5 +1,5 @@
 import numpy as np
-
+import scipy.sparse as sp
 
 
 """"
@@ -37,3 +37,20 @@ def preprocessing(n_users, n_items,URM_val,URM_train,URM_test):
 
     return URM_val, URM_train, URM_test
 
+
+
+
+
+def delete_row_csr(mat, i):
+
+    n = mat.indptr[i+1] - mat.indptr[i]
+    if n > 0:
+        mat.data[mat.indptr[i]:-n] = mat.data[mat.indptr[i+1]:]
+        mat.data = mat.data[:-n]
+        mat.indices[mat.indptr[i]:-n] = mat.indices[mat.indptr[i+1]:]
+        mat.indices = mat.indices[:-n]
+    mat.indptr[i:-1] = mat.indptr[i+1:]
+    mat.indptr[i:] -= n
+    mat.indptr = mat.indptr[:-1]
+    mat._shape = (mat._shape[0]-1, mat._shape[1])
+    return mat

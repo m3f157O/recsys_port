@@ -8,6 +8,8 @@ Created on 18/12/18
 
 
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
+from Recommenders.BaseSimilarityMatrixRecommender import BaseUserSimilarityMatrixRecommender, \
+    BaseSimilarityMatrixRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
@@ -26,16 +28,17 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "RGCF_RecommenderWrapper"
 
-    def __init__(self, URM_train):
+    def __init__(self, URM_train, ICM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        super(RGCF_RecommenderWrapper, self).__init__(URM_train)
+        super(BaseUserSimilarityMatrixRecommender, self).__init__(URM_train)
 
         # This is used in _compute_item_score
+        super().__init__(URM_train, ICM_train)
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
 
 
     def _compute_item_score(self, user_id_array, items_to_compute=None):
-        # TODO if the model in the end is either a matrix factorization algorithm or an ItemKNN/UserKNN
+        # Done if the model in the end is either a matrix factorization algorithm or an ItemKNN/UserKNN
         #  you can have this class inherit from BaseMatrixFactorization, BaseItemSimilarityMatrixRecommender
         #  or BaseUSerSimilarityMatrixRecommender
         #  in which case you do not have to re-implement this function, you only need to set the
