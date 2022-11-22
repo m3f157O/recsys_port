@@ -11,8 +11,8 @@ from recbole.model.init import xavier_uniform_initialization
 from recbole.model.loss import BPRLoss, EmbLoss
 from recbole.utils import InputType
 
-import utils
-from spmm import SpecialSpmm, CHUNK_SIZE_FOR_SPMM
+import Conferences.RGCF.RGCF_github.utils as utils
+from Conferences.RGCF.RGCF_github.spmm import SpecialSpmm, CHUNK_SIZE_FOR_SPMM
 
 
 class RGCF(GeneralRecommender):

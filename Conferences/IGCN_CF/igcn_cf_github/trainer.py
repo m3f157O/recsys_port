@@ -7,7 +7,6 @@ import numpy as np
 import os
 #from utils import AverageMeter, get_sparse_tensor
 from Conferences.IGCN_CF.igcn_cf_github.utils import AverageMeter, get_sparse_tensor
-
 import torch.nn.functional as F
 import scipy.sparse as sp
 from dataset import AuxiliaryDataset
@@ -300,7 +299,12 @@ class IGCNTrainer(BasicTrainer):
 
     def train_one_epoch(self):
         losses = AverageMeter()
+        total_size=len(self.dataloader)
+        index=0.0
+        first=0
         for batch_data, a_batch_data in zip(self.dataloader, self.aux_dataloader):
+            index=index+1.0
+
             inputs = batch_data[:, 0, :].to(device=self.device, dtype=torch.int64)
             users, pos_items, neg_items = inputs[:, 0],  inputs[:, 1],  inputs[:, 2]
             users_r, pos_items_r, neg_items_r, l2_norm_sq = self.model.bpr_forward(users, pos_items, neg_items)
@@ -323,6 +327,14 @@ class IGCNTrainer(BasicTrainer):
             loss.backward()
             self.opt.step()
             losses.update(loss.item(), inputs.shape[0])
+            perc=index/total_size
+            stars=int(perc*(50))
+
+            if(stars==first):
+                first=first+1
+                print("#",end="")
+
+        print("")
         self.model.feat_mat_anneal()
         return losses.avg
 

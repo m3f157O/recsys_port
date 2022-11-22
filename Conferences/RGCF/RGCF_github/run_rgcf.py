@@ -25,6 +25,7 @@ def run(model=None, dataset="ml-1m", config_file_list=None, config_dict=None, sa
     # configurations initialization
     config = Config(model=model, dataset=dataset,
                     config_file_list=config_file_list, config_dict=config_dict)
+    ##todo skiped?
     init_seed(config['seed'], config['reproducibility'])
 
     # logger initialization
@@ -43,6 +44,7 @@ def run(model=None, dataset="ml-1m", config_file_list=None, config_dict=None, sa
             config, dataset)
     else:
         train_data, valid_data, test_data = data_preparation(config, dataset)
+
 
     # model loading and initialization
     model = model(config, train_data.dataset).to(config['device'])
