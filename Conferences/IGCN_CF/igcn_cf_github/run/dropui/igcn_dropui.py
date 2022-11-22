@@ -1,10 +1,10 @@
-from Conferences.IGN_CF.igcncf_github.dataset import get_dataset
-from Conferences.IGN_CF.igcncf_github.model import get_model
-from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
+from Conferences.IGCN_CF.igcncf_github.dataset import get_dataset
+from Conferences.IGCN_CF.igcncf_github.model import get_model
+from Conferences.IGCN_CF.igcncf_github.trainer import get_trainer
 import torch
-from Conferences.IGN_CF.igcncf_github.utils import init_run
+from Conferences.IGCN_CF.igcncf_github.utils import init_run
 from tensorboardX import SummaryWriter
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 
 def main():

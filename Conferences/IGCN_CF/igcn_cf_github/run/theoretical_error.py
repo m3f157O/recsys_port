@@ -1,7 +1,7 @@
-from Conferences.IGN_CF.igcncf_github.dataset import get_dataset
+from Conferences.IGCN_CF.igcncf_github.dataset import get_dataset
 import torch
-from Conferences.IGN_CF.igcncf_github.utils import init_run, generate_daj_mat, get_sparse_tensor, graph_rank_nodes
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGCN_CF.igcncf_github.utils import init_run, generate_daj_mat, get_sparse_tensor, graph_rank_nodes
+from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 import numpy as np
 from sortedcontainers import SortedList
 import scipy.sparse as sp

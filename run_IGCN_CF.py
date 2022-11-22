@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from Conferences.IGN_CF.IGN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
-from Conferences.IGN_CF.igcncf_github.config import *
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.GowallaReader import GowallaReader
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.AmazonReader import AmazonReader
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import init_file_and_device, acquire_dataset
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.YelpReader import YelpReader
+from Conferences.IGCN_CF.IGN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
+from Conferences.IGCN_CF.igcncf_github.config import *
+from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.GowallaReader import GowallaReader
+from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.AmazonReader import AmazonReader
+from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import init_file_and_device, acquire_dataset
+from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.YelpReader import YelpReader
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
 import scipy.sparse as sps
-from Conferences.IGN_CF.igcncf_github.utils import init_run
+from Conferences.IGCN_CF.igcncf_github.utils import init_run
 
 import torch
 
@@ -22,7 +22,7 @@ import os, traceback, argparse, multiprocessing
 
 from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
+from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 """"
     Class to build the dataset with the sparse matrices taken by the IGN_CFReader
@@ -99,17 +99,17 @@ def read_data_split_and_search(dataset_name,
     if dataset_name == "yelp":
         config = get_yelp_config(device)
         dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Yelp/"
+        pre_splitted_path = "Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/Yelp/"
         dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
         config = get_amazon_config(device)
         dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Amazon/"
+        pre_splitted_path = "Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/Amazon/"
         dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
         config = get_gowalla_config(device)
         dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = "Conferences/IGN_CF/igcncf_our_interface/DatasetPublic/data/Gowalla/"
+        pre_splitted_path = "Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/Gowalla/"
         dataset_reader = GowallaReader(pre_splitted_path,config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))

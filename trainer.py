@@ -1,1 +1,1 @@
-from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
+from Conferences.IGCN_CF.igcncf_github.trainer import get_trainer

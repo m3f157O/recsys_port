@@ -1,7 +1,7 @@
-from Conferences.IGN_CF.igcncf_github.dataset import get_dataset
-from Conferences.IGN_CF.igcncf_github.model import get_model
+from Conferences.IGCN_CF.igcncf_github.dataset import get_dataset
+from Conferences.IGCN_CF.igcncf_github.model import get_model
 import torch
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config
+from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config
 import numpy as np
 import matplotlib.pyplot as plt
 import dgl

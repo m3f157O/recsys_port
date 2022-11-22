@@ -401,7 +401,7 @@ class MyTestSuite_stochastic(MyTestSuite):
 # class MyTestSuite_NegHOSLIMLSQR(MyTestSuite, unittest.TestCase):
 #     recommender_class = NegHOSLIMLSQR
 
-from Conferences.IGN_CF.IGN_CF_RecommenderWrapper import *
+from Conferences.IGCN_CF.IGN_CF_RecommenderWrapper import *
 class MyTestSuite_PortedModel(MyTestSuite, unittest.TestCase):
     # TODO: Put here the class of the ported recommender
     # The entire set of tests may take some time, even 30+ minutes if the model training is slow, the test-class initialization will

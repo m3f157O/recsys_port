@@ -11,10 +11,10 @@ from Data_manager.split_functions.split_train_validation_random_holdout import \
 
 from Recommenders.DataIO import DataIO
 
-from Conferences.IGN_CF.igcncf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
+from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 import gdown as gd
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 
 import numpy as np
 import scipy.sparse as sp

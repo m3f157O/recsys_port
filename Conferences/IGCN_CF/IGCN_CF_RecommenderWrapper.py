@@ -6,8 +6,8 @@ Created on 18/12/18
 @author: Maurizio Ferrari Dacrema
 """
 import logging
-from Conferences.IGN_CF.igcncf_github.config import *
-from Conferences.IGN_CF.igcncf_github.dataset import *
+from Conferences.IGCN_CF.igcncf_github.config import *
+from Conferences.IGCN_CF.igcncf_github.dataset import *
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
 from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
@@ -21,7 +21,7 @@ import scipy.sparse as sps
 
 from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommender
 from model import get_model
-from Conferences.IGN_CF.igcncf_github.trainer import get_trainer
+from Conferences.IGCN_CF.igcncf_github.trainer import get_trainer
 
 
 """

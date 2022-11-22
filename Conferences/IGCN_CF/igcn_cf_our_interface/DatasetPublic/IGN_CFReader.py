@@ -1,8 +1,8 @@
 import torch
-from Conferences.IGN_CF.igcncf_github.utils import init_run
+from Conferences.IGCN_CF.igcncf_github.utils import init_run
 
 from dataset import get_dataset
-from Conferences.IGN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
+from Conferences.IGCN_CF.igcncf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 from tensorboardX import SummaryWriter
 import os, sys
 import numpy as np
