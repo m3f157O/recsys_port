@@ -10,7 +10,11 @@ from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
-
+import requests
+import zipfile
+import gzip
+import shutil
+import gdown as gd
 
 class AmazonReader(object):
 
@@ -31,6 +35,7 @@ class AmazonReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
+            raise FileNotFoundError
 
             print("AmazonReader: Attempting to load pre-splitted data")
 
@@ -44,6 +49,16 @@ class AmazonReader(object):
 
             print("AmazonReader: loading URM")
 
+
+            url = "https://drive.google.com/file/d/1x5I2wHvKf2C4KxtczGHLNvofHX_G5fS3/view?usp=share_link"
+            output = "Data_manager_split_datasets/Amazon_Books_RGCF.zip"
+
+            if os.path.isfile(output) != True:
+                gd.download(url=url, output=output, quiet=False, fuzzy=True)
+
+            with zipfile.ZipFile(output, 'r') as zip_ref:
+                zip_ref.extractall(pre_splitted_path)
+
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)
 
@@ -53,7 +68,7 @@ class AmazonReader(object):
 
             n_users = URM_train.shape[0]
             n_items = URM_train.shape[1]
-            URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
+            #URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
 
 
             # Done get the sparse matrices in the correct dictionary with the correct name

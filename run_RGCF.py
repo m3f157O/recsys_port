@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.MovieLens1MReader import Movielens1MReader
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.AmazonReader import AmazonReader
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.YelpReader import YelpReader
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
@@ -59,28 +61,31 @@ def read_data_split_and_search(dataset_name,
         config = Config(model=RGCF, dataset="ml-1m",
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
+        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/ml-1m", config=config)
 
     elif dataset_name == "yelp":
-        config = Config(model=RGCF, dataset="ml-1m",
+        config = Config(model=RGCF, dataset="yelp2018",
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset", config=config)
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
+
+        dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
     elif dataset_name == "amazon-book":
-        config = Config(model=RGCF, dataset="ml-1m",
+        config = Config(model=RGCF, dataset="Amazon_Books",
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset", config=config)
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
+        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/Amazon_Books", config=config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
 
     print('Current dataset is: {}'.format(dataset_name))
-
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
     URM_test = dataset.URM_DICT["URM_test"].copy()
-
+    print(URM_test)
     URM_train_last_test = URM_train + URM_validation
 
     # Ensure IMPLICIT data and disjoint test-train split

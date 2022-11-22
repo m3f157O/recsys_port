@@ -10,7 +10,9 @@ from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
-
+import gdown as gd
+import zipfile
+import shutil
 
 class YelpReader(object):
 
@@ -32,6 +34,7 @@ class YelpReader(object):
 
         try:
 
+            raise FileNotFoundError
             print("YelpReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -42,7 +45,21 @@ class YelpReader(object):
 
             print("YelpReader: Pre-splitted data not found, building new one")
 
+            ##todo find a way to download from logged-in kaggle account
+            ##or upload on drive :)
             print("YelpReader: loading URM")
+
+            url = "https://drive.google.com/file/d/1Hte_6IDyqy-1Fjs6ArIqKp1NzGE4FcVn/view"
+            output = "Data_manager_split_datasets/Yelp_RGCF.zip"
+
+            if os.path.isfile(output) != True:
+                gd.download(url=url, output=output, quiet=False, fuzzy=True)
+
+            with zipfile.ZipFile(output, 'r') as zip_ref:
+                zip_ref.extractall(pre_splitted_path)
+            #fix this broken dataset
+            #if os.path.isfile(pre_splitted_path+'yelp2018') != True:
+            #    shutil.move("./yelp2018",pre_splitted_path)
 
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)

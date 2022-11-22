@@ -14,7 +14,7 @@ from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movi
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
 import requests
 import zipfile
-
+import gdown as gd
 class Movielens1MReader(object):
 
     URM_DICT = {}
@@ -34,7 +34,6 @@ class Movielens1MReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
-
             raise FileNotFoundError
             print("Movielens20MReader: Attempting to load pre-splitted data")
 
@@ -49,12 +48,11 @@ class Movielens1MReader(object):
             print("Movielens20MReader: loading URM")
 
 
-            url = "https://files.grouplens.org/datasets/movielens/ml-1m.zip"
-            output = "Data_manager_split_datasets/MovieLens1M.zip"
+            url = "https://drive.google.com/file/d/1sqgFpwHNWNPaMlVFHbQQXIRaAN9i3KUJ/view"
+            output = "Data_manager_split_datasets/ml-1m_RGCF.zip"
 
             if os.path.isfile(output) != True:
-                data=requests.get(url)
-                open(output, "wb").write(data.content)
+                gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
             with zipfile.ZipFile(output, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
@@ -68,7 +66,7 @@ class Movielens1MReader(object):
 
             n_users = URM_train.shape[0]
             n_items = URM_train.shape[1]
-            URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
+            #URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
 
 
             # Done get the sparse matrices in the correct dictionary with the correct name
@@ -76,6 +74,7 @@ class Movielens1MReader(object):
             self.ICM_DICT = {}
             self.UCM_DICT = {}
 
+            #todo dataset is inconsistent with paper
             self.URM_DICT = {
                 "URM_train": URM_train,
                 "URM_test": URM_test,
