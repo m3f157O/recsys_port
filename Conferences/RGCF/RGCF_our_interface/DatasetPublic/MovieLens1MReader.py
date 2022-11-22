@@ -12,7 +12,8 @@ import os
 from recbole.data import create_dataset, data_preparation
 from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movielens20MReader_DataManager
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
-
+import requests
+import zipfile
 
 class Movielens1MReader(object):
 
@@ -34,6 +35,7 @@ class Movielens1MReader(object):
 
         try:
 
+            raise FileNotFoundError
             print("Movielens20MReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -45,6 +47,17 @@ class Movielens1MReader(object):
             print("Movielens20MReader: Pre-splitted data not found, building new one")
 
             print("Movielens20MReader: loading URM")
+
+
+            url = "https://files.grouplens.org/datasets/movielens/ml-1m.zip"
+            output = "Data_manager_split_datasets/MovieLens1M.zip"
+
+            if os.path.isfile(output) != True:
+                data=requests.get(url)
+                open(output, "wb").write(data.content)
+
+            with zipfile.ZipFile(output, 'r') as zip_ref:
+                zip_ref.extractall(pre_splitted_path)
 
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)
