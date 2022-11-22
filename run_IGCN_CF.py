@@ -359,8 +359,8 @@ def read_data_split_and_search(dataset_name,
 if __name__ == '__main__':
 
     # Done: Replace with algorithm and conference name
-    ALGORITHM_NAME = "INMO"
-    CONFERENCE_NAME = "IGN_CF"
+    ALGORITHM_NAME = "IGCN_CF"
+    CONFERENCE_NAME = "INMO: A Model-Agnostic and Scalable Module for Inductive Collaborative Filtering"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--baseline_tune', help="Baseline hyperparameter search", type=bool, default=True)

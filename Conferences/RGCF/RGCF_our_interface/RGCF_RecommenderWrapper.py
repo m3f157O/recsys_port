@@ -8,29 +8,27 @@ Created on 18/12/18
 
 
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
-from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
 
 import numpy as np
 import tensorflow as tf
-import os, shutil
 import scipy.sparse as sps
 
 from Conferences.CIKM.ExampleAlgorithm_github.main import get_model
 
 
 
-# TODO replace the recommender class name with the correct one
-class Example_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
+# Done replace the recommender class name with the correct one
+class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
 
-    # TODO replace the recommender name with the correct one
+    # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "Example_RecommenderWrapper"
 
     def __init__(self, URM_train, ICM_train):
         # TODO remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        super(Example_RecommenderWrapper, self).__init__(URM_train, ICM_train)
+        super(RGCF_RecommenderWrapper, self).__init__(URM_train, ICM_train)
 
         # This is used in _compute_item_score
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)

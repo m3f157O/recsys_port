@@ -49,13 +49,14 @@ def read_data_split_and_search(dataset_name,
     print(model)
     return
 
-    if dataset_name == "citeulike":
-        dataset = CiteulikeReader(data_folder_path)
 
-    elif dataset_name == "movielens1m":
+    if dataset_name == "movielens1m":
         dataset = Movielens20MReader(data_folder_path)
 
-
+    elif dataset_name == "yelp":
+        dataset = YelpReader(data_folder_path)
+    elif dataset_name == "amazon-book":
+        dataset = AmazonReader(data_folder_path)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
@@ -76,7 +77,7 @@ def read_data_split_and_search(dataset_name,
     if not os.path.exists(result_folder_path):
         os.makedirs(result_folder_path)
 
-    # TODO Replace metric to optimize and cutoffs
+    # Done Replace metric to optimize and cutoffs
     metric_to_optimize = 'NDCG'
     cutoff_to_optimize = 10
 
@@ -88,12 +89,12 @@ def read_data_split_and_search(dataset_name,
     n_processes = 3
     resume_from_saved = True
 
-    # TODO Select the evaluation protocol
-    # evaluator_validation = EvaluatorNegativeItemSample(URM_validation, URM_test_negative, cutoff_list=cutoff_list_validation)
-    # evaluator_test = EvaluatorNegativeItemSample(URM_test, URM_test_negative, cutoff_list=cutoff_list_test)
-    evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
+    # TODO Select the evaluation protocol  --> check this
+    evaluator_validation = EvaluatorNegativeItemSample(URM_validation, URM_test_negative, cutoff_list=cutoff_list_validation)
+    evaluator_test = EvaluatorNegativeItemSample(URM_test, URM_test_negative, cutoff_list=cutoff_list_test)
+    # evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
     evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
-    evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
+    #evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
 
     ################################################################################################
     ######
@@ -103,9 +104,18 @@ def read_data_split_and_search(dataset_name,
     if flag_DL_article_default:
 
         try:
-            # TODO fill this dictionary with the hyperparameters of the algorithm
+            # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
-                "batch_size": 512,
+                #modified
+                "batch_size": 4096,
+                #added
+                "number_of_layers_K": [2, 3],
+                "learning_rate": [e^-5, e^-3],
+                "pruning_threshold_beta":[0.02, 0.04, 0.1],
+                "temperature_tau": [0.05, 0.1, 0.2],
+                "diversity_loss_coefficient_lambda1": [e^-5, e^-6, e^-7, e^-8],
+                "regularization_coefficient_lambda2": e^-5,
+                #default
                 "epochs": 300,
                 "epochs_MFBPR": 500,
                 "embedding_size": 64,
@@ -270,9 +280,9 @@ def read_data_split_and_search(dataset_name,
 
 if __name__ == '__main__':
 
-    # TODO: Replace with algorithm and conference name
+    # Done: Replace with algorithm and conference name
     ALGORITHM_NAME = "RGCF"
-    CONFERENCE_NAME = "????"
+    CONFERENCE_NAME = "Learning to Denoise Unreliable Interactions for Graph Collaborative Filtering"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--baseline_tune', help="Baseline hyperparameter search", type=bool, default=True)
@@ -286,8 +296,8 @@ if __name__ == '__main__':
     # Reporting only the cosine similarity is enough
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
-    # TODO: Replace with dataset names
-    dataset_list = ["movielens1m"]
+    # Done: Replace with dataset names
+    dataset_list = ["movielens1m"] #"yelp","amazon-book"
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
