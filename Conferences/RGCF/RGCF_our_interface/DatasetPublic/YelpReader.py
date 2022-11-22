@@ -7,23 +7,22 @@ Created on 08/11/18
 """
 
 from Recommenders.DataIO import DataIO
-from Data_manager.split_functions.split_train_validation_random_holdout import split_train_in_two_percentage_global_sample
 import os
 from recbole.data import create_dataset, data_preparation
-from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movielens20MReader_DataManager
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
 
 
-class Movielens1MReader(object):
+class YelpReader(object):
 
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path):
+    def __init__(self, pre_splitted_path, config):
 
-        super(Movielens1MReader, self).__init__()
+        super(YelpReader, self).__init__()
 
-        pre_splitted_path += "data_split/"
-        pre_splitted_filename = "splitted_data_"
+        #pre_splitted_path += "data_split/"
+        pre_splitted_filename = "yelp-processed"
 
         # If directory does not exist, create
         if not os.path.exists(pre_splitted_path):
@@ -33,7 +32,7 @@ class Movielens1MReader(object):
 
         try:
 
-            print("Movielens20MReader: Attempting to load pre-splitted data")
+            print("YelpReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                  self.__setattr__(attrib_name, attrib_object)
@@ -41,9 +40,9 @@ class Movielens1MReader(object):
 
         except FileNotFoundError:
 
-            print("Movielens20MReader: Pre-splitted data not found, building new one")
+            print("YelpReader: Pre-splitted data not found, building new one")
 
-            print("Movielens20MReader: loading URM")
+            print("YelpReader: loading URM")
 
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)
@@ -78,7 +77,7 @@ class Movielens1MReader(object):
 
             dataIO.save_data(pre_splitted_filename, data_dict_to_save=data_dict_to_save)
 
-            print("Movielens20MReader: loading complete")
+            print("YelpMReader: loading complete")
 
 
 
