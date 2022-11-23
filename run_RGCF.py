@@ -108,11 +108,9 @@ def read_data_split_and_search(dataset_name,
     resume_from_saved = True
 
     # TODO Select the evaluation protocol  --> check this
-    #evaluator_validation = EvaluatorNegativeItemSample(URM_validation, URM_test_negative, cutoff_list=cutoff_list_validation)
-    #evaluator_test = EvaluatorNegativeItemSample(URM_test, URM_test_negative, cutoff_list=cutoff_list_test)
-    # evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
-    #evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
-    #evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
+    evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
+    evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
+    evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
 
     ################################################################################################
     ######
