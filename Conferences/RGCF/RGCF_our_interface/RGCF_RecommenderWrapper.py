@@ -196,8 +196,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         #print(self._compute_item_score([0]))
         #print(self._compute_item_score([0]))
 
-        print(self._compute_item_score([1]))
-
 
         # TODO Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
@@ -285,8 +283,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self._print("Saving model in file '{}'".format(folder_path + file_name))
 
         # TODO replace this with the Saver required by the model
-        #  in this case the neural network will be saved with the _weights suffix, which is rather standard
-        self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
+        #  THERE IS NONE!!!! just save the weights, and force them on the previous model
+        #self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
 
 
         data_dict_to_save = {

@@ -341,6 +341,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Done replace this with the train loop for one epoch of the model -> we couldn't because we would have to change
         # most of the code, so each epoch we retrieve the trainer and train the model
 
+        ##todo ensure self.model.training is True
         start=time.time()
         ##todo remove evaluation part from training
         avg_loss = self.trainer.train_one_epoch()
