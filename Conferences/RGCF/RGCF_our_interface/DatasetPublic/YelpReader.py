@@ -68,6 +68,7 @@ class YelpReader(object):
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
 
+            ##todo dataset size is wrong by LARGE
             n_users = URM_train.shape[0] - 1
             n_items = URM_train.shape[1]
 

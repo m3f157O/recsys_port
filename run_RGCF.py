@@ -70,11 +70,12 @@ def read_data_split_and_search(dataset_name,
 
         dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
     elif dataset_name == "amazon-book":
-        config = Config(model=RGCF, dataset="Amazon_Books",
+        ##NEVER USE RECBOLE AND NAMES WITH UNDERSCORE :D
+        config = Config(model=RGCF, dataset="amz",
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
-        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/Amazon_Books", config=config)
+        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/amz", config=config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
@@ -322,7 +323,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["movielens1m"] #,"yelp","amazon-book"]
+    dataset_list = ["amazon-book"] #,"yelp","amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
