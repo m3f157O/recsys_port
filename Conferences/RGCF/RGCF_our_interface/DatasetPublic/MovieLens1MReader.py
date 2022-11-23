@@ -64,9 +64,11 @@ class Movielens1MReader(object):
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
 
-            n_users = 6040
-            n_items = 3629
-            URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
+
+            n_users = URM_train.shape[0]-1
+            n_items = URM_train.shape[1]
+
+            URM_validation, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
 
 
             # Done get the sparse matrices in the correct dictionary with the correct name
