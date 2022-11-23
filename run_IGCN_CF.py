@@ -96,20 +96,21 @@ def read_data_split_and_search(dataset_name,
     device=torch.device('cuda')
 
 
+    base_path="Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/"
     if dataset_name == "yelp":
         config = get_yelp_config(device)
         dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = "Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/Yelp/"
+        pre_splitted_path = base_path+"Yelp/"
         dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
         config = get_amazon_config(device)
         dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = "Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/Amazon/"
+        pre_splitted_path = base_path+"Amazon/"
         dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
         config = get_gowalla_config(device)
         dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = "Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/Gowalla/"
+        pre_splitted_path = base_path+"Gowalla/"
         dataset_reader = GowallaReader(pre_splitted_path,config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
@@ -155,8 +156,17 @@ def read_data_split_and_search(dataset_name,
     ######
     ######      DL ALGORITHM
     ######
-    dataset_config["path"] = 'Data_manager_split_datasets/Gowalla/time'
 
+    """
+        dataset config for gowalla     dataset_config = {'name': 'ProcessedDataset', 'path': 'data/Gowalla/time','device': torch.device('cuda')}
+        model config for gowalla         model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device,
+                                                        'dropout': 0.3, 'feature_ratio': 1.}
+        trainer config for gowalla       trainer_config = {'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 0., 'aux_reg': 0.01,
+                                        'device': device, 'n_epochs': 1000, 'batch_size': 2048, 'dataloader_num_workers': 6,
+                                        'test_batch_size': 512, 'topks': [20]}
+
+
+    """
 
     if flag_DL_article_default:
 

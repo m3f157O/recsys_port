@@ -40,9 +40,7 @@ def read_data_split_and_search(dataset_name,
     config = Config(model=RGCF, dataset="ml-1m",
                     config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                       './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-    #dataset = create_dataset(config)
-    #print(dataset)
-    #train_data, valid_data, test_data = data_preparation(config, dataset)
+
     #print(type(train_data.dataset))
     #cane2=enumerate(train_data.dataset)
     #cicic=train_data.dataset.inter_matrix(form='coo')
@@ -109,17 +107,19 @@ def read_data_split_and_search(dataset_name,
     resume_from_saved = True
 
     # TODO Select the evaluation protocol  --> check this
-    evaluator_validation = EvaluatorNegativeItemSample(URM_validation, URM_test_negative, cutoff_list=cutoff_list_validation)
-    evaluator_test = EvaluatorNegativeItemSample(URM_test, URM_test_negative, cutoff_list=cutoff_list_test)
+    #evaluator_validation = EvaluatorNegativeItemSample(URM_validation, URM_test_negative, cutoff_list=cutoff_list_validation)
+    #evaluator_test = EvaluatorNegativeItemSample(URM_test, URM_test_negative, cutoff_list=cutoff_list_test)
     # evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
-    evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
+    #evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
     #evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
 
     ################################################################################################
     ######
     ######      DL ALGORITHM
     ######
-
+    dataset = create_dataset(config)
+    print(dataset)
+    train_data, valid_data, test_data = data_preparation(config, dataset)
     if flag_DL_article_default:
 
 
@@ -129,15 +129,11 @@ def read_data_split_and_search(dataset_name,
             article_hyperparameters = {
                 #modified
                 "config":config,
-                "train_data":"TODO ADD HERE CONVERTED DATASET",
+                "train_data":train_data,
                 "batch_size": 4096,
                 #added
                 "number_of_layers_K": [2, 3],
-                "learning_rate": [e^-5, e^-3],
-                "pruning_threshold_beta":[0.02, 0.04, 0.1],
-                "temperature_tau": [0.05, 0.1, 0.2],
-                "diversity_loss_coefficient_lambda1": [e^-5, e^-6, e^-7, e^-8],
-                "regularization_coefficient_lambda2": e^-5,
+
                 #default
                 "epochs": 300,
                 "epochs_MFBPR": 500,
@@ -159,7 +155,6 @@ def read_data_split_and_search(dataset_name,
             earlystopping_hyperparameters = {"validation_every_n": 5,
                                              "stop_on_validation": True,
                                              "lower_validations_allowed": 5,
-                                             "evaluator_object": evaluator_validation,
                                              "validation_metric": metric_to_optimize,
                                              }
 

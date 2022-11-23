@@ -7,13 +7,14 @@ Created on 18/12/18
 """
 
 
-from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
+from Recommenders.BaseRecommender import BaseRecommender
 from Recommenders.BaseSimilarityMatrixRecommender import BaseUserSimilarityMatrixRecommender, \
     BaseSimilarityMatrixRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
 
+import torch
 import numpy as np
 import tensorflow as tf
 import scipy.sparse as sps
@@ -33,17 +34,15 @@ class Params():
     n_epochs = 0
 
 # Done replace the recommender class name with the correct one
-class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
+class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
 
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "RGCF_RecommenderWrapper"
 
-    def __init__(self, URM_train, ICM_train):
+    def __init__(self, URM_train):
         # Done remove ICM_train and inheritance from BaseItemCBFRecommender if content features are not needed
-        super(BaseUserSimilarityMatrixRecommender, self).__init__(URM_train)
-
         # This is used in _compute_item_score
-        super().__init__(URM_train, ICM_train)
+        super().__init__(URM_train)
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
 
 
@@ -76,8 +75,11 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
             # The prediction requires a list of two arrays user_id, item_id of equal length
             # To compute the recommendations for a single user, we must provide its index as many times as the
             # number of items
-            item_score_user = self.model.predict(user_id)
+            toPredict = {"user_id": user_id}
 
+            scores = self.model.full_sort_predict(toPredict)
+
+            item_score_user = scores.cpu().detach().numpy()
             # Do not modify this
             # Put the predictions in the correct items
             if items_to_compute is not None:
@@ -102,11 +104,14 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
 
         model = RGCF
         self.model = model(config, train_data.dataset).to(config['device'])
-        self.trainer = customized_Trainer(config, model)
+        self.trainer = customized_Trainer(config, self.model)
+        self.train_data=train_data
+        print(self.model)
+        print(self.trainer)
 
     def fit(self,
-            epochs = 100,
             article_hyperparameters=None,
+            epochs = 100,
             # TODO replace those hyperparameters with the ones you need
             learning_rate_vae = 1e-2,
             learning_rate_cvae = 1e-3,
@@ -186,6 +191,12 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
         if(article_hyperparameters is not None):
             self._init_model(config=article_hyperparameters["config"],train_data=article_hyperparameters["train_data"])
 
+        #print(self._compute_item_score([0]))
+        #print(self._compute_item_score([0]))
+        #print(self._compute_item_score([0]))
+        #print(self._compute_item_score([0]))
+
+        print(self._compute_item_score([1]))
 
 
         # TODO Close all sessions used for training and open a new one for the "_best_model"
@@ -195,7 +206,7 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
         ###############################################################################
         ### This is a standard training with early stopping part, most likely you won't need to change it
 
-        self._update_best_model()
+        #self._update_best_model()
 
         self._train_with_early_stopping(epochs,
                                         algorithm_name = self.RECOMMENDER_NAME,
@@ -226,31 +237,38 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
     def _run_epoch(self, currentEpoch):
         # TODO replace this with the train loop for one epoch of the model
 
-        train_data=self.URM_train ##todo fix this
         show_progress=True
         self.model.train()
 
         loss_func = self.model.calculate_loss
         total_loss = None
-        iter_data = (tqdm(
-            enumerate(train_data),
-            total=len(train_data),
-            desc=set_color(f"Train {currentEpoch:>5}", 'pink'),
-        ) if show_progress else enumerate(train_data))
+        iter_data = enumerate(self.train_data)
+        processed=0
+        first=0
+        total=(self.train_data.pr_end/self.train_data.step)*2
         for batch_idx, interaction in iter_data:
-            interaction = interaction.to(self.device)
+            processed=processed+1
+            interaction = interaction.to(self.trainer.device)
             self.trainer.optimizer.zero_grad()
 
-            loss = self.model.calculate_loss(interaction, epoch_idx=currentEpoch, tensorboard=self.tensorboard)
+            loss = self.model.calculate_loss(interaction, epoch_idx=currentEpoch, tensorboard=self.trainer.tensorboard)
 
             total_loss = loss.item() if total_loss is None else total_loss + loss.item()
             self.trainer._check_nan(loss)
             loss.backward()
-
             self.trainer.optimizer.step()
+            processed=processed+1
 
-        print("[#epoch=%06d], loss=%.5f" % (
-            currentEpoch, total_loss))
+            perc=processed/total
+            stars=int(perc*(50))
+
+            if(stars==first):
+                first=first+1
+                print("#",end="")
+        print(processed)
+
+
+        print(" loss=%.5f" % (total_loss))
 
 
 
