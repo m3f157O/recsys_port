@@ -127,12 +127,18 @@ def read_data_split_and_search(dataset_name,
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
-                #modified
+                #added for config
                 "config":config,
                 "train_data":train_data,
+                # modified
                 "batch_size": 4096,
                 #added
                 "number_of_layers_K": [2, 3],
+                "learning_rate": [1e-5, 1e-3],
+                "pruning_threshold_beta":[0.02, 0.04, 0.1],
+                "temperature_tau": [0.05, 0.1, 0.2],
+                "diversity_loss_coefficient_lambda1": [1e-5, 1e-6, 1e-7, 1e-8],
+                "regularization_coefficient_lambda2": 1e-5,
 
                 #default
                 "epochs": 300,
@@ -155,6 +161,7 @@ def read_data_split_and_search(dataset_name,
             earlystopping_hyperparameters = {"validation_every_n": 5,
                                              "stop_on_validation": True,
                                              "lower_validations_allowed": 5,
+                                             #"evaluator_object": evaluator_validation,
                                              "validation_metric": metric_to_optimize,
                                              }
 
