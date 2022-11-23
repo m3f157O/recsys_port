@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.MovieLens1MReader import Movielens1MReader
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.AmazonReader import AmazonReader
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.YelpReader import YelpReader
+from Conferences.RGCF.RGCF_our_interface.RGCF_RecommenderWrapper import RGCF_RecommenderWrapper
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
@@ -122,10 +122,14 @@ def read_data_split_and_search(dataset_name,
 
     if flag_DL_article_default:
 
+
+        ##todo add config and dataset for model creation, trainer instantiation
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
                 #modified
+                "config":config,
+                "train_data":"TODO ADD HERE CONVERTED DATASET",
                 "batch_size": 4096,
                 #added
                 "number_of_layers_K": [2, 3],
@@ -161,10 +165,10 @@ def read_data_split_and_search(dataset_name,
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
-            # recommender_instance = Example_RecommenderWrapper(URM_train)
+            recommender_instance = RGCF_RecommenderWrapper(URM_train)
             #
-            # recommender_instance.fit(**article_hyperparameters,
-            #                          **earlystopping_hyperparameters)
+            recommender_instance.fit(article_hyperparameters,
+                                      **earlystopping_hyperparameters)
             #
             # evaluator_test.evaluateRecommender(recommender_instance)
 

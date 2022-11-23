@@ -19,8 +19,18 @@ import tensorflow as tf
 import scipy.sparse as sps
 
 from Conferences.CIKM.ExampleAlgorithm_github.main import get_model
+from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
 
 
+from Conferences.RGCF.RGCF_github.rgcf import RGCF
+class Params():
+    lambda_u = 0
+    lambda_v = 0
+    lambda_r = 0
+    a = 0
+    b = 0
+    M = 0
+    n_epochs = 0
 
 # Done replace the recommender class name with the correct one
 class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
@@ -66,8 +76,7 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
             # The prediction requires a list of two arrays user_id, item_id of equal length
             # To compute the recommendations for a single user, we must provide its index as many times as the
             # number of items
-            item_score_user = self.model.predict([self._user_ones_vector*user_id, item_indices],
-                                                 batch_size=100, verbose=0)
+            item_score_user = self.model.predict(user_id)
 
             # Do not modify this
             # Put the predictions in the correct items
@@ -80,39 +89,24 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
         return item_scores
 
 
-    def _init_model(self):
+    def _init_model(self,config,train_data):
         """
         This function instantiates the model, it should only rely on attributes and not function parameters
         It should be used both in the fit function and in the load_model function
         :return:
         """
 
-        tf.reset_default_graph()
 
         # TODO Instantiate the model
         # Always clear the default graph if using tehsorflow
 
-
-
-        self.model = get_model(num_users = self.n_users,
-                          num_items = self.n_items,
-                          num_factors=num_factors,
-                          params=self._params,
-                          input_dim = input_dim,
-                          dims=dimensions_vae,
-                          n_z=num_factors,
-                          activations=activations,
-                          loss_type='cross-entropy',
-                          lr=learning_rate_cvae,
-                          random_seed=random_seed,
-                          print_step=10,
-                          verbose=False)
-
-
+        model = RGCF
+        self.model = model(config, train_data.dataset).to(config['device'])
+        self.trainer = customized_Trainer(config, model)
 
     def fit(self,
             epochs = 100,
-
+            article_hyperparameters=None,
             # TODO replace those hyperparameters with the ones you need
             learning_rate_vae = 1e-2,
             learning_rate_cvae = 1e-3,
@@ -189,14 +183,14 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
 
 
 
-        self._init_model()
+        if(article_hyperparameters is not None):
+            self._init_model(config=article_hyperparameters["config"],train_data=article_hyperparameters["train_data"])
 
 
 
         # TODO Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
-        self.sess.close()
-        self.sess = tf.Session()
+
 
         ###############################################################################
         ### This is a standard training with early stopping part, most likely you won't need to change it
@@ -232,21 +226,31 @@ class RGCF_RecommenderWrapper(BaseItemCBFRecommender, Incremental_Training_Early
     def _run_epoch(self, currentEpoch):
         # TODO replace this with the train loop for one epoch of the model
 
-        n = self.ICM_train.shape[0]
+        train_data=self.URM_train ##todo fix this
+        show_progress=True
+        self.model.train()
 
-        # for epoch in range(self._params.n_epochs):
-        num_iter = int(n / self._params.batch_size)
-        # gen_loss = self.cdl_estimate(data_x, params.cdl_max_iter)
-        gen_loss = self.model.cdl_estimate(self.ICM_train, num_iter)
-        self.model.m_theta[:] = self.model.transform(self.ICM_train)
-        likelihood = self.model.pmf_estimate(self._train_users, self._train_items, None, None, self._params)
-        loss = -likelihood + 0.5 * gen_loss * n * self._params.lambda_r
+        loss_func = self.model.calculate_loss
+        total_loss = None
+        iter_data = (tqdm(
+            enumerate(train_data),
+            total=len(train_data),
+            desc=set_color(f"Train {currentEpoch:>5}", 'pink'),
+        ) if show_progress else enumerate(train_data))
+        for batch_idx, interaction in iter_data:
+            interaction = interaction.to(self.device)
+            self.trainer.optimizer.zero_grad()
 
-        self.USER_factors = self.model.m_U.copy()
-        self.ITEM_factors = self.model.m_V.copy()
+            loss = self.model.calculate_loss(interaction, epoch_idx=currentEpoch, tensorboard=self.tensorboard)
 
-        logging.info("[#epoch=%06d], loss=%.5f, neg_likelihood=%.5f, gen_loss=%.5f" % (
-            currentEpoch, loss, -likelihood, gen_loss))
+            total_loss = loss.item() if total_loss is None else total_loss + loss.item()
+            self.trainer._check_nan(loss)
+            loss.backward()
+
+            self.trainer.optimizer.step()
+
+        print("[#epoch=%06d], loss=%.5f" % (
+            currentEpoch, total_loss))
 
 
 
