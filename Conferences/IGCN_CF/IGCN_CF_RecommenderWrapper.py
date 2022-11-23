@@ -200,7 +200,7 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         datasetOriginalFormat = DatasetOriginal(dataset_config)
         URM_coo = self.URM_train.tocoo(copy=True)
-
+        ##todo fix load amazon model """""bug"""""
         datasetOriginalFormat.n_users = URM_coo.shape[0]
         datasetOriginalFormat.n_items = URM_coo.shape[1]
         datasetOriginalFormat.device = torch.device('cuda')

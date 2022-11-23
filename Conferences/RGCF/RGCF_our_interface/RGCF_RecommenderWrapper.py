@@ -206,7 +206,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         ###############################################################################
         ### This is a standard training with early stopping part, most likely you won't need to change it
 
-        #self._update_best_model()
+        self._update_best_model()
 
         self._train_with_early_stopping(epochs,
                                         algorithm_name = self.RECOMMENDER_NAME,
@@ -288,9 +288,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         #  in this case the neural network will be saved with the _weights suffix, which is rather standard
         self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
 
-        # TODO Alternativley you may save the tensorflow model with a session
-        saver = tf.train.Saver()
-        saver.save(self.sess, folder_path + file_name + "_session")
 
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
