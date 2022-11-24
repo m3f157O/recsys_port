@@ -86,8 +86,8 @@ class Params():
 """
     Wrapper of the algorithm IGCN 
 """
-class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_Training_Early_Stopping,
-                                BaseTempFolder):
+class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_Training_Early_Stopping,
+                                 BaseTempFolder):
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "IGN_CF_RecommenderWrapper"
     dataset = []
@@ -132,12 +132,22 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         else:
             item_indices = self._item_indices
 
+        ##READ COMMENT BELOW
         self.model.training = False
         for user_index in range(len(user_id_array)):
 
             toTorch = np.array([user_id_array[user_index]])
             t = torch.from_numpy(toTorch)
 
+            """
+            FOR SOME REASON model.predicts HAS AN UNDEFINED BEHAVIOUR, THIS IS DUE
+            TO THE FACT THAT MANY FLAGS ARE CHECKED IN THE ORIGINAL IMPLEMENTATION,
+            MODIFYING THE WEIGHTS AND APPLYING DROPOUT AT PREDICTION-TIME
+            
+            WE JUST DECIDED TO CUT OUT THE EXACT SAME CODE USER FOR THE PREDICTION. MOREOVER, 
+            IT IS NECESSARY TO SET THE TRAINING FLAG TO FALSE, OR, EVEN DURING CONSEQUENT PREDICTIONS,
+            THE WEIGHT MAY CHANGE DRAMATICALLY
+            """
             rep = self.model.get_rep()
             users_r = rep[t, :]
             all_items_r = rep[self.n_users:, :]
@@ -187,8 +197,28 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
     def _init_model(self, d_config=None, m_config=None, t_config=None):
 
-        ##DEFAULT CONFIG IS GOWALLA, IN CASE IT DOES NOT GET PASSED,
-        ##THE WRAPPER IS STILL ABLE TO RETRIEVE AND TRAIN THE MODEL
+        """
+
+        WHAT DONE BELOW MAY SEEM LIKE A BAD PRACTICE, BUT WE ONLY DID IT TO INCREASE THE SPEED
+        AND NOT TO WASTE TONS OF SPACE:
+
+        WE WOULD NEED TO SAVE TWO CONFIG DICTIONARIES TO REINSATIATE THE MODEL AFTER SAVING IT:
+        IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE DATA STRUCTURES WHICH ARE
+        IN FACT NEEDED TO REISTANTIATE THE MODEL.
+
+        INSTEAD WE DECIDED TO PASS THESE ONLY ON THE FIRST INSTATIATION FROM THE FIT FUNCTION.
+        WHEN THE MODEL GETS RELOADED, IT WILL JUST USE THE GOWALLA CONFIGURATION, WHICH IS THE EXACT
+        SAME AS THE OTHER TWO (THE DIFFERENCE IS THE DATASET BUT WE ALREADY HAVE THAT)
+        EXCEPT FOR A VALUE IN model_config FOR Amazon (NO EXPLANATION OF THIS DIFFERENCE HAS BEEN
+        GIVEN BY THE AUTHORS)
+
+        SO, TO SPEED UP THE RELOADING AND AVOID SAVING HUGE DICTIONARIES, WE DECIDE TO USE THIS APPROACH.
+
+        THE RESULT WILL BE:
+        INSTANTIATE THE CORRECT MODEL AND TRAINER, WITH DIFFERENT CONFIG BUT RIGHT DATASET.
+        (OPTIONAL) PUT DROPOUT TO ZERO IF IT'S AMAZON DATASET (EASILY DETECTED)
+        USE THE BUILT IN MODEL FUNCTION TO RELOAD THE CORRECT WEIGHTS
+        """
 
         if(d_config==None):
             config = get_gowalla_config(device=torch.device('cuda'))
@@ -258,6 +288,14 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # DONE replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
+
+        """
+        THIS MAY BE AN OPINABLE CHOICE, BUT, AS SAID BEFORE, THE FUNCTION WILL DEFAULT TO THE GOWALLA MODEL IF NO PARAMETERS ARE GIVEN.
+        OF COURSE IF A WRAPPER WITH YELP DATASET CALLS INIT MODEL WITH DEFAULT PARAMETERS, IT IS ABSOLUTELY WRONG, BUT THIS NEVER HAPPENS.
+        
+        WHEN A MODEL IS SUBSEQUENTLY RELOADED, IT WILL ALWAYS LOAD THE CORRECT TRAINER (IGCN TRAINER), AND ALWAYS LOAD THE CORRECT MODEL,
+        EXCEPT FOR AMAZON CONFIGURATION, BECAUSE IT DIFFERS FROM ALL THE OTHER MODELS (NO DROPOUT, NO EXPLANATION GIVEN BY AUTHORS)
+        """
         if(article_hyperparameters is not None):
             dataset_config=article_hyperparameters['dataset_config']
             model_config=article_hyperparameters['model_config']
@@ -341,6 +379,18 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
         # Done replace this with the train loop for one epoch of the model -> we couldn't because we would have to change
         # most of the code, so each epoch we retrieve the trainer and train the model
 
+
+
+        """
+        THIS IS NOT PROPERLY COMPLIANT TO THE REQUIREMENTS, BUT DECOUPLING THE TRAINER FROM THE MODEL
+        WOULD HAVE MEANT CHANGING A LOT OF CODE AND MOREOVER NO GUARANTEES ON THE CORRECTNESS
+
+        IN THE ORIGINAL IMPLEMENTATION, THE ADDITIONAL DATA STRUCTURES OTHER THAN THE MODEL ARE:
+        trainer.dataloader, trainer.aux_dataloader, trainer.l2_reg, trainer.aux_reg,trainer.opt.zero_grad(),trainer.opt.step()
+        WHICH WOULD BE REALLY HEAVY AND RISKY TO IMPLEMENT, AS THEY ARE ALSO ATTRIBUTES OF THE ABSTRACT CLASS BasicTrainer
+
+        EXTREMELY HARD TO DECOUPLE
+        """
         ##todo ensure self.model.training is True
         start=time.time()
         ##todo remove evaluation part from training
@@ -423,6 +473,18 @@ class IGN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental_
 
         # Done replace this with what required to re-instantiate the model and load its weights,
         #  Call the init_model function you created before
+
+        """
+        WE DECIDED NOT TO SAVE ALL THE DICTIONARIES NEEDED FOR THE MODEL ISTANTIATION, BECAUSE THEY ARE REALLY HEAVY
+        AND CONTAIN A NUMBER OF WHOLE DATA STRUCTURES. INSTEAD, FOR THE RELOAD, WE LET THE MODEL INITIALIZE ITSELF 
+        WITH STANDARD gowalla_config, WHICH IS EXTREMELY FAST. THE TRAINER IS THE SAME FOR ALL THREE CONFIGURATIONS, 
+        THE DATASET CONFIG IS NOT NEEDED BECAUSE THE URM WILL GET TRANSFORMED IN THE DATASET DATA STRUCTURE AND PASSED TO get_model,
+        WHILE, STRANGELY, ALL THE MODELS ARE THE SAME EXCEPT FOR AMAZON WHICH HAS NO DROPOUT (NO EXPLANATION GIVEN BY THE AUTHORS)
+        
+        TRADEOFF IS:
+        PASS ALL THREE CONFIGS, LET THE WRAPPER USE THEM AGAIN TO INITIALIZE? NO, TOO SLOW
+        USE STANDARD GOWALLA CONFIG, JUST EDIT THE MODEL CONFIG AND FEED THE CORRECT DATA STRUCTURE TO OBTAIN THE SAME RESULT? EXTREMELY FAST
+        """
         self._init_model()
         self.model.load(folder_path + file_name + "_weights")
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from Conferences.IGCN_CF.IGCN_CF_RecommenderWrapper import IGN_CF_RecommenderWrapper
+from Conferences.IGCN_CF.IGCN_CF_RecommenderWrapper import IGCN_CF_RecommenderWrapper
 from Conferences.IGCN_CF.igcn_cf_github.config import *
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.AmazonReader import AmazonReader
@@ -96,6 +96,13 @@ def read_data_split_and_search(dataset_name,
     device=torch.device('cuda')
 
 
+    ##The configuration is necessary for the reader,
+    ##to use the original reading function (model.get_model())
+
+    ##Moreover, the dataset is a custom object, which needs to inherit
+    ##from BasicDataset class. We made a trick and bypassed this limitation,
+    ##but the config is necessary anyway
+
     base_path="Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/"
     if dataset_name == "yelp":
         config = get_yelp_config(device)
@@ -164,13 +171,25 @@ def read_data_split_and_search(dataset_name,
         trainer config for gowalla       trainer_config = {'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 0., 'aux_reg': 0.01,
                                         'device': device, 'n_epochs': 1000, 'batch_size': 2048, 'dataloader_num_workers': 6,
                                         'test_batch_size': 512, 'topks': [20]}
-
+        IN GENERAL, THE MODEL CONFIG DOESN'T DIFFER BETWEEN DATASETS, EXCEPT FOR AMAZON, WHERE
+        THERE IS NO DROPOUT AT ALL. THIS MAY BE A PROBLEM WHEN THE MODEL IS RELOADED, BECAUSE,
+        GIVEN THAT THE ENTIRE DATASET STRUCTURE IS NEEDED TO CALL get_model(), TO AVOID
+        SAVING AND RELOADING AND PASSING THE configs TO init_model() IN IGCN_CF_RecommenderWrapper.py,
+        WHICH ARE !!!REALLY!!! HEAVY DATA STRUCTURES, WE DECIDED TO ADD A DEFAULT LOADING OPTION IN init_model, WHICH
+        WILL ALWAYS PROCESS THE DATASET CORRECTLY, AND LOAD THE CORRECT TRAINER, BUT THE STANDARD MODEL CONFIG (gowalla)
+        WILL MODIFIED ON THE ['dropout'] ENTRY
 
     """
 
     if flag_DL_article_default:
 
         try:
+
+            """
+            WE COULD HAVE "UNPACKED" THE CONFIGS IN A MORE CLEAN WAY,
+            BUT SHORTLY AFTER WE WOULD HAVE HAD TO REPACK THEM, RESULTING
+            IN A LOT MORE CODE
+            """
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
                   "dataset_config":dataset_config,
@@ -224,7 +243,7 @@ def read_data_split_and_search(dataset_name,
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
-            recommender_instance = IGN_CF_RecommenderWrapper(URM_train)
+            recommender_instance = IGCN_CF_RecommenderWrapper(URM_train)
 
 
 
@@ -237,7 +256,7 @@ def read_data_split_and_search(dataset_name,
             # evaluator_test.evaluateRecommender(recommender_instance)
 
             # Fit the DL model, select the optimal number of epochs and save the result
-            hyperparameterSearch = SearchSingleCase(IGN_CF_RecommenderWrapper,
+            hyperparameterSearch = SearchSingleCase(IGCN_CF_RecommenderWrapper,
                                                     evaluator_validation=evaluator_validation_earlystopping,
                                                     evaluator_test=evaluator_test)
 
@@ -260,7 +279,7 @@ def read_data_split_and_search(dataset_name,
                                         metric_to_optimize=metric_to_optimize,
                                         cutoff_to_optimize=cutoff_to_optimize,
                                         output_folder_path=model_folder_path,
-                                        output_file_name_root=IGN_CF_RecommenderWrapper.RECOMMENDER_NAME,
+                                        output_file_name_root=IGCN_CF_RecommenderWrapper.RECOMMENDER_NAME,
                                         resume_from_saved=resume_from_saved,
                                         save_model="best",
                                         evaluate_on_test="best",
@@ -270,7 +289,7 @@ def read_data_split_and_search(dataset_name,
 
         except Exception as e:
 
-            print("On recommender {} Exception {}".format(IGN_CF_RecommenderWrapper, str(e)))
+            print("On recommender {} Exception {}".format(IGCN_CF_RecommenderWrapper, str(e)))
             traceback.print_exc()
 
     ################################################################################################
