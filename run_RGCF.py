@@ -124,6 +124,7 @@ def read_data_split_and_search(dataset_name,
     # TODO transform this URM into train_data -> AIUTO
     train_data, valid_data, test_data = data_preparation(config, dataset)
     file_inter = open("inter.txt", "w")
+    # TODO rewrite this
     file_inter.write(str(URM_train))
     if flag_DL_article_default:
         try:
