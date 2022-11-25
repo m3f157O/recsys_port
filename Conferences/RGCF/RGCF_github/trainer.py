@@ -12,7 +12,7 @@ class customized_Trainer(Trainer):
     def __init__(self, config, model):
         super(customized_Trainer, self).__init__(config, model)
 
-    def _train_epoch(self, train_data, epoch_idx, loss_func=None, show_progress=False):
+    def train_epoch(self, train_data, epoch_idx, loss_func=None, show_progress=False):
         self.model.train()
         loss_func = loss_func or self.model.calculate_loss
         total_loss = None

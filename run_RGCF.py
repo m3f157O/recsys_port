@@ -41,6 +41,7 @@ def read_data_split_and_search(dataset_name,
                     config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                       './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
 
+
     #print(type(train_data.dataset))
     #cane2=enumerate(train_data.dataset)
     #cicic=train_data.dataset.inter_matrix(form='coo')
@@ -118,17 +119,18 @@ def read_data_split_and_search(dataset_name,
     ######
     dataset = create_dataset(config)
     print(dataset)
+    # TODO transform this URM into train_data -> AIUTO
     train_data, valid_data, test_data = data_preparation(config, dataset)
+    file_inter = open("inter.txt", "w")
+    # TODO rewrite this
+    file_inter.write(str(URM_train))
     if flag_DL_article_default:
-
-
-        ##todo add config and dataset for model creation, trainer instantiation
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
                 #added for config
-                "config":config,
-                "train_data":train_data,
+                "config": config,
+                "train_data": train_data,
                 # modified
                 "batch_size": 4096,
                 #added
@@ -321,7 +323,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["amazon-book"] #,"yelp","amazon-book"]
+    dataset_list = ["movielens1m"] #,"yelp","amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
