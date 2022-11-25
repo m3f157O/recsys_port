@@ -136,7 +136,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
 
 
-        # TODO replace the following code with what needed to create an instance of the model.
+        # Done replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
 
@@ -197,7 +197,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         #print(self._compute_item_score([0]))
 
 
-        # TODO Close all sessions used for training and open a new one for the "_best_model"
+        # Done Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
 
 
@@ -220,12 +220,12 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
 
     def _prepare_model_for_validation(self):
-        # TODO Most likely you won't need to change this function
+        # Done Most likely you won't need to change this function
         pass
 
 
     def _update_best_model(self):
-        # TODO Most likely you won't need to change this function
+        # Done Most likely you won't need to change this function
         self.save_model(self.temp_file_folder, file_name="_best_model")
 
 
@@ -233,37 +233,14 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
 
     def _run_epoch(self, currentEpoch):
-        # TODO replace this with the train loop for one epoch of the model
+        # Done replace this with the train loop for one epoch of the model
 
-        show_progress=True
-        self.model.train()
+        total_loss=self.trainer.train_epoch(self.train_data,currentEpoch)
+        print(" loss=%.5f" % (total_loss))
 
-        loss_func = self.model.calculate_loss
-        total_loss = None
-        iter_data = enumerate(self.train_data)
-        processed=0
-        first=0
-        total=(self.train_data.pr_end/self.train_data.step)*2
-        for batch_idx, interaction in iter_data:
-            processed=processed+1
-            interaction = interaction.to(self.trainer.device)
-            self.trainer.optimizer.zero_grad()
+        return
 
-            loss = self.model.calculate_loss(interaction, epoch_idx=currentEpoch, tensorboard=self.trainer.tensorboard)
 
-            total_loss = loss.item() if total_loss is None else total_loss + loss.item()
-            self.trainer._check_nan(loss)
-            loss.backward()
-            self.trainer.optimizer.step()
-            processed=processed+1
-
-            perc=processed/total
-            stars=int(perc*(50))
-
-            if(stars==first):
-                first=first+1
-                print("#",end="")
-        print(processed)
 
 
         print(" loss=%.5f" % (total_loss))

@@ -120,17 +120,17 @@ def read_data_split_and_search(dataset_name,
     ######
     dataset = create_dataset(config)
     print(dataset)
+    # TODO transform this URM into train_data -> AIUTO
     train_data, valid_data, test_data = data_preparation(config, dataset)
+    file_inter = open("inter.txt", "w")
+    file_inter.write(str(URM_train))
     if flag_DL_article_default:
-
-
-        ##todo add config and dataset for model creation, trainer instantiation
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
                 #added for config
-                "config":config,
-                "train_data":train_data,
+                "config": config,
+                "train_data": train_data,
                 # modified
                 "batch_size": 4096,
                 #added
