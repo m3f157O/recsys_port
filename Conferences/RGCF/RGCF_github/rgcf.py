@@ -329,3 +329,20 @@ class RGCF(GeneralRecommender):
         u_embeddings = self.restore_user_e[user]
         scores = torch.matmul(u_embeddings, self.restore_item_e.transpose(0, 1))
         return scores.view(-1)
+
+
+
+    def save(self):
+
+        torch.save(self.state_dict(), "./params")
+
+
+
+
+
+    def load(self):
+        r"""A simple implementation of dumping model parameters for pretrain.
+
+        """
+        params = torch.load("./params")
+        self.load_state_dict(params)

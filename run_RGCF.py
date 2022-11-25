@@ -41,6 +41,7 @@ def read_data_split_and_search(dataset_name,
                     config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                       './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
 
+
     #print(type(train_data.dataset))
     #cane2=enumerate(train_data.dataset)
     #cicic=train_data.dataset.inter_matrix(form='coo')
@@ -323,7 +324,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["amazon-book"] #,"yelp","amazon-book"]
+    dataset_list = ["movielens1m"] #,"yelp","amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

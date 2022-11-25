@@ -34,8 +34,11 @@ def run(model=None, dataset="ml-1m", config_file_list=None, config_dict=None, sa
     logger.info(config)
 
     # dataset filtering
+    ## PASSIAMO DALLA URM A QUESTO
+
     dataset = create_dataset(config)
     logger.info(dataset)
+
 
     # dataset splitting
     if config['ptb_strategy'] != 'None':

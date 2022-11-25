@@ -243,7 +243,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
 
 
-        print(" loss=%.5f" % (total_loss))
 
 
 
