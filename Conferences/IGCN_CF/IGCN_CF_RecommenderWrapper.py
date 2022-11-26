@@ -173,20 +173,6 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
             It should be used both in the fit function and in the load_model function
             :return:
     """
-    def create_dataset(self, dataset_original):
-        # Done steal CORRECT MODEL CONFIG (config[2][1])
-        # Done call get model with hardcoded stuff ;)
-        self.dataset = dataset_original
-
-
-    def set_config(self, modelconfig, trainerconfig):
-        self.trainer_config = trainerconfig
-        self.model_config = modelconfig
-
-    """
-        Creates the trainer that has to be taken each epoch because using only the training loop would have implied
-        to change a lot of code, so we were obliged to take each epoch the trainer
-    """
 
 
     """
@@ -195,7 +181,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         :return:
      """
 
-    def _init_model(self, d_config=None, m_config=None, t_config=None):
+    def _init_model(self):
 
         """
 
@@ -206,9 +192,10 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE DATA STRUCTURES WHICH ARE
         IN FACT NEEDED TO REISTANTIATE THE MODEL.
 
-        INSTEAD WE DECIDED TO PASS THESE ONLY ON THE FIRST INSTATIATION FROM THE FIT FUNCTION.
-        WHEN THE MODEL GETS RELOADED, IT WILL JUST USE THE GOWALLA CONFIGURATION, WHICH IS THE EXACT
-        SAME AS THE OTHER TWO (THE DIFFERENCE IS THE DATASET BUT WE ALREADY HAVE THAT)
+        INSTEAD WE DECIDED, GIVEN THAT THE TRAINER AND MODEL CONFIG
+        ARE THE SAME FOR ALL THREE DATASET (EXCEPT FOR AMAZON WHICH HAS DROPOUT ZERO)
+        TO  JUST USE THE GOWALLA CONFIGURATION, WHICH IS THE EXACT
+        SAME AS THE OTHER TWO (THE DIFFERENCE IS THE DATASET BUT WE ALREADY HAVE THAT AS self.URM)
         EXCEPT FOR A VALUE IN model_config FOR Amazon (NO EXPLANATION OF THIS DIFFERENCE HAS BEEN
         GIVEN BY THE AUTHORS)
 
@@ -218,19 +205,17 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         INSTANTIATE THE CORRECT MODEL AND TRAINER, WITH DIFFERENT CONFIG BUT RIGHT DATASET.
         (OPTIONAL) PUT DROPOUT TO ZERO IF IT'S AMAZON DATASET (EASILY DETECTED)
         USE THE BUILT IN MODEL FUNCTION TO RELOAD THE CORRECT WEIGHTS
+
+        IF ITS NOT STRUCTURALLY CORRECT, IT WOULD ALSO BE EASY FOR US TO CORRECT THIS AND JUST SAVE
+        ALL IN THE DataIO DICTIONARY
         """
 
-        if(d_config==None):
-            config = get_gowalla_config(device=torch.device('cuda'))
-            dataset_config, model_config, trainer_config = config[2]
-        else:
-            dataset_config = d_config
-            model_config = m_config
-            trainer_config = t_config
+        config = get_gowalla_config(device=torch.device('cuda'))
+        dataset_config, model_config, trainer_config = config[2]
+
 
         datasetOriginalFormat = DatasetOriginal(dataset_config)
         URM_coo = self.URM_train.tocoo(copy=True)
-        ##todo fix load amazon model """""bug"""""
         datasetOriginalFormat.n_users = URM_coo.shape[0]
         datasetOriginalFormat.n_items = URM_coo.shape[1]
         datasetOriginalFormat.device = torch.device('cuda')
@@ -240,13 +225,21 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         ###model needs dataset as attribute to train and predict
 
+        if(datasetOriginalFormat.n_users>100000):
+            model_config['dropout']=0.0
         self.model = get_model(model_config, datasetOriginalFormat)
 
         print(self.model)
 
+        """
+            Creates the trainer that has to be taken each epoch because using only the training loop would have implied
+            to change a lot of code, so we were obliged to take each epoch the trainer
+        """
 
         self.trainer = get_trainer(trainer_config, datasetOriginalFormat, self.model)
         print(self.trainer)
+
+
     """
         Function to instantiate and train the model 
     """
@@ -296,13 +289,8 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         WHEN A MODEL IS SUBSEQUENTLY RELOADED, IT WILL ALWAYS LOAD THE CORRECT TRAINER (IGCN TRAINER), AND ALWAYS LOAD THE CORRECT MODEL,
         EXCEPT FOR AMAZON CONFIGURATION, BECAUSE IT DIFFERS FROM ALL THE OTHER MODELS (NO DROPOUT, NO EXPLANATION GIVEN BY AUTHORS)
         """
-        if(article_hyperparameters is not None):
-            dataset_config=article_hyperparameters['dataset_config']
-            model_config=article_hyperparameters['model_config']
-            trainer_config=article_hyperparameters['trainer_config']
-            self._init_model(d_config=dataset_config, m_config=model_config, t_config=trainer_config)
-        else:
-            self._init_model()
+
+        self._init_model()
 
 
 
