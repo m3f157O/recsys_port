@@ -32,50 +32,6 @@ from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import
     Convert a sparse matrix to an adjacent list
 """
 
-class DatasetOriginal():
-    train_array = []
-    train_data = []
-    device = torch.device('cuda')
-    n_items = 0
-    lenght = 0
-    n_users = 0
-    def __len__(self):
-        return len(self.train_array)
-    ## ^^^ AS IN model.AuxiliaryDataset (wtf)
-
-
-
-def from_matrix_to_adjlist(matrix):
-    list = []
-    column = (matrix.col).copy()
-    row = (matrix.row).copy()
-    number_users = np.unique(row)
-    for i in range(len(number_users)):
-        count = np.count_nonzero(row == i)
-        items_to_add = column[:count]
-        items = items_to_add
-        column = column[count:]
-        list.append(items)
-    return list
-
-
-def restoreTrainArray(matrix):
-    list = []
-    column = (matrix.col).copy()
-    row = (matrix.row).copy()
-    number_users = np.unique(column)
-    for i in range(len(column)):
-        list.append([row[i], column[i]])
-    return list
-
-""""
-    Converts each matrix to a adjacent list
-"""
-def create_dataset(URM_train, URM_validation, URM_test):
-    train_adjlist = from_matrix_to_adjlist(URM_train)
-    validation_adjlist = from_matrix_to_adjlist(URM_validation)
-    test_adjlist = from_matrix_to_adjlist(URM_test)
-    return train_adjlist, validation_adjlist, test_adjlist
 
 
 def read_data_split_and_search(dataset_name,
@@ -175,9 +131,13 @@ def read_data_split_and_search(dataset_name,
         THERE IS NO DROPOUT AT ALL. THIS MAY BE A PROBLEM WHEN THE MODEL IS RELOADED, BECAUSE,
         GIVEN THAT THE ENTIRE DATASET STRUCTURE IS NEEDED TO CALL get_model(), TO AVOID
         SAVING AND RELOADING AND PASSING THE configs TO init_model() IN IGCN_CF_RecommenderWrapper.py,
-        WHICH ARE !!!REALLY!!! HEAVY DATA STRUCTURES, WE DECIDED TO ADD A DEFAULT LOADING OPTION IN init_model, WHICH
-        WILL ALWAYS PROCESS THE DATASET CORRECTLY, AND LOAD THE CORRECT TRAINER, BUT THE STANDARD MODEL CONFIG (gowalla)
-        WILL MODIFIED ON THE ['dropout'] ENTRY
+        WHICH ARE !!!REALLY!!! HEAVY DATA STRUCTURES (they contain the reference to a number of objects used during training)
+        WE DECIDED TO ADD A DEFAULT LOADING OPTION IN init_model, WHICH 
+        WILL ALWAYS PROCESS THE DATASET CORRECTLY, AND LOAD THE CORRECT TRAINER, 
+        BUT THE STANDARD MODEL CONFIG (gowalla) BE WILL MODIFIED ON THE ['dropout'] ENTRY
+        
+        THIS IS AN "HARDCODED" SOLUTION TO SPEED UP MODEL INSTANTIATION WHEN RELOADING. IF IT'S A BAD PRACTICE, 
+        OR AGAINST THE REQUIREMENTS, IT WOULD BE EASY FOR US TO CORRECT IT
 
     """
 
