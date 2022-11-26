@@ -1,11 +1,20 @@
 import numpy as np
 import scipy.sparse as sp
-
+import pandas as pd
 
 """"
-    Method to make the preprocessing: checks if the number of interactions is greater than 15 
+    Method to make the preprocessing: checks if ratings are less than 3 and delete them from the file.inter
 """
-def preprocessing(n_users, n_items,URM_val,URM_train,URM_test):
+def preprocessing_ratings(file, rate):
+    dataset = pd.read_csv(file, sep='\t')
+    dataset.drop(dataset[dataset['rating:float'] <= 3.0].index, inplace=True)
+    dataset.to_csv(file, sep='\t', index=False)
+
+""""
+    Method to make the preprocessing: checks if the number of interactions is greater than 15 by using URM
+"""
+
+def preprocessing_interactions(n_users, n_items, URM_val, URM_train, URM_test):
     URM_val_csr = URM_val.tocsr()
     URM_train_csr = URM_train.tocsr()
     URM_test_csr = URM_test.tocsr()

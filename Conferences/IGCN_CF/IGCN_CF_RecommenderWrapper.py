@@ -188,9 +188,9 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         WHAT DONE BELOW MAY SEEM LIKE A BAD PRACTICE, BUT WE ONLY DID IT TO INCREASE THE SPEED
         AND NOT TO WASTE TONS OF SPACE:
 
-        WE WOULD NEED TO SAVE TWO CONFIG DICTIONARIES TO REINSATIATE THE MODEL AFTER SAVING IT:
+        WE WOULD NEED TO SAVE TWO CONFIG DICTIONARIES TO REINSTANTIATE THE MODEL AFTER SAVING IT:
         IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE DATA STRUCTURES WHICH ARE
-        IN FACT NOT NEEDED TO REISTANTIATE THE MODEL.
+        IN FACT NOT NEEDED TO REINSTANTIATE THE MODEL.
 
         INSTEAD WE DECIDED, GIVEN THAT THE TRAINER AND MODEL CONFIG
         ARE THE SAME FOR ALL THREE DATASET (EXCEPT FOR AMAZON WHICH HAS DROPOUT ZERO)
@@ -388,11 +388,11 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         EXTREMELY HARD TO DECOUPLE
         """
-        ##todo ensure self.model.training is True
-        start=time.time()
-        ##todo remove evaluation part from training
+        start = time.time()
+        self.model.training = True
+
         avg_loss = self.trainer.train_one_epoch()
-        end=time.time()
+        end = time.time()
 
         print("loss=%.5f, duration:%ds" % (avg_loss,end-start))  ##NO GEN LOSS SORRY gen_loss))
 

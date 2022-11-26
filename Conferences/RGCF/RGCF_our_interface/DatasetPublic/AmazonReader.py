@@ -9,7 +9,7 @@ Created on 08/11/18
 from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
-from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
 import requests
 import zipfile
 import gzip
@@ -59,6 +59,8 @@ class AmazonReader(object):
             with zipfile.ZipFile(output, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
 
+            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0)
+
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)
 
@@ -69,7 +71,7 @@ class AmazonReader(object):
             n_users = URM_train.shape[0] - 1
             n_items = URM_train.shape[1]
 
-            URM_validation, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
+            URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required

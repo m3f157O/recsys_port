@@ -11,7 +11,8 @@ from Data_manager.split_functions.split_train_validation_random_holdout import s
 import os
 from recbole.data import create_dataset, data_preparation
 from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movielens20MReader_DataManager
-from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
+from  Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_ratings
 import requests
 import zipfile
 import gdown as gd
@@ -57,7 +58,11 @@ class Movielens1MReader(object):
             with zipfile.ZipFile(output, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
 
+
+
+
             dataset = create_dataset(config)
+
             train_data, valid_data, test_data = data_preparation(config, dataset)
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
@@ -68,7 +73,7 @@ class Movielens1MReader(object):
             n_users = URM_train.shape[0]-1
             n_items = URM_train.shape[1]
 
-            URM_validation, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
+            URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
 
             # Done get the sparse matrices in the correct dictionary with the correct name
@@ -76,7 +81,6 @@ class Movielens1MReader(object):
             self.ICM_DICT = {}
             self.UCM_DICT = {}
 
-            #todo dataset is inconsistent with paper
             self.URM_DICT = {
                 "URM_train": URM_train,
                 "URM_test": URM_test,

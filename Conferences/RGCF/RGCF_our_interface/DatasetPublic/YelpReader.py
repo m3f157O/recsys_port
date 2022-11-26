@@ -9,7 +9,7 @@ Created on 08/11/18
 from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
-from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
 import gdown as gd
 import zipfile
 import shutil
@@ -61,6 +61,8 @@ class YelpReader(object):
             #if os.path.isfile(pre_splitted_path+'yelp2018') != True:
             #    shutil.move("./yelp2018",pre_splitted_path)
 
+            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0)
+
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)
 
@@ -68,11 +70,10 @@ class YelpReader(object):
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
 
-            ##todo dataset size is wrong by LARGE
             n_users = URM_train.shape[0] - 1
             n_items = URM_train.shape[1]
 
-            URM_validation, URM_train, URM_test = preprocessing(n_users, n_items, URM_validation, URM_train, URM_test)
+            URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
