@@ -60,7 +60,7 @@ def read_data_split_and_search(dataset_name,
     ##but the config is necessary anyway
 
     base_path="Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/"
-    if dataset_name == "yelp":
+    if dataset_name == "yelp2018":
         config = get_yelp_config(device)
         dataset_config, model_config, trainer_config = config[2]
         pre_splitted_path = base_path+"Yelp/"

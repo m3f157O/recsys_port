@@ -63,7 +63,7 @@ def read_data_split_and_search(dataset_name,
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
         dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/ml-1m", config=config)
 
-    elif dataset_name == "yelp":
+    elif dataset_name == "yelp2018":
         config = Config(model=RGCF, dataset="yelp2018",
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
@@ -321,7 +321,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["movielens1m"] #,"yelp","amazon-book"]
+    dataset_list = ["yelp2018"] #,"yelp2018","amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

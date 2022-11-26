@@ -24,7 +24,7 @@ class YelpReader(object):
         super(YelpReader, self).__init__()
 
         #pre_splitted_path += "data_split/"
-        pre_splitted_filename = "yelp-processed"
+        pre_splitted_filename = "yelp2018-processed"
 
         # If directory does not exist, create
         if not os.path.exists(pre_splitted_path):
