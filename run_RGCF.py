@@ -117,10 +117,10 @@ def read_data_split_and_search(dataset_name,
     ######
     ######      DL ALGORITHM
     ######
-    dataset = create_dataset(config)
-    print(dataset)
+    #dataset = create_dataset(config)
+
     # TODO transform this URM into train_data -> AIUTO
-    train_data, valid_data, test_data = data_preparation(config, dataset)
+    #train_data, valid_data, test_data = data_preparation(config, dataset)
 
     if flag_DL_article_default:
         try:
@@ -128,7 +128,7 @@ def read_data_split_and_search(dataset_name,
             article_hyperparameters = {
                 #added for config
                 "config": config,
-                "train_data": train_data,
+                #"train_data": train_data,
                 # modified
                 "batch_size": 4096,
                 #added
@@ -321,7 +321,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["yelp2018"] #,"yelp2018","amazon-book"]
+    dataset_list = ["movielens1m"] #,"yelp2018","amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

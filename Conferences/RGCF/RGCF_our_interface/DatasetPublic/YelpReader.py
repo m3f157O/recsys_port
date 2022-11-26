@@ -12,6 +12,8 @@ from recbole.data import create_dataset, data_preparation
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
 import gdown as gd
 import zipfile
+from  Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_ratings
+
 import shutil
 
 class YelpReader(object):
@@ -51,7 +53,6 @@ class YelpReader(object):
 
             url = "https://drive.google.com/file/d/1Hte_6IDyqy-1Fjs6ArIqKp1NzGE4FcVn/view?usp=sharing"
             output = "Data_manager_split_datasets/Yelp_RGCF.zip"
-
             #todo fix download
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
@@ -62,7 +63,7 @@ class YelpReader(object):
             #if os.path.isfile(pre_splitted_path+'yelp2018') != True:
             #    shutil.move("./yelp2018",pre_splitted_path)
 
-            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0)
+            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0,filename="/yelp2018.inter")
 
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)

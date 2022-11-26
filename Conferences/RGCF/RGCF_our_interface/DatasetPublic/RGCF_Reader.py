@@ -5,10 +5,12 @@ import pandas as pd
 """"
     Method to make the preprocessing: checks if ratings are less than 3 and delete them from the file.inter
 """
-def preprocessing_ratings(file, rate):
-    dataset = pd.read_csv(file, sep='\t')
+def preprocessing_ratings(file, rate,filename):
+    dataset = pd.read_csv(file+filename, sep='\t')
     dataset.drop(dataset[dataset['rating:float'] <= 3.0].index, inplace=True)
-    dataset.to_csv(file, sep='\t', index=False)
+    dataset=dataset.reset_index()
+    dataset.to_csv(file+filename, sep='\t', index=False)
+
 
 """"
     Method to make the preprocessing: checks if the number of interactions is greater than 15 by using URM

@@ -12,7 +12,6 @@ import os
 from recbole.data import create_dataset, data_preparation
 from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movielens20MReader_DataManager
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
-from  Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_ratings
 import requests
 import zipfile
 import gdown as gd
@@ -35,7 +34,6 @@ class Movielens1MReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
-            raise FileNotFoundError
             print("Movielens20MReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():

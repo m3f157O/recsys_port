@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from  Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_ratings
+
 """
 Created on 08/11/18
 
@@ -59,7 +61,8 @@ class AmazonReader(object):
             with zipfile.ZipFile(output, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
 
-            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0)
+
+            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0,filename="/amz.inter")
 
             dataset = create_dataset(config)
             train_data, valid_data, test_data = data_preparation(config, dataset)

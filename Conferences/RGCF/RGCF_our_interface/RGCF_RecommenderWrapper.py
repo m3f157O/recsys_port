@@ -6,7 +6,6 @@ Created on 18/12/18
 @author: Maurizio Ferrari Dacrema
 """
 
-
 from Recommenders.BaseRecommender import BaseRecommender
 from Recommenders.BaseSimilarityMatrixRecommender import BaseUserSimilarityMatrixRecommender, \
     BaseSimilarityMatrixRecommender
@@ -19,11 +18,15 @@ import numpy as np
 import tensorflow as tf
 import scipy.sparse as sps
 
+import pandas as pd
+
 from Conferences.CIKM.ExampleAlgorithm_github.main import get_model
 from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
 
-
 from Conferences.RGCF.RGCF_github.rgcf import RGCF
+
+from recbole.config import Config
+
 class Params():
     lambda_u = 0
     lambda_v = 0
@@ -33,9 +36,9 @@ class Params():
     M = 0
     n_epochs = 0
 
+
 # Done replace the recommender class name with the correct one
 class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stopping, BaseTempFolder):
-
     # Done replace the recommender name with the correct one
     RECOMMENDER_NAME = "RGCF_RecommenderWrapper"
 
@@ -44,7 +47,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         # This is used in _compute_item_score
         super().__init__(URM_train)
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
-
 
     def _compute_item_score(self, user_id_array, items_to_compute=None):
         # Done if the model in the end is either a matrix factorization algorithm or an ItemKNN/UserKNN
@@ -64,7 +66,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             item_indices = items_to_compute
         else:
             item_indices = self._item_indices
-
 
         for user_index in range(len(user_id_array)):
 
@@ -87,61 +88,90 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             else:
                 item_scores[user_index, :] = item_score_user.ravel()
 
-
         return item_scores
 
+    """
+        From URM to file Recbole 
+    """
 
-    def _init_model(self,config,train_data):
+    def fromURMToRecbole(self):
+
+        URM = self.URM_train.tocoo(copy=True)
+        # todo put in the right path
+        file = open("test.inter", "w")
+        file.write("user_id:token\titem_id:token\trating:float\ttimestamp:float\n")
+        column = (URM.col).copy()
+        row = (URM.row).copy()
+        number_users = np.unique(row)
+        for i in range(len(number_users)):
+            count = np.count_nonzero(row == i)
+            items_to_add = column[:count]
+            items = items_to_add
+            column = column[count:]
+            for j in range(len(items)):
+                file.write(str(i+1) + "\t" + str(items[j]) + "\t" + "1.0" + "\t" + "1.0" + "\n")
+        file.close()
+        fileu = open("test.user","w")
+        filei = open("test.item","w")
+        fileu.close()
+        filei.close()
+    def _init_model(self):
         """
         This function instantiates the model, it should only rely on attributes and not function parameters
         It should be used both in the fit function and in the load_model function
         :return:
         """
+        from recbole.data import create_dataset, data_preparation
 
+        # Always clear the default graph if using tensorflow
+        self.fromURMToRecbole()
+        config = Config(model=RGCF, dataset="test",
+                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        config.final_config_dict['data_path']="./"
+        config.internal_config_dict['eval_args']['split']={'RS':[1.0,0.0,0.0]}
 
-        # TODO Instantiate the model
-        # Always clear the default graph if using tehsorflow
+        dataset = create_dataset(config)
 
+        train_data, valid_data, test_data = data_preparation(config, dataset)
+        print(train_data.dataset)
         model = RGCF
         self.model = model(config, train_data.dataset).to(config['device'])
         self.trainer = customized_Trainer(config, self.model)
-        self.train_data=train_data
+        self.train_data = train_data
         print(self.model)
         print(self.trainer)
 
     def fit(self,
             article_hyperparameters=None,
-            epochs = 100,
-            # TODO replace those hyperparameters with the ones you need
-            learning_rate_vae = 1e-2,
-            learning_rate_cvae = 1e-3,
-            num_factors = 50,
-            dimensions_vae = [200, 100],
-            epochs_vae = [50, 50],
-            batch_size = 128,
-            lambda_u = 0.1,
-            lambda_v = 10,
-            lambda_r = 1,
-            a = 1,
-            b = 0.01,
-            M = 300,
+            epochs=100,
+            # Done replace those hyperparameters with the ones you need
+            learning_rate_vae=1e-2,
+            learning_rate_cvae=1e-3,
+            num_factors=50,
+            dimensions_vae=[200, 100],
+            epochs_vae=[50, 50],
+            batch_size=128,
+            lambda_u=0.1,
+            lambda_v=10,
+            lambda_r=1,
+            a=1,
+            b=0.01,
+            M=300,
 
             # These are standard
-            temp_file_folder = None,
+            temp_file_folder=None,
             **earlystopping_kwargs
             ):
 
-
         # Get unique temporary folder
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
-
 
         # Done replace the following code with what needed to create an instance of the model.
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
 
         # The following code contains various operations needed by another wrapper
-
 
         self._params = Params()
         self._params.lambda_u = lambda_u
@@ -152,7 +182,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self._params.M = M
         self._params.n_epochs = epochs
 
-
         # These are the train instances as a list of lists
         # The following code processed the URM into the data structure the model needs to train
         self._train_users = []
@@ -160,46 +189,33 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self.URM_train = sps.csr_matrix(self.URM_train)
 
         for user_index in range(self.n_users):
-
             start_pos = self.URM_train.indptr[user_index]
-            end_pos = self.URM_train.indptr[user_index +1]
+            end_pos = self.URM_train.indptr[user_index + 1]
 
             user_profile = self.URM_train.indices[start_pos:end_pos]
             self._train_users.append(list(user_profile))
-
 
         self._train_items = []
 
         self.URM_train = sps.csc_matrix(self.URM_train)
 
         for user_index in range(self.n_items):
-
             start_pos = self.URM_train.indptr[user_index]
-            end_pos = self.URM_train.indptr[user_index +1]
+            end_pos = self.URM_train.indptr[user_index + 1]
 
             item_profile = self.URM_train.indices[start_pos:end_pos]
             self._train_items.append(list(item_profile))
 
-
-
-
-
         self.URM_train = sps.csr_matrix(self.URM_train)
+        self._init_model()
 
-
-
-        if(article_hyperparameters is not None):
-            self._init_model(config=article_hyperparameters["config"],train_data=article_hyperparameters["train_data"])
-
-        #print(self._compute_item_score([0]))
-        #print(self._compute_item_score([0]))
-        #print(self._compute_item_score([0]))
-        #print(self._compute_item_score([0]))
-
+        # print(self._compute_item_score([0]))
+        # print(self._compute_item_score([0]))
+        # print(self._compute_item_score([0]))
+        # print(self._compute_item_score([0]))
 
         # Done Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
-
 
         ###############################################################################
         ### This is a standard training with early stopping part, most likely you won't need to change it
@@ -207,9 +223,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self._update_best_model()
 
         self._train_with_early_stopping(epochs,
-                                        algorithm_name = self.RECOMMENDER_NAME,
+                                        algorithm_name=self.RECOMMENDER_NAME,
                                         **earlystopping_kwargs)
-
 
         self.load_model(self.temp_file_folder, file_name="_best_model")
 
@@ -217,41 +232,23 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         print("{}: Training complete".format(self.RECOMMENDER_NAME))
 
-
-
     def _prepare_model_for_validation(self):
         # Done Most likely you won't need to change this function
         pass
-
 
     def _update_best_model(self):
         # Done Most likely you won't need to change this function
         self.save_model(self.temp_file_folder, file_name="_best_model")
 
-
-
-
-
     def _run_epoch(self, currentEpoch):
         # Done replace this with the train loop for one epoch of the model
 
-        total_loss=self.trainer.train_epoch(self.train_data,currentEpoch)
+        total_loss = self.trainer.train_epoch(self.train_data, currentEpoch)
         print(" loss=%.5f" % (total_loss))
 
         return
 
-
-
-
-
-
-
-
-
-
-
-
-    def save_model(self, folder_path, file_name = None):
+    def save_model(self, folder_path, file_name=None):
 
         if file_name is None:
             file_name = self.RECOMMENDER_NAME
@@ -260,8 +257,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         # TODO replace this with the Saver required by the model
         #  THERE IS NONE!!!! just save the weights, and force them on the previous model
-        #self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
-
+        # self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
 
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
@@ -276,14 +272,11 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         # Do not change this
         dataIO = DataIO(folder_path=folder_path)
-        dataIO.save_data(file_name=file_name, data_dict_to_save = data_dict_to_save)
+        dataIO.save_data(file_name=file_name, data_dict_to_save=data_dict_to_save)
 
         self._print("Saving complete")
 
-
-
-
-    def load_model(self, folder_path, file_name = None):
+    def load_model(self, folder_path, file_name=None):
 
         if file_name is None:
             file_name = self.RECOMMENDER_NAME
@@ -295,8 +288,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         data_dict = dataIO.load_data(file_name=file_name)
 
         for attrib_name in data_dict.keys():
-             self.__setattr__(attrib_name, data_dict[attrib_name])
-
+            self.__setattr__(attrib_name, data_dict[attrib_name])
 
         # TODO replace this with what required to re-instantiate the model and load its weights,
         #  Call the init_model function you created before
@@ -309,6 +301,4 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         saver = tf.train.Saver()
         saver.restore(self.sess, folder_path + file_name + "_session")
 
-
         self._print("Loading complete")
-
