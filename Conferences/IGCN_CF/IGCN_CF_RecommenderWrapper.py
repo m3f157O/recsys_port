@@ -190,14 +190,14 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         WE WOULD NEED TO SAVE TWO CONFIG DICTIONARIES TO REINSATIATE THE MODEL AFTER SAVING IT:
         IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE DATA STRUCTURES WHICH ARE
-        IN FACT NEEDED TO REISTANTIATE THE MODEL.
+        IN FACT NOT NEEDED TO REISTANTIATE THE MODEL.
 
         INSTEAD WE DECIDED, GIVEN THAT THE TRAINER AND MODEL CONFIG
         ARE THE SAME FOR ALL THREE DATASET (EXCEPT FOR AMAZON WHICH HAS DROPOUT ZERO)
         TO  JUST USE THE GOWALLA CONFIGURATION, WHICH IS THE EXACT
         SAME AS THE OTHER TWO (THE DIFFERENCE IS THE DATASET BUT WE ALREADY HAVE THAT AS self.URM)
-        EXCEPT FOR A VALUE IN model_config FOR Amazon (NO EXPLANATION OF THIS DIFFERENCE HAS BEEN
-        GIVEN BY THE AUTHORS)
+        EXCEPT FOR A DROPOUT VALUE IN model_config FOR Amazon (NO EXPLANATION OF THIS DIFFERENCE HAS BEEN
+        GIVEN BY THE AUTHORS, PROBABLY DROPOUT WORSENS THE PERFORMANCES ON BIGGER DATASETS)
 
         SO, TO SPEED UP THE RELOADING AND AVOID SAVING HUGE DICTIONARIES, WE DECIDE TO USE THIS APPROACH.
 
@@ -208,12 +208,18 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         IF ITS NOT STRUCTURALLY CORRECT, IT WOULD ALSO BE EASY FOR US TO CORRECT THIS AND JUST SAVE
         ALL IN THE DataIO DICTIONARY
+        JUST DECOMMENT ALL THE LINES IN ALL FILES BELOW THE FOLLOWING:
+                ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
+
         """
+
 
         config = get_gowalla_config(device=torch.device('cuda'))
         dataset_config, model_config, trainer_config = config[2]
 
-
+        ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
+        #model_config=self.model_config
+        #trainer_config=self.trainer_config
         datasetOriginalFormat = DatasetOriginal(dataset_config)
         URM_coo = self.URM_train.tocoo(copy=True)
         datasetOriginalFormat.n_users = URM_coo.shape[0]
@@ -290,6 +296,9 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         EXCEPT FOR AMAZON CONFIGURATION, BECAUSE IT DIFFERS FROM ALL THE OTHER MODELS (NO DROPOUT, NO EXPLANATION GIVEN BY AUTHORS)
         """
 
+        ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
+        #self.model_config=article_hyperparameters['model_config']
+        #self.trainer_config=article_hyperparameters['trainer_config']
         self._init_model()
 
 
@@ -415,7 +424,8 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
             "batch_size": 2048,
             "epochs": 1000,
             "embedding_size": 64,
-
+            #"model_config":self.model_config,
+            #"trainer_config":self.trainer_config,
             # default
             "epochs_MFBPR": 500,
             "hidden_size": 128,
@@ -473,6 +483,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         PASS ALL THREE CONFIGS, LET THE WRAPPER USE THEM AGAIN TO INITIALIZE? NO, TOO SLOW
         USE STANDARD GOWALLA CONFIG, JUST EDIT THE MODEL CONFIG AND FEED THE CORRECT DATA STRUCTURE TO OBTAIN THE SAME RESULT? EXTREMELY FAST
         """
+
         self._init_model()
         self.model.load(folder_path + file_name + "_weights")
 

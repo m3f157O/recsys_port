@@ -205,6 +205,9 @@ def read_data_split_and_search(dataset_name,
             # You may use this for a simpler testing
             recommender_instance = IGCN_CF_RecommenderWrapper(URM_train)
 
+            ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
+            #recommender_instance.model_config=model_config
+            #recommender_instance.trainer_config=trainer_config
 
 
 
