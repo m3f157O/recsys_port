@@ -49,9 +49,10 @@ class YelpReader(object):
             ##or upload on drive :)
             print("YelpReader: loading URM")
 
-            url = "https://drive.google.com/file/d/1Hte_6IDyqy-1Fjs6ArIqKp1NzGE4FcVn/view"
+            url = "https://drive.google.com/file/d/1Hte_6IDyqy-1Fjs6ArIqKp1NzGE4FcVn/view?usp=sharing"
             output = "Data_manager_split_datasets/Yelp_RGCF.zip"
 
+            #todo fix download
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
