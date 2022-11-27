@@ -7,12 +7,9 @@ Created on 08/11/18
 """
 
 from Recommenders.DataIO import DataIO
-from Data_manager.split_functions.split_train_validation_random_holdout import split_train_in_two_percentage_global_sample
 import os
 from recbole.data import create_dataset, data_preparation
-from Data_manager.Movielens.Movielens20MReader import Movielens20MReader as Movielens20MReader_DataManager
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
-import requests
 import zipfile
 import gdown as gd
 class Movielens1MReader(object):

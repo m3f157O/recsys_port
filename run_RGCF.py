@@ -19,7 +19,6 @@ from Conferences.CIKM.ExampleAlgorithm_our_interface.Example_RecommenderWrapper 
 from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from recbole.config import Config
-from recbole.data import create_dataset,data_preparation
 from Conferences.RGCF.RGCF_github.rgcf import RGCF
 
 
@@ -31,17 +30,12 @@ def read_data_split_and_search(dataset_name,
     data_folder_path = result_folder_path + "data/"
     model_folder_path = result_folder_path + "models/"
 
-    # TODO: Replace with dataset name and relative DataReader
+    # Done: Replace with dataset name and relative DataReader
     #  The two datareaders correspond to two examples, CiteULike as an example of dataset provided int the original repository
     #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
     #  already available in this repository could be used
-    model=RGCF
 
-    config = Config(model=RGCF, dataset="ml-1m",
-                    config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                      './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-
-
+    # TODO remove this, only for testint purpose
     #print(type(train_data.dataset))
     #cane2=enumerate(train_data.dataset)
     #cicic=train_data.dataset.inter_matrix(form='coo')
@@ -85,6 +79,8 @@ def read_data_split_and_search(dataset_name,
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
     URM_test = dataset.URM_DICT["URM_test"].copy()
+
+    # todo remove this only for test purpose
     print(URM_test)
     URM_train_last_test = URM_train + URM_validation
 
@@ -108,7 +104,7 @@ def read_data_split_and_search(dataset_name,
     n_processes = 3
     resume_from_saved = True
 
-    # TODO Select the evaluation protocol  --> check this
+    # Done Select the evaluation protocol
     evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
     evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
     evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
@@ -117,10 +113,6 @@ def read_data_split_and_search(dataset_name,
     ######
     ######      DL ALGORITHM
     ######
-    #dataset = create_dataset(config)
-
-    # TODO transform this URM into train_data -> AIUTO
-    #train_data, valid_data, test_data = data_preparation(config, dataset)
 
     if flag_DL_article_default:
         try:
@@ -160,7 +152,7 @@ def read_data_split_and_search(dataset_name,
             earlystopping_hyperparameters = {"validation_every_n": 1,
                                              "stop_on_validation": True,
                                              "lower_validations_allowed": 10,
-                                             #"evaluator_object": evaluator_validation,
+                                             "evaluator_object": evaluator_validation,
                                              "validation_metric": metric_to_optimize,
                                              }
 

@@ -5,6 +5,7 @@ Created on 18/12/18
 
 @author: Maurizio Ferrari Dacrema
 """
+import os
 
 from Recommenders.BaseRecommender import BaseRecommender
 from Recommenders.BaseSimilarityMatrixRecommender import BaseUserSimilarityMatrixRecommender, \
@@ -93,28 +94,33 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
     """
         From URM to file Recbole 
     """
-
-    def fromURMToRecbole(self):
+    def fromURMToRecbole(self, name, path):
 
         URM = self.URM_train.tocoo(copy=True)
-        # todo put in the right path
-        file = open("test.inter", "w")
+        path = os.path.join(path, name)
+        file = open(path + ".inter", "w")
+        fileu = open(path + ".user", "w")
+        filei = open(path + ".item", "w")
         file.write("user_id:token\titem_id:token\trating:float\ttimestamp:float\n")
+
         column = (URM.col).copy()
         row = (URM.row).copy()
         number_users = np.unique(row)
+
         for i in range(len(number_users)):
             count = np.count_nonzero(row == i)
             items_to_add = column[:count]
             items = items_to_add
             column = column[count:]
             for j in range(len(items)):
+                # only users and items matters because the preprocessing is already done in the reader
                 file.write(str(i+1) + "\t" + str(items[j]) + "\t" + "1.0" + "\t" + "1.0" + "\n")
+
         file.close()
-        fileu = open("test.user","w")
-        filei = open("test.item","w")
         fileu.close()
         filei.close()
+
+
     def _init_model(self):
         """
         This function instantiates the model, it should only rely on attributes and not function parameters
@@ -123,13 +129,18 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         """
         from recbole.data import create_dataset, data_preparation
 
-        # Always clear the default graph if using tensorflow
-        self.fromURMToRecbole()
-        config = Config(model=RGCF, dataset="test",
+
+        dataset_name = "datasetRecbole"
+        dataset_path = "./Conferences/RGCF/RGCF_github/dataset"
+
+        self.fromURMToRecbole(dataset_name, dataset_path)
+
+        config = Config(model=RGCF, dataset=dataset_name,
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        config.final_config_dict['data_path']="./"
-        config.internal_config_dict['eval_args']['split']={'RS':[1.0,0.0,0.0]}
+        config.final_config_dict['data_path'] = dataset_path
+        # to pass to recbole only the trained data
+        config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0.0, 0.0]}
 
         dataset = create_dataset(config)
 
@@ -264,10 +275,10 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             #  the model when calling the load_model
             "n_users": self.n_users,
             "n_items": self.n_items,
-            "mf_dim": self.mf_dim,
-            "layers": self.layers,
-            "reg_layers": self.reg_layers,
-            "reg_mf": self.reg_mf,
+            #"mf_dim": self.mf_dim,
+            #"layers": self.layers,
+            #"reg_layers": self.reg_layers,
+            #"reg_mf": self.reg_mf,
         }
 
         # Do not change this

@@ -12,10 +12,7 @@ from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
 from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
-import requests
 import zipfile
-import gzip
-import shutil
 import gdown as gd
 
 class AmazonReader(object):

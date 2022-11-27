@@ -14,7 +14,6 @@ import gdown as gd
 import zipfile
 from  Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_ratings
 
-import shutil
 
 class YelpReader(object):
 
