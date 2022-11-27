@@ -303,7 +303,6 @@ class IGCNTrainer(BasicTrainer):
         index=0.0
         first=0
         for batch_data, a_batch_data in zip(self.dataloader, self.aux_dataloader):
-            index=index+1.0
 
             inputs = batch_data[:, 0, :].to(device=self.device, dtype=torch.int64)
             users, pos_items, neg_items = inputs[:, 0],  inputs[:, 1],  inputs[:, 2]
@@ -327,6 +326,7 @@ class IGCNTrainer(BasicTrainer):
             loss.backward()
             self.opt.step()
             losses.update(loss.item(), inputs.shape[0])
+            index=index+1.0
             perc=index/total_size
             stars=int(perc*(50))
 

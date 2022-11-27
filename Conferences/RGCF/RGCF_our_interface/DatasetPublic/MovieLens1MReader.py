@@ -57,12 +57,14 @@ class Movielens1MReader(object):
 
 
             dataset = create_dataset(config)
-
             train_data, valid_data, test_data = data_preparation(config, dataset)
+
+
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
+
 
 
             n_users = URM_train.shape[0]-1

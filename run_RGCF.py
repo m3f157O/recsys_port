@@ -9,6 +9,7 @@ from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
+from recbole.utils import init_seed
 
 from functools import partial
 import numpy as np
@@ -55,6 +56,8 @@ def read_data_split_and_search(dataset_name,
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
+        init_seed(config['seed'], config['reproducibility'])
+
         dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/ml-1m", config=config)
 
     elif dataset_name == "yelp2018":
@@ -62,6 +65,7 @@ def read_data_split_and_search(dataset_name,
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
+        init_seed(config['seed'], config['reproducibility'])
 
         dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
     elif dataset_name == "amazon-book":
@@ -70,6 +74,8 @@ def read_data_split_and_search(dataset_name,
                         config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
+        init_seed(config['seed'], config['reproducibility'])
+
         dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/amz", config=config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
@@ -81,7 +87,7 @@ def read_data_split_and_search(dataset_name,
     URM_test = dataset.URM_DICT["URM_test"].copy()
 
     # todo remove this only for test purpose
-    print(URM_test)
+    print(URM_train.col)
     URM_train_last_test = URM_train + URM_validation
 
     # Ensure IMPLICIT data and disjoint test-train split
@@ -160,6 +166,11 @@ def read_data_split_and_search(dataset_name,
             # You may use this for a simpler testing
             recommender_instance = RGCF_RecommenderWrapper(URM_train)
             #
+            ##THIS IS NECESSARY BECAUSE THE GIVEN SEED INCLUDES SPLIT RANDOMIZATION
+            ##SO TO TURN IT INTO A RECBOLE READABLE FILE, WE NEED THE WHOLE DATA.
+            ##IT WILL BE DESTROYED BEFORE THE TRAINING STARTS ANYWAY
+            recommender_instance.URM_val=URM_validation
+            recommender_instance.URM_test=URM_test
             recommender_instance.fit(article_hyperparameters,
                                       **earlystopping_hyperparameters)
             #

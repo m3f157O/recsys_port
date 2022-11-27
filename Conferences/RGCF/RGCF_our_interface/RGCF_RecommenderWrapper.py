@@ -27,6 +27,8 @@ from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
 from Conferences.RGCF.RGCF_github.rgcf import RGCF
 
 from recbole.config import Config
+import sys
+import traceback
 
 class Params():
     lambda_u = 0
@@ -96,7 +98,11 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
     """
     def fromURMToRecbole(self, name, path):
 
-        URM = self.URM_train.tocoo(copy=True)
+        URM_val = self.URM_val.tocoo(copy=True)
+        URM_test= self.URM_test.tocoo(copy=True)
+        URM_train = self.URM_train.tocoo(copy=True)
+        URM=URM_val+URM_test+URM_train
+        URM=URM.tocoo()
         path = os.path.join(path, name)
         file = open(path + ".inter", "w")
         fileu = open(path + ".user", "w")
@@ -114,7 +120,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             column = column[count:]
             for j in range(len(items)):
                 # only users and items matters because the preprocessing is already done in the reader
-                file.write(str(i+1) + "\t" + str(items[j]) + "\t" + "1.0" + "\t" + "1.0" + "\n")
+                file.write(str(i+1) + "\t" + str(items[j]) + "\t" + "5.0" + "\t" + "5.0" + "\n")
 
         file.close()
         fileu.close()
@@ -140,16 +146,36 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
                                           './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path'] = dataset_path
         # to pass to recbole only the trained data
-        config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0.0, 0.0]}
+        #config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0.0, 0.0]}
 
         dataset = create_dataset(config)
 
         train_data, valid_data, test_data = data_preparation(config, dataset)
+        a=train_data.dataset.inter_matrix(form='coo')
         print(train_data.dataset)
         model = RGCF
+        check_col=self.URM_train.tocoo(copy=True).col
+        check_row=self.URM_train.tocoo(copy=True).row
+        check_data=self.URM_train.tocoo(copy=True).data
+        try:
+            assert not check_col.sort() != a.col.sort()
+            ##users have the same number of interactions
+            assert not check_row.sort() != a.row.sort()
+            assert not check_data.sort() != a.data.sort()
+            # many more statements like this
+        except AssertionError:
+            _, _, tb = sys.exc_info()
+            traceback.print_tb(tb)  # Fixed format
+            tb_info = traceback.extract_tb(tb)
+            filename, line, func, text = tb_info[-1]
+
+            print('An error occurred on line {} in statement {}'.format(line, text))
+            exit(1)
+
         self.model = model(config, train_data.dataset).to(config['device'])
         self.trainer = customized_Trainer(config, self.model)
         self.train_data = train_data
+
         print(self.model)
         print(self.trainer)
 

@@ -21,6 +21,9 @@ class customized_Trainer(Trainer):
             total=len(train_data),
             desc=set_color(f"Train {epoch_idx:>5}", 'pink'),
         ) if show_progress else enumerate(train_data))
+        total=train_data.pr_end/train_data.batch_size
+        index=0.0
+        first=0
         for batch_idx, interaction in iter_data:
             interaction = interaction.to(self.device)
             self.optimizer.zero_grad()
@@ -32,6 +35,13 @@ class customized_Trainer(Trainer):
             loss.backward()
 
             self.optimizer.step()
+            index=index+1.0
+            perc=index/total
+            stars=int(perc*(50))
+
+            if(stars==first):
+                first=first+1
+                print("#",end="")
         return total_loss
 
     def fit(self, train_data, valid_data=None, verbose=True, saved=True, show_progress=False, callback_fn=None):
