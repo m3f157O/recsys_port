@@ -4,7 +4,6 @@ from Conferences.IGCN_CF.IGCN_CF_RecommenderWrapper import IGCN_CF_RecommenderWr
 from Conferences.IGCN_CF.igcn_cf_github.config import *
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.GowallaReader import GowallaReader
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.AmazonReader import AmazonReader
-from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import init_file_and_device, acquire_dataset
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.YelpReader import YelpReader
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
@@ -12,7 +11,6 @@ from HyperparameterTuning.functions_for_parallel_model import _get_model_list_gi
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
 import scipy.sparse as sps
-from Conferences.IGCN_CF.igcn_cf_github.utils import init_run
 
 import torch
 
@@ -20,9 +18,8 @@ from functools import partial
 import numpy as np
 import os, traceback, argparse, multiprocessing
 
-from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
+from Evaluation.Evaluator import EvaluatorHoldout
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
-from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 """"
     Class to build the dataset with the sparse matrices taken by the IGN_CFReader
@@ -39,7 +36,6 @@ def read_data_split_and_search(dataset_name,
                                flag_DL_article_default=False, flag_DL_tune=False,
                                flag_print_results=False):
     result_folder_path = "result_experiments/{}/{}_{}/".format(CONFERENCE_NAME, ALGORITHM_NAME, dataset_name)
-    data_folder_path = result_folder_path + "data/"
     model_folder_path = result_folder_path + "models/"
 
     # Done: Replace with dataset name and relative DataReader
@@ -190,9 +186,9 @@ def read_data_split_and_search(dataset_name,
             }
 
             # Do not modify earlystopping
-            earlystopping_hyperparameters = {"validation_every_n": 5,
+            earlystopping_hyperparameters = {"validation_every_n": 1,
                                              "stop_on_validation": True,
-                                             "lower_validations_allowed": 5,
+                                             "lower_validations_allowed": 50,
                                              "evaluator_object": evaluator_validation_earlystopping,
                                              "validation_metric": metric_to_optimize,
                                              }
@@ -367,7 +363,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["gowalla"]
+    dataset_list = ["gowalla","yelp2018","amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

@@ -8,7 +8,6 @@ Created on 18/12/18
 import logging
 from Conferences.IGCN_CF.igcn_cf_github.config import *
 from Conferences.IGCN_CF.igcn_cf_github.dataset import *
-from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
 from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
@@ -16,10 +15,8 @@ from Recommenders.DataIO import DataIO
 
 import torch
 import numpy as np
-import tensorflow as tf
 import scipy.sparse as sps
 
-from Recommenders.MatrixFactorization.PureSVDRecommender import PureSVDRecommender
 from model import get_model
 from Conferences.IGCN_CF.igcn_cf_github.trainer import get_trainer
 
@@ -32,7 +29,7 @@ class DatasetOriginal(BasicDataset):
     train_data = []
     device = torch.device('cuda')
     n_items = 0
-    lenght = 0
+    length = 0
     n_users = 0
 
     def __len__(self):
@@ -163,7 +160,6 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
                 item_scores[user_index, items_to_compute] = item_score_user.ravel()[items_to_compute]
             else:
                 item_scores[user_index, :] = item_score_user.ravel()
-        print(item_scores)
 
 
         return item_scores
@@ -226,7 +222,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         datasetOriginalFormat.n_items = URM_coo.shape[1]
         datasetOriginalFormat.device = torch.device('cuda')
         datasetOriginalFormat.train_array = restoreTrainArray(URM_coo)
-        datasetOriginalFormat.lenght = len(datasetOriginalFormat.train_array)
+        datasetOriginalFormat.length = len(datasetOriginalFormat.train_array)
         datasetOriginalFormat.train_data = from_matrix_to_adjlist(URM_coo)
 
         ###model needs dataset as attribute to train and predict
@@ -412,9 +408,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         #  in this case the neural network will be saved with the _weights suffix, which is rather standard
         self.model.save(folder_path + file_name + "_weights")
 
-        #data_dict_to_save = self.model.state_dict()
-        #w=data_dict_to_save["w"]
-        #embedding_weight=data_dict_to_save["embedding.weight"]
+
         data_dict_to_save = {
             # Done replace this with the hyperparameters and attribute list you need to re-instantiate
             #  the model when calling the load_model
@@ -424,8 +418,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
             "batch_size": 2048,
             "epochs": 1000,
             "embedding_size": 64,
-            #"model_config":self.model_config,
-            #"trainer_config":self.trainer_config,
+
             # default
             "epochs_MFBPR": 500,
             "hidden_size": 128,

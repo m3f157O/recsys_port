@@ -6,8 +6,6 @@ Created on 08/11/18
 @author: Maurizio Ferrari Dacrema
 """
 
-from Data_manager.split_functions.split_train_validation_random_holdout import \
-    split_train_in_two_percentage_global_sample
 
 from Recommenders.DataIO import DataIO
 
@@ -18,7 +16,6 @@ from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config, get_ye
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 import os
-from Data_manager.Yelp.YelpReader import YelpReader as YelpReader_DataManager
 
 
 class YelpReader(object):
@@ -87,7 +84,6 @@ class YelpReader(object):
             """
             FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
             """
-            # TODO
             config = get_yelp_config(device)
             # fix runtime config to comply with recsys_port README.md
             config[0][0]["path"] = "Data_manager_split_datasets/Yelp/time"

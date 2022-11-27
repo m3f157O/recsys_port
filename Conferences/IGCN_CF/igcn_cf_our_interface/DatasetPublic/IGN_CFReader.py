@@ -2,11 +2,9 @@ import torch
 from Conferences.IGCN_CF.igcn_cf_github.utils import init_run
 
 from dataset import get_dataset
-from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config, get_yelp_config, get_amazon_config
 from tensorboardX import SummaryWriter
-import os, sys
+import os
 import numpy as np
-import scipy.sparse as sp
 import time
 
 ###THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
