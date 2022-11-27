@@ -157,9 +157,9 @@ def read_data_split_and_search(dataset_name,
             }
 
             # Do not modify earlystopping
-            earlystopping_hyperparameters = {"validation_every_n": 5,
+            earlystopping_hyperparameters = {"validation_every_n": 1,
                                              "stop_on_validation": True,
-                                             "lower_validations_allowed": 5,
+                                             "lower_validations_allowed": 10,
                                              #"evaluator_object": evaluator_validation,
                                              "validation_metric": metric_to_optimize,
                                              }
