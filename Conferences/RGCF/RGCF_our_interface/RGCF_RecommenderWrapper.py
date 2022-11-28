@@ -98,11 +98,16 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
     """
     def fromURMToRecbole(self, name, path):
 
-        URM_val = self.URM_val.tocoo(copy=True)
-        URM_test= self.URM_test.tocoo(copy=True)
-        URM_train = self.URM_train.tocoo(copy=True)
-        URM=URM_val+URM_test+URM_train
-        URM=URM.tocoo()
+        if(hasattr(self,"URM_val")):
+            URM_val = self.URM_val.tocoo(copy=True)
+            URM_test= self.URM_test.tocoo(copy=True)
+            URM_train = self.URM_train.tocoo(copy=True)
+            URM=URM_val+URM_test+URM_train
+        else:
+            URM_train = self.URM_train.tocoo(copy=True)
+            URM=URM_train
+        URM = URM.tocoo()
+
         path = os.path.join(path, name)
         file = open(path + ".inter", "w")
         fileu = open(path + ".user", "w")
@@ -112,7 +117,23 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         column = (URM.col).copy()
         row = (URM.row).copy()
         number_users = np.unique(row)
+        number_items = np.unique(column)
+        index=1
+        missing = []
+        for i in range(number_items[0],URM.shape[1]-1):
+            if(i not in number_items):
+                missing.append(i)
 
+
+        for i in missing:
+            row=np.append(row,0)
+            print("before")
+            print(len(column))
+            column=np.append(column,i)
+            print("after")
+            print(len(column))
+
+        print(len(np.unique(column)))
         for i in range(len(number_users)):
             count = np.count_nonzero(row == i)
             items_to_add = column[:count]
@@ -137,16 +158,18 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
 
         dataset_name = "datasetRecbole"
-        dataset_path = "./Conferences/RGCF/RGCF_github/dataset"
-
+        dataset_path = "../Conferences/RGCF/RGCF_github/dataset"
+        self.URM_train.eliminate_zeros()
+        a=self.URM_train.tocoo(copy=True)
+        b=np.unique(a.col)
         self.fromURMToRecbole(dataset_name, dataset_path)
 
         config = Config(model=RGCF, dataset=dataset_name,
-                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+                        config_file_list=['../Conferences/RGCF/RGCF_github/config/data.yaml',
+                                          '../Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path'] = dataset_path
         # to pass to recbole only the trained data
-        #config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0.0, 0.0]}
+        config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0.0, 0.0]}
 
         dataset = create_dataset(config)
 
@@ -175,7 +198,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self.model = model(config, train_data.dataset).to(config['device'])
         self.trainer = customized_Trainer(config, self.model)
         self.train_data = train_data
-
+        print(self._compute_item_score([1,10,15]))
         print(self.model)
         print(self.trainer)
 
@@ -294,13 +317,14 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         # TODO replace this with the Saver required by the model
         #  THERE IS NONE!!!! just save the weights, and force them on the previous model
-        # self.model.save_weights(folder_path + file_name + "_weights", overwrite=True)
 
+        self.model.save(folder_path+"/_weights")
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
             #  the model when calling the load_model
             "n_users": self.n_users,
             "n_items": self.n_items,
+            #"train_data":self.train_data,
             #"mf_dim": self.mf_dim,
             #"layers": self.layers,
             #"reg_layers": self.reg_layers,
@@ -330,12 +354,10 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         # TODO replace this with what required to re-instantiate the model and load its weights,
         #  Call the init_model function you created before
         self._init_model()
-        self.model.load_weights(folder_path + file_name + "_weights")
+        self.model.load(folder_path+"/_weights")
 
         # TODO If you are using tensorflow, you may instantiate a new session here
         # TODO reset the default graph to "clean" the tensorflow state
-        tf.reset_default_graph()
-        saver = tf.train.Saver()
-        saver.restore(self.sess, folder_path + file_name + "_session")
+
 
         self._print("Loading complete")

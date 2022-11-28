@@ -155,7 +155,7 @@ def read_data_split_and_search(dataset_name,
             }
 
             # Do not modify earlystopping
-            earlystopping_hyperparameters = {"validation_every_n": 1,
+            earlystopping_hyperparameters = {"validation_every_n": 10,
                                              "stop_on_validation": True,
                                              "lower_validations_allowed": 10,
                                              "evaluator_object": evaluator_validation,
@@ -169,8 +169,8 @@ def read_data_split_and_search(dataset_name,
             ##THIS IS NECESSARY BECAUSE THE GIVEN SEED INCLUDES SPLIT RANDOMIZATION
             ##SO TO TURN IT INTO A RECBOLE READABLE FILE, WE NEED THE WHOLE DATA.
             ##IT WILL BE DESTROYED BEFORE THE TRAINING STARTS ANYWAY
-            recommender_instance.URM_val=URM_validation
-            recommender_instance.URM_test=URM_test
+            #recommender_instance.URM_val=URM_validation
+            #recommender_instance.URM_test=URM_test
             recommender_instance.fit(article_hyperparameters,
                                       **earlystopping_hyperparameters)
             #

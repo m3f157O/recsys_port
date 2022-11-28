@@ -332,17 +332,17 @@ class RGCF(GeneralRecommender):
 
 
 
-    def save(self):
+    def save(self,path):
 
-        torch.save(self.state_dict(), "./params")
-
-
+        torch.save(self.state_dict(), path)
 
 
 
-    def load(self):
+
+
+    def load(self,path):
         r"""A simple implementation of dumping model parameters for pretrain.
 
         """
-        params = torch.load("./params")
+        params = torch.load(path)
         self.load_state_dict(params)

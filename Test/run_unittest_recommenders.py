@@ -58,7 +58,7 @@ class MyTestSuite(object):
         cls.UCM_all = dataSplitter.get_loaded_UCM_dict()["UCM_all"]
 
         evaluator = EvaluatorHoldout(cls.URM_test, [5], exclude_seen = True)
-        earlystopping_keywargs = {"epochs": 20,
+        earlystopping_keywargs = {"epochs": 1,
                                   "validation_every_n": 5,
                                   "stop_on_validation": True,
                                   "evaluator_object": evaluator,
@@ -402,11 +402,12 @@ class MyTestSuite_stochastic(MyTestSuite):
 #     recommender_class = NegHOSLIMLSQR
 
 from Conferences.IGCN_CF.IGCN_CF_RecommenderWrapper import IGCN_CF_RecommenderWrapper
+from Conferences.RGCF.RGCF_our_interface.RGCF_RecommenderWrapper import RGCF_RecommenderWrapper
 class MyTestSuite_PortedModel(MyTestSuite, unittest.TestCase):
     # TODO: Put here the class of the ported recommender
     # The entire set of tests may take some time, even 30+ minutes if the model training is slow, the test-class initialization will
     # do the actual training and then the tests will be attempted, for this reason the initialization may take the majority of the time
-    recommender_class = IGCN_CF_RecommenderWrapper
+    recommender_class = RGCF_RecommenderWrapper
 
 if __name__ == '__main__':
 
