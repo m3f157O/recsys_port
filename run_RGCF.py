@@ -33,20 +33,16 @@ def read_data_split_and_search(dataset_name,
     model_folder_path = result_folder_path + "models/"
 
 
-    # Done: Replace with dataset name and relative DataReader
-    #  The two datareaders correspond to two examples, CiteULike as an example of dataset provided int the original repository
-    #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
-    #  already available in this repository could be used
+
     config = Config(model=RGCF, dataset="ml-1m",
                     config_file_list=['./config/data.yaml',
                                       './config/model-rgcf.yaml'])
-    config.final_config_dict['data_path'] = "Conferences/RGCF/RGCF_github/dataset/ml-1m"
     config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
     config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
     config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
     config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
-    config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit', 'Precision']
-    config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit', 'Precision']
+    config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+    config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
     config.final_config_dict['training_neg_sample_num'] = 1
     config.internal_config_dict['training_neg_sample_num'] = 1
     config.final_config_dict['epochs'] = 500
@@ -55,58 +51,28 @@ def read_data_split_and_search(dataset_name,
     config.internal_config_dict['train_batch_size'] = 4096
     config.final_config_dict['topk'] = [10, 20, 50]
     config.internal_config_dict['topk'] = [10, 20, 50]
-
-
-
     init_seed(config['seed'], config['reproducibility'])
-    dataset = create_dataset(config)
-    print(dataset)
 
 
-    # logger initialization
 
-
-    # dataset filtering
-    ## PASSIAMO DALLA URM A QUESTO
-
-    dataset = create_dataset(config)
-    # TODO remove this, only for testint purpose
-    #print(type(train_data.dataset))
-    #cane2=enumerate(train_data.dataset)
-    #cicic=train_data.dataset.inter_matrix(form='coo')
-    #print(cicic.shape)
-    #print(type(cicic))
-    #cane1=enumerate(cicic)
-    #model = model(config, train_data.dataset).to(config['device'])
-    #print(model)
-    #trainer = customized_Trainer(config, model)
-    #print(trainer)
-    #_, best_valid_result = trainer.fit(
-    #    train_data, valid_data, saved=True, show_progress=config['show_progress'])
 
 
     if dataset_name == "movielens1m":
-        config = Config(model=RGCF, dataset="ml-1m",
-                        config_file_list=['./config/data.yaml',
-                                          './config/model-rgcf.yaml'])
+        config.dataset='ml-1m'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
         init_seed(config['seed'], config['reproducibility'])
 
         dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/ml-1m", config=config)
 
     elif dataset_name == "yelp2018":
-        config = Config(model=RGCF, dataset="yelp2018",
-                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        config.dataset='yelp2018'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
         init_seed(config['seed'], config['reproducibility'])
 
         dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
     elif dataset_name == "amazon-book":
         ##NEVER USE RECBOLE AND NAMES WITH UNDERSCORE :D
-        config = Config(model=RGCF, dataset="amz",
-                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        config.dataset='amz'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
         init_seed(config['seed'], config['reproducibility'])
 
@@ -115,13 +81,15 @@ def read_data_split_and_search(dataset_name,
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
 
+
+
     print('Current dataset is: {}'.format(dataset_name))
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
     URM_test = dataset.URM_DICT["URM_test"].copy()
 
-    # todo remove this only for test purpose
-    print(URM_train.col)
+
+
     URM_train_last_test = URM_train + URM_validation
 
     # Ensure IMPLICIT data and disjoint test-train split
@@ -133,7 +101,7 @@ def read_data_split_and_search(dataset_name,
         os.makedirs(result_folder_path)
 
     # Done Replace metric to optimize and cutoffs
-    metric_to_optimize = 'NDCG'
+    metric_to_optimize = 'MRR'
     cutoff_to_optimize = 10
 
     # All cutoffs that will be evaluated are listed here
@@ -203,8 +171,8 @@ def read_data_split_and_search(dataset_name,
             ##THIS IS NECESSARY BECAUSE THE GIVEN SEED INCLUDES SPLIT RANDOMIZATION
             ##SO TO TURN IT INTO A RECBOLE READABLE FILE, WE NEED THE WHOLE DATA.
             ##IT WILL BE DESTROYED BEFORE THE TRAINING STARTS ANYWAY
-            recommender_instance.URM_val=URM_validation
-            recommender_instance.URM_test=URM_test
+            #recommender_instance.URM_val=URM_validation
+            #recommender_instance.URM_test=URM_test
             recommender_instance.fit(article_hyperparameters,
                                       **earlystopping_hyperparameters)
             #

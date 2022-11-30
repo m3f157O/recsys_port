@@ -71,9 +71,7 @@ class Movielens1MReader(object):
 
 
 
-            n_users = URM_train.shape[0]-1
-            n_items = URM_train.shape[1]
-
+            #preprocessing DONE BY RECBOLE >.<
             #URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
 
