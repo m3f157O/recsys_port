@@ -31,6 +31,7 @@ class Movielens1MReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
+            raise FileNotFoundError
             print("Movielens20MReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -57,8 +58,11 @@ class Movielens1MReader(object):
 
 
             dataset = create_dataset(config)
+            print(dataset)
             train_data, valid_data, test_data = data_preparation(config, dataset)
-
+            print(train_data.dataset)
+            print(valid_data.dataset)
+            print(test_data.dataset)
 
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
@@ -70,7 +74,7 @@ class Movielens1MReader(object):
             n_users = URM_train.shape[0]-1
             n_items = URM_train.shape[1]
 
-            URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
+            #URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
 
             # Done get the sparse matrices in the correct dictionary with the correct name

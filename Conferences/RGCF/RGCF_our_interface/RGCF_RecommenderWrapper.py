@@ -158,18 +158,18 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
 
         dataset_name = "datasetRecbole"
-        dataset_path = "../Conferences/RGCF/RGCF_github/dataset"
+        dataset_path = "./Conferences/RGCF/RGCF_github/dataset"
         self.URM_train.eliminate_zeros()
         a=self.URM_train.tocoo(copy=True)
         b=np.unique(a.col)
         self.fromURMToRecbole(dataset_name, dataset_path)
 
         config = Config(model=RGCF, dataset=dataset_name,
-                        config_file_list=['../Conferences/RGCF/RGCF_github/config/data.yaml',
-                                          '../Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['data_path'] = dataset_path
         # to pass to recbole only the trained data
-        config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0.0, 0.0]}
+        config.internal_config_dict['eval_args']['split'] = {'RS': [0.8, 0.1, 0.1]}
 
         dataset = create_dataset(config)
 
@@ -204,7 +204,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
     def fit(self,
             article_hyperparameters=None,
-            epochs=100,
+            epochs=300,
             # Done replace those hyperparameters with the ones you need
             learning_rate_vae=1e-2,
             learning_rate_cvae=1e-3,

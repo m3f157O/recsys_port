@@ -11,6 +11,7 @@ from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
 from recbole.utils import init_seed
 
+from recbole.data import create_dataset, data_preparation
 from functools import partial
 import numpy as np
 import os, traceback, argparse, multiprocessing
@@ -31,11 +32,44 @@ def read_data_split_and_search(dataset_name,
     data_folder_path = result_folder_path + "data/"
     model_folder_path = result_folder_path + "models/"
 
+
     # Done: Replace with dataset name and relative DataReader
     #  The two datareaders correspond to two examples, CiteULike as an example of dataset provided int the original repository
     #  while Movielens20M as a dataset not provided in the repository but publicly available, in that case one of the readers
     #  already available in this repository could be used
+    config = Config(model=RGCF, dataset="ml-1m",
+                    config_file_list=['./config/data.yaml',
+                                      './config/model-rgcf.yaml'])
+    config.final_config_dict['data_path'] = "Conferences/RGCF/RGCF_github/dataset/ml-1m"
+    config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
+    config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
+    config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
+    config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
+    config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit', 'Precision']
+    config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit', 'Precision']
+    config.final_config_dict['training_neg_sample_num'] = 1
+    config.internal_config_dict['training_neg_sample_num'] = 1
+    config.final_config_dict['epochs'] = 500
+    config.internal_config_dict['epochs'] = 500
+    config.final_config_dict['train_batch_size'] = 4096
+    config.internal_config_dict['train_batch_size'] = 4096
+    config.final_config_dict['topk'] = [10, 20, 50]
+    config.internal_config_dict['topk'] = [10, 20, 50]
 
+
+
+    init_seed(config['seed'], config['reproducibility'])
+    dataset = create_dataset(config)
+    print(dataset)
+
+
+    # logger initialization
+
+
+    # dataset filtering
+    ## PASSIAMO DALLA URM A QUESTO
+
+    dataset = create_dataset(config)
     # TODO remove this, only for testint purpose
     #print(type(train_data.dataset))
     #cane2=enumerate(train_data.dataset)
@@ -53,8 +87,8 @@ def read_data_split_and_search(dataset_name,
 
     if dataset_name == "movielens1m":
         config = Config(model=RGCF, dataset="ml-1m",
-                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+                        config_file_list=['./config/data.yaml',
+                                          './config/model-rgcf.yaml'])
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
         init_seed(config['seed'], config['reproducibility'])
 
@@ -155,7 +189,7 @@ def read_data_split_and_search(dataset_name,
             }
 
             # Do not modify earlystopping
-            earlystopping_hyperparameters = {"validation_every_n": 10,
+            earlystopping_hyperparameters = {"validation_every_n": 50,
                                              "stop_on_validation": True,
                                              "lower_validations_allowed": 10,
                                              "evaluator_object": evaluator_validation,
@@ -169,8 +203,8 @@ def read_data_split_and_search(dataset_name,
             ##THIS IS NECESSARY BECAUSE THE GIVEN SEED INCLUDES SPLIT RANDOMIZATION
             ##SO TO TURN IT INTO A RECBOLE READABLE FILE, WE NEED THE WHOLE DATA.
             ##IT WILL BE DESTROYED BEFORE THE TRAINING STARTS ANYWAY
-            #recommender_instance.URM_val=URM_validation
-            #recommender_instance.URM_test=URM_test
+            recommender_instance.URM_val=URM_validation
+            recommender_instance.URM_test=URM_test
             recommender_instance.fit(article_hyperparameters,
                                       **earlystopping_hyperparameters)
             #
