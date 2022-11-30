@@ -13,7 +13,7 @@ from Recommenders.BaseSimilarityMatrixRecommender import BaseUserSimilarityMatri
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
-
+from recbole.data import load_split_dataloaders
 import torch
 import numpy as np
 import tensorflow as tf
@@ -29,6 +29,8 @@ from Conferences.RGCF.RGCF_github.rgcf import RGCF
 from recbole.config import Config
 import sys
 import traceback
+from recbole.data import create_dataset, data_preparation
+
 
 class Params():
     lambda_u = 0
@@ -125,14 +127,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
                 missing.append(i)
 
 
-        for i in missing:
-            row=np.append(row,0)
-            print("before")
-            print(len(column))
-            column=np.append(column,i)
-            print("after")
-            print(len(column))
-
         print(len(np.unique(column)))
         for i in range(len(number_users)):
             count = np.count_nonzero(row == i)
@@ -154,45 +148,67 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         It should be used both in the fit function and in the load_model function
         :return:
         """
-        from recbole.data import create_dataset, data_preparation
+        config = Config(model=RGCF, dataset="DONT-CARE",
+                        config_file_list=['./config/data.yaml',
+                                          './config/model-rgcf.yaml'])
+        config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
+        config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
+                                                   'item': ['item_id', 'genre']}
+        config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
+        config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
+        config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+        config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+        config.final_config_dict['training_neg_sample_num'] = 1
+        config.internal_config_dict['training_neg_sample_num'] = 1
+        config.final_config_dict['epochs'] = 500
+        config.internal_config_dict['epochs'] = 500
+        config.final_config_dict['train_batch_size'] = 4096
+        config.internal_config_dict['train_batch_size'] = 4096
+        config.final_config_dict['topk'] = [10, 20, 50]
+        config.internal_config_dict['topk'] = [10, 20, 50]
+        config.final_config_dict['save_dataloaders'] = True
+        config.internal_config_dict['save_dataloaders'] = True
 
+        train_data, test_data, val_data = load_split_dataloaders("./saved/ml-1m-for-RGCF-dataloader.pth")
+        print(train_data.dataset)
+        #dataset_name = "datasetRecbole"
+        #dataset_path = "./Conferences/RGCF/RGCF_github/dataset"
+        #self.URM_train.eliminate_zeros()
+        #a=self.URM_train.tocoo(copy=True)
+        #b=np.unique(a.col)
+        #self.fromURMToRecbole(dataset_name, dataset_path)
 
-        dataset_name = "datasetRecbole"
-        dataset_path = "./Conferences/RGCF/RGCF_github/dataset"
-        self.URM_train.eliminate_zeros()
-        a=self.URM_train.tocoo(copy=True)
-        b=np.unique(a.col)
-        self.fromURMToRecbole(dataset_name, dataset_path)
-
-        config = Config(model=RGCF, dataset=dataset_name,
-                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                          './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        config.final_config_dict['data_path'] = dataset_path
+        #config = Config(model=RGCF, dataset=dataset_name,
+        #                config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+        #                                  './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+        #config.final_config_dict['data_path'] = dataset_path
+        #config.final_config_dict['normalize_field'] = False
+        #config.internal_config_dict['normalize_field'] = False
+        #config.final_config_dict['normalize_all'] = False
+        #config.internal_config_dict['normalize_all'] = False
         # to pass to recbole only the trained data
-        config.internal_config_dict['eval_args']['split'] = {'RS': [0.8, 0.1, 0.1]}
+        #config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0, 0]}
 
-        dataset = create_dataset(config)
+        #dataset = create_dataset(config)
 
-        train_data, valid_data, test_data = data_preparation(config, dataset)
-        a=train_data.dataset.inter_matrix(form='coo')
+        #train_data, valid_data, test_data = data_preparation(config, dataset)
         print(train_data.dataset)
         model = RGCF
-        check_col=self.URM_train.tocoo(copy=True).col
-        check_row=self.URM_train.tocoo(copy=True).row
-        check_data=self.URM_train.tocoo(copy=True).data
+
+
+        train_data, test_data, val_data = load_split_dataloaders("./saved/ml-1m-for-RGCF-dataloader.pth")
+        check=train_data.dataset.inter_matrix(form='csr')
+
         try:
-            assert not check_col.sort() != a.col.sort()
-            ##users have the same number of interactions
-            assert not check_row.sort() != a.row.sort()
-            assert not check_data.sort() != a.data.sort()
-            # many more statements like this
+            assert np.all(check.indices == self.URM_train.indices)
+            assert np.all(check.indptr == self.URM_train.indptr)
         except AssertionError:
             _, _, tb = sys.exc_info()
             traceback.print_tb(tb)  # Fixed format
             tb_info = traceback.extract_tb(tb)
             filename, line, func, text = tb_info[-1]
 
-            print('An error occurred on line {} in statement {}'.format(line, text))
+            print('DataLoader representing the URM_train is corrupted.')
             exit(1)
 
         self.model = model(config, train_data.dataset).to(config['device'])

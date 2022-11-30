@@ -11,7 +11,8 @@ from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
 from recbole.utils import init_seed
 
-from recbole.data import create_dataset, data_preparation
+
+from recbole.data import create_dataset, data_preparation, load_split_dataloaders
 from functools import partial
 import numpy as np
 import os, traceback, argparse, multiprocessing
@@ -34,6 +35,9 @@ def read_data_split_and_search(dataset_name,
 
 
 
+
+
+
     config = Config(model=RGCF, dataset="ml-1m",
                     config_file_list=['./config/data.yaml',
                                       './config/model-rgcf.yaml'])
@@ -51,6 +55,8 @@ def read_data_split_and_search(dataset_name,
     config.internal_config_dict['train_batch_size'] = 4096
     config.final_config_dict['topk'] = [10, 20, 50]
     config.internal_config_dict['topk'] = [10, 20, 50]
+    config.final_config_dict['save_dataloaders'] = True
+    config.internal_config_dict['save_dataloaders'] = True
     init_seed(config['seed'], config['reproducibility'])
 
 
@@ -71,7 +77,7 @@ def read_data_split_and_search(dataset_name,
 
         dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
     elif dataset_name == "amazon-book":
-        ##NEVER USE RECBOLE AND NAMES WITH UNDERSCORE :D
+        ##NEVER USE RECBOLE AND DATASET NAMES WITH UNDERSCORE :D
         config.dataset='amz'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
         init_seed(config['seed'], config['reproducibility'])
@@ -140,7 +146,7 @@ def read_data_split_and_search(dataset_name,
                 "regularization_coefficient_lambda2": 1e-5,
 
                 #default
-                "epochs": 300,
+                "epochs": 500,
                 "epochs_MFBPR": 500,
                 "embedding_size": 64,
                 "hidden_size": 128,
