@@ -59,7 +59,7 @@ class Movielens1MReader(object):
 
             dataset = create_dataset(config)
             print(dataset)
-            train_data, valid_data, test_data = data_preparation(config, dataset,save=True)
+            train_data, valid_data, test_data = data_preparation(config, dataset,True)
             print(train_data.dataset)
             print(valid_data.dataset)
             print(test_data.dataset)
