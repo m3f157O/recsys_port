@@ -39,8 +39,8 @@ def read_data_split_and_search(dataset_name,
 
 
     config = Config(model=RGCF, dataset="ml-1m",
-                    config_file_list=['./config/data.yaml',
-                                      './config/model-rgcf.yaml'])
+                    config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                        './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
     config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
     config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
     config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
