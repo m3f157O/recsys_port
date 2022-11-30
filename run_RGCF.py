@@ -23,7 +23,7 @@ from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from recbole.config import Config
 from Conferences.RGCF.RGCF_github.rgcf import RGCF
-
+import scipy.sparse as sps
 
 def read_data_split_and_search(dataset_name,
                                flag_baselines_tune=False,
@@ -285,6 +285,8 @@ def read_data_split_and_search(dataset_name,
     ######
 
     if flag_print_results:
+        URM_test=sps.csr_matrix(URM_train)
+
         n_test_users = np.sum(np.ediff1d(URM_test.indptr) >= 1)
 
         result_loader = ResultFolderLoader(model_folder_path,
