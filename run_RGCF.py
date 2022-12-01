@@ -187,7 +187,7 @@ def read_data_split_and_search(dataset_name,
             # evaluator_test.evaluateRecommender(recommender_instance)
 
             # Fit the DL model, select the optimal number of epochs and save the result
-            hyperparameterSearch = SearchSingleCase(Example_RecommenderWrapper,
+            hyperparameterSearch = SearchSingleCase(RGCF_RecommenderWrapper,
                                                     evaluator_validation=evaluator_validation,
                                                     evaluator_test=evaluator_test)
 
