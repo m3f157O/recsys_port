@@ -63,7 +63,7 @@ def read_data_split_and_search(dataset_name,
 
 
 
-    if dataset_name == "movielens1m":
+    if dataset_name == "ml-1m":
         config.dataset='ml-1m'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
         init_seed(config['seed'], config['reproducibility'])
@@ -76,7 +76,7 @@ def read_data_split_and_search(dataset_name,
         init_seed(config['seed'], config['reproducibility'])
 
         dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
-    elif dataset_name == "amazon-book":
+    elif dataset_name == "amz":
         ##NEVER USE RECBOLE AND DATASET NAMES WITH UNDERSCORE :D
         config.dataset='amz'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
@@ -179,6 +179,8 @@ def read_data_split_and_search(dataset_name,
             ##IT WILL BE DESTROYED BEFORE THE TRAINING STARTS ANYWAY
             #recommender_instance.URM_val=URM_validation
             #recommender_instance.URM_test=URM_test
+            recommender_instance.dataset_name=dataset_name
+
             recommender_instance.fit(article_hyperparameters,
                                       **earlystopping_hyperparameters)
             #
@@ -334,7 +336,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["movielens1m"] #,"yelp2018","amazon-book"]
+    dataset_list = ["ml-1m"] #,"yelp2018","amz"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

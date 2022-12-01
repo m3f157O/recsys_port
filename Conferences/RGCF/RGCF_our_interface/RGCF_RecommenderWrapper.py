@@ -149,8 +149,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         :return:
         """
         config = Config(model=RGCF, dataset="DONT-CARE",
-                        config_file_list=['./config/data.yaml',
-                                          './config/model-rgcf.yaml'])
+                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                        './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
         config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
         config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
                                                    'item': ['item_id', 'genre']}
@@ -195,8 +195,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         print(train_data.dataset)
         model = RGCF
 
-
-        train_data, test_data, val_data = load_split_dataloaders("./saved/ml-1m-for-RGCF-dataloader.pth")
+        train_data, test_data, val_data = load_split_dataloaders("./saved/"+self.dataset_name+"-for-RGCF-dataloader.pth")
         check=train_data.dataset.inter_matrix(form='csr')
 
         try:
@@ -340,6 +339,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             #  the model when calling the load_model
             "n_users": self.n_users,
             "n_items": self.n_items,
+            "dataset_name":self.dataset_name,
             #"train_data":self.train_data,
             #"mf_dim": self.mf_dim,
             #"layers": self.layers,
