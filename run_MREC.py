@@ -8,7 +8,7 @@ Created on 22/11/17
 import os, traceback, argparse
 import numpy as np
 
-from Conferences.MREC.MREC_our_interface.Example_RecommenderWrapper import MREC_RecommenderWrapper
+from Conferences.MREC.MREC_our_interface.MREC_RecommenderWrapper import MREC_RecommenderWrapper
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from Utils.ResultFolderLoader import ResultFolderLoader, generate_latex_hyperparameters
