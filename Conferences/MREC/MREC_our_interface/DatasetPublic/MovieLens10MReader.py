@@ -64,8 +64,9 @@ class MovieLens10MReader():
             #    zip_ref.extractall("DatasetPublic/")
 
 
-            URM_all= preprocessing_interactions_pandas("DatasetPublic/ml-10M/",10,"ratings_test.dat")
+            URM_all= preprocessing_interactions_pandas("DatasetPublic/ml-10M/",10,"ratings.dat")
 
+            print(URM_all)
 
             # TODO assign urms -> no urm val
 

@@ -18,20 +18,21 @@ def pandas_df_to_coo(dataset):
 
 def preprocessing_interactions_pandas(file, interactions,filename):
 
+
     dataset = pd.read_csv(file+filename, sep='::')
 
     dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
-    filtered = dataset.groupby(["user_id"]).size().reset_index(name='interactions')
 
-    filtered = filtered[filtered['interactions'] >= interactions]
-
-    filtered.to_csv(file+filename+"filtered", sep='\t', index=False)
-
-
-    dataset = dataset[dataset["user_id"].isin(filtered["user_id"])]
+    filtered_users = dataset.groupby(["user_id"]).size().reset_index(name='interactions')
+    filtered_users = filtered_users[filtered_users['interactions'] >= interactions]
+    dataset = dataset[dataset["user_id"].isin(filtered_users["user_id"])]
 
 
-    del dataset["timestamp"]
+    filtered_items = dataset.groupby(["item_id"]).size().reset_index(name='interactions')
+    filtered_items = filtered_items[filtered_items['interactions'] >= interactions]
+    dataset = dataset[dataset["item_id"].isin(filtered_items["item_id"])]
+
+
     #dataset.to_csv(file+"processed_"+filename, sep='\t', index=False)
 
 

@@ -54,14 +54,14 @@ class GowallaReader():
 
             print("GowallaReader: loading URM")
 
-            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "Data_manager_split_datasets/dataset.zip"
+            #url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
+            #output = "Data_manager_split_datasets/dataset.zip"
 
-            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-                os.makedirs("Data_manager_split_datasets")
+            #if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+            #    os.makedirs("Data_manager_split_datasets")
 
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            #if os.path.isfile(output) != True:
+            #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
 
@@ -78,14 +78,12 @@ class GowallaReader():
 
             # todo fix zip
             import zipfile
-            with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-                zip_ref.extractall("Data_manager_split_datasets/")
+            #with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
+            #    zip_ref.extractall("Data_manager_split_datasets/")
 
             # TODO acquire the dataset
 
-            # taken by the paper
-            n_items = 40988
-            n_users = 29858
+
 
             # TODO assign urms -> no urm val
 
