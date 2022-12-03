@@ -1,3 +1,4 @@
+import numpy as np
 import scipy.sparse as sp
 import pandas as pd
 from pandas.api.types import CategoricalDtype
@@ -13,24 +14,29 @@ def pandas_df_to_coo(dataset):
     movie_cat = CategoricalDtype(categories=sorted(movies), ordered=True)
     user_index = dataset["user_id"].astype(user_cat).cat.codes
     movie_index = dataset["item_id"].astype(movie_cat).cat.codes
-    return sp.coo_matrix((dataset["rating"], (user_index, movie_index)), shape=shape)
+    data_len=len(dataset["user_id"])
+    data=np.ones(data_len)
+    return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
-def preprocessing_interactions_pandas(file, interactions,filename):
+def preprocessing_interactions_pandas(dataset, interactions):
 
-
-    dataset = pd.read_csv(file+filename, sep='::')
-
-    dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
 
     filtered_users = dataset.groupby(["user_id"]).size().reset_index(name='interactions')
     filtered_users = filtered_users[filtered_users['interactions'] >= interactions]
     dataset = dataset[dataset["user_id"].isin(filtered_users["user_id"])]
 
 
+
     filtered_items = dataset.groupby(["item_id"]).size().reset_index(name='interactions')
     filtered_items = filtered_items[filtered_items['interactions'] >= interactions]
     dataset = dataset[dataset["item_id"].isin(filtered_items["item_id"])]
+
+
+
+
+
+
 
 
     #dataset.to_csv(file+"processed_"+filename, sep='\t', index=False)

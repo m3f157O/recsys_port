@@ -11,7 +11,7 @@ import gdown as gd
 from Recommenders.DataIO import DataIO
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
 
-
+import pandas as pd
 class MovieLens10MReader():
     URM_DICT = {}
     ICM_DICT = {}
@@ -63,8 +63,12 @@ class MovieLens10MReader():
             #with zipfile.ZipFile("DatasetPublic/ml-10M.zip", 'r') as zip_ref:
             #    zip_ref.extractall("DatasetPublic/")
 
+            dataset = pd.read_csv("DatasetPublic/ml-10M/ratings.dat", sep='::')
 
-            URM_all= preprocessing_interactions_pandas("DatasetPublic/ml-10M/",10,"ratings.dat")
+            dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
+            del dataset["timestamp"]
+
+            URM_all= preprocessing_interactions_pandas(dataset,10)
 
             print(URM_all)
 

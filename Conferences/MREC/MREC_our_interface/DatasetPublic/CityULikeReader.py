@@ -98,7 +98,14 @@ class CityULikeReader():
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_train, URM_test = preprocessing_ratings(file,10, filename)
+            dataset = pd.read_csv("DatasetPublic/CiteULike/users.dat", sep='\t')
+
+            dataset.columns = ['user_id', 'timestamp', 'long', 'lat','item_id']
+            del dataset["timestamp"]
+            del dataset["long"]
+            del dataset["lat"]
+
+            URM_all= preprocessing_interactions_pandas(dataset,10)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case

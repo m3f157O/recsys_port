@@ -10,6 +10,7 @@ import numpy as np
 
 from Conferences.MREC.MREC_our_interface.MREC_RecommenderWrapper import MREC_RecommenderWrapper
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MovieLens10MReader import *
+from Conferences.MREC.MREC_our_interface.DatasetPublic.GowallaReader import *
 from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from Utils.ResultFolderLoader import ResultFolderLoader, generate_latex_hyperparameters
@@ -30,7 +31,7 @@ def read_data_split_and_search(dataset_variant, train_interactions,
     result_folder_path = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, ALGORITHM_NAME, dataset_variant, train_interactions)
     result_folder_path_CollaborativeVAE = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, "CollaborativeVAE", dataset_variant, train_interactions)
 
-    dataset = MovieLens10MReader("Data_manager_split_datasets")
+    dataset = GowallaReader("Data_manager_split_datasets")
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()

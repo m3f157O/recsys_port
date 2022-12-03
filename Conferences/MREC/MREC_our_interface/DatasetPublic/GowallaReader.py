@@ -9,14 +9,14 @@ Created on 08/11/18
 import os
 import gdown as gd
 from Recommenders.DataIO import DataIO
-from MRECReader import preprocessing_interactions
-
+import pandas as pd
+from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
 
 class GowallaReader():
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path, config):
+    def __init__(self, pre_splitted_path):
 
         super(GowallaReader, self).__init__()
 
@@ -26,7 +26,6 @@ class GowallaReader():
         WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
         """
 
-        config = config
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -38,6 +37,7 @@ class GowallaReader():
         pre_splitted_filename = 'time.zip'
 
         try:
+            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -83,6 +83,14 @@ class GowallaReader():
 
             # TODO acquire the dataset
 
+            dataset = pd.read_csv("DatasetPublic/Gowalla/Gowalla_totalCheckins.txt", sep='\t')
+
+            dataset.columns = ['user_id', 'timestamp', 'long', 'lat','item_id']
+            del dataset["timestamp"]
+            del dataset["long"]
+            del dataset["lat"]
+
+            URM_all= preprocessing_interactions_pandas(dataset,10)
 
 
             # TODO assign urms -> no urm val
@@ -95,7 +103,6 @@ class GowallaReader():
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_train, URM_test)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case
