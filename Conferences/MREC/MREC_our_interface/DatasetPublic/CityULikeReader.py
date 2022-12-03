@@ -97,7 +97,7 @@ class CityULikeReader():
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_train, URM_test)
+            URM_train, URM_test = preprocessing_ratings(file,10, filename)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case
