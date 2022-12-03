@@ -1,7 +1,8 @@
 import scipy.sparse as sp
 import pandas as pd
+from pandas.api.types import CategoricalDtype
 
-def preprocessing_ratings(file, interactions,filename):
+def preprocessing_interactions_pandas(file, interactions,filename):
 
     dataset = pd.read_csv(file+filename, sep='::')
 
@@ -11,16 +12,25 @@ def preprocessing_ratings(file, interactions,filename):
     filtered = filtered[filtered['interactions'] >= interactions]
 
     filtered.to_csv(file+filename+"filtered", sep='\t', index=False)
-    print(dataset["user_id"])
-    print(filtered["user_id"])
-    print(dataset["user_id"].isin(filtered["user_id"]))
+
 
     dataset = dataset[dataset["user_id"].isin(filtered["user_id"])]
 
-    dataset.to_csv(file+"processed_"+filename, sep='\t', index=False)
-    URM_all = dataset.astype(pd.SparseDtype("float64",0)).sparse.to_coo()
+    del dataset["timestamp"]
+    users = dataset["user_id"].unique()
+    movies = dataset["item_id"].unique()
+    shape = (len(users), len(movies))
 
-    return URM_all
+    user_cat = CategoricalDtype(categories=sorted(users), ordered=True)
+    movie_cat = CategoricalDtype(categories=sorted(movies), ordered=True)
+    user_index = dataset["user_id"].astype(user_cat).cat.codes
+    movie_index = dataset["item_id"].astype(movie_cat).cat.codes
+
+
+    print(dataset["item_id"])
+    dataset.to_csv(file+"processed_"+filename, sep='\t', index=False)
+    coo = sp.coo_matrix((dataset["rating"], (user_index, movie_index)), shape=shape)
+    return coo
 
 
 

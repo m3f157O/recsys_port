@@ -9,16 +9,18 @@ Created on 08/11/18
 import os
 import gdown as gd
 from Recommenders.DataIO import DataIO
-from MRECReader import preprocessing_interactions
-
-
+from Data_manager.Movielens.Movielens10MReader import *
+from MRECReader import preprocessing_ratings
 class CityULikeReader():
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path, config):
+    def __init__(self, pre_splitted_path):
 
         super(CityULikeReader, self).__init__()
+
+
+
 
         """"
         CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
@@ -26,7 +28,6 @@ class CityULikeReader():
         WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
         """
 
-        config = config
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 

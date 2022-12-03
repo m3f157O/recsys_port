@@ -9,24 +9,17 @@ Created on 08/11/18
 import os
 import gdown as gd
 from Recommenders.DataIO import DataIO
-from MRECReader import preprocessing_interactions
+from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_ratings
 
 
 class MovieLens10MReader():
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path, config):
+    def __init__(self, pre_splitted_path):
 
         super(MovieLens10MReader, self).__init__()
 
-        """"
-        CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
-        IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
-        WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
-        """
-
-        config = config
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -54,39 +47,25 @@ class MovieLens10MReader():
 
             print("MovieLens10MReader: loading URM")
 
-            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "Data_manager_split_datasets/dataset.zip"
+            ##todo fix download
+            #url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
+            #output = "Data_manager_split_datasets/dataset.zip"
 
-            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-                os.makedirs("Data_manager_split_datasets")
+            #if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+            #    os.makedirs("Data_manager_split_datasets")
 
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
-            """"
-            THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
-
-            THIS CODE IS FROM run.py FROM ORIGINAL IMPLEMENTATION
-            THIS IS A TWEAKED VERSION TO DECOUPLE THE CONFIG SPAWNING
-            AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
-            """
-
-            """
-            FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
-            """
-            # todo fix config
-            #config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
+            #if os.path.isfile(output) != True:
+            #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
             # todo fix zip
             import zipfile
-            with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-                zip_ref.extractall("Data_manager_split_datasets/")
+            #with zipfile.ZipFile("DatasetPublic/ml-10M.zip", 'r') as zip_ref:
+            #    zip_ref.extractall("DatasetPublic/")
 
 
+            URM_all= preprocessing_ratings("DatasetPublic/ml-10M/",10,"ratings_test.dat")
             # TODO acquire the dataset
-
-            # taken by the paper
-            n_items = 8939
-            n_users = 69838
+            print(URM_all)
 
             # TODO assign urms -> no urm val
 
@@ -99,7 +78,6 @@ class MovieLens10MReader():
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            URM_train, URM_test = preprocessing_interactions(n_users, n_items,URM_train, URM_test)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case

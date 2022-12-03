@@ -43,6 +43,7 @@ class GowallaReader(DataReader):
 
 
         try:
+            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -104,6 +105,7 @@ class GowallaReader(DataReader):
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
+
 
             URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_val, URM_train, URM_test)
 
