@@ -9,7 +9,7 @@ Created on 08/11/18
 import os
 import gdown as gd
 from Recommenders.DataIO import DataIO
-from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_ratings
+from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
 
 
 class MovieLens10MReader():
@@ -31,6 +31,7 @@ class MovieLens10MReader():
         pre_splitted_filename = 'time.zip'
 
         try:
+            raise FileNotFoundError
             print("MovieLens10MReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -63,14 +64,11 @@ class MovieLens10MReader():
             #    zip_ref.extractall("DatasetPublic/")
 
 
-            URM_all= preprocessing_ratings("DatasetPublic/ml-10M/",10,"ratings_test.dat")
-            # TODO acquire the dataset
-            print(URM_all)
+            URM_all= preprocessing_interactions_pandas("DatasetPublic/ml-10M/",10,"ratings_test.dat")
+
 
             # TODO assign urms -> no urm val
 
-            URM_train = []
-            URM_test = []
             #URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
 
