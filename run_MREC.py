@@ -31,7 +31,12 @@ def read_data_split_and_search(dataset_variant, train_interactions,
     result_folder_path = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, ALGORITHM_NAME, dataset_variant, train_interactions)
     result_folder_path_CollaborativeVAE = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, "CollaborativeVAE", dataset_variant, train_interactions)
 
-    dataset = GowallaReader("Data_manager_split_datasets")
+    eng = matlab.engine.start_matlab()
+    matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
+    eng.cd(matlab_script_directory)
+    eng.split_dataset_original(nargout=0)
+
+    dataset = MovieLens10MReader("Data_manager_split_datasets")
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()

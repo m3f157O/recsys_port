@@ -64,46 +64,23 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
 
         print("MREC_RecommenderWrapper: Saving temporary data files for matlab use ... ")
 
-        n_features = self.ICM_train.shape[1]
 
-        content_file = self.temp_file_folder + "ICM.mat"
-        scipy.io.savemat(content_file, {"X": self.ICM_train.toarray()}, appendmat=False)
+        self._save_format(URM_to_save=self.URM_train,file_full_path="Conferences/MREC/MREC_github/test/dataset/train.txt")
 
-        input_user_file = self.temp_file_folder + "cf-train-users.dat"
-        self._save_dat_file_from_URM(self.URM_train, input_user_file)
-
-        input_item_file = self.temp_file_folder + "cf-train-items.dat"
-        self._save_dat_file_from_URM(self.URM_train.T, input_item_file)
 
         print("MREC_RecommenderWrapper: Saving temporary data files for matlab use ... done!")
 
         print("MREC_RecommenderWrapper: Calling matlab.engine ... ")
 
         eng = matlab.engine.start_matlab()
-
-        matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/"
-        matlab_backward_path_prefix = "../../../../"
+        matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
         eng.cd(matlab_script_directory)
+
+        eng.train_from_wrapper(nargout=0)
 
         # para_pretrain refers to a preexisting trained model. Setting it to False in order to pretrain from scratch
         load_previous_pretrained_model = False
 
-        eng.cdl_main_with_params(
-            ##TODO parameters
-                     matlab_backward_path_prefix + self.temp_file_folder,
-                     self.gsl_folder,
-                     matlab_backward_path_prefix + input_user_file,
-                     matlab_backward_path_prefix + input_item_file,
-                     matlab_backward_path_prefix + content_file,
-                     para_lv,
-                     para_lu,
-                     para_ln,
-                     epoch_sdae,
-                     epoch_dae,
-                     load_previous_pretrained_model,
-                     batch_size,
-                     n_features,
-                     nargout=0,)
 
 
         print("MREC_RecommenderWrapper: Calling matlab.engine ... done!")
@@ -147,3 +124,9 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
             file_object.write(new_line)
 
         file_object.close()
+
+    def _save_format(self, URM_to_save, file_full_path):
+
+        dataset = pd.DataFrame.sparse.from_spmatrix(URM_to_save)
+        dataset.to_csv(file_full_path, sep='\t', index=False, header=False)
+

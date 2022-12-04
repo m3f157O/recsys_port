@@ -20,6 +20,7 @@ class MovieLens10MReader():
         super(MovieLens10MReader, self).__init__()
 
 
+
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
         # If directory does not exist, create
@@ -70,7 +71,10 @@ class MovieLens10MReader():
 
             URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, "Conferences/MREC/MREC_github/test/dataset/","ml-10m")
 
-            print(URM_all)
+            eng = matlab.engine.start_matlab()
+            matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
+            eng.cd(matlab_script_directory)
+            eng.split_dataset_original(nargout=0)
 
             # TODO assign urms -> no urm val
 
