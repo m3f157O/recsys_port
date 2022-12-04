@@ -91,8 +91,26 @@ def read_data_split_and_search(dataset_variant, train_interactions,
                 "epoch_sdae": 200,
                 "epoch_dae": 200,
             }
-            temp= MREC_RecommenderWrapper(URM_train)
-            temp.fit()
+
+
+            parameterSearch = SearchSingleCase(MREC_RecommenderWrapper,
+                                               evaluator_test=evaluator_test)
+
+            recommender_input_args = SearchInputRecommenderArgs(
+                                                CONSTRUCTOR_POSITIONAL_ARGS = [URM_train],
+                                                FIT_KEYWORD_ARGS = {})
+
+            recommender_input_args_last_test = recommender_input_args.copy()
+            recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
+
+
+            parameterSearch.search(recommender_input_args,
+                                   recommender_input_args_last_test = recommender_input_args_last_test,
+                                   fit_hyperparameters_values=collaborativeDL_article_hyperparameters,
+                                   output_folder_path = result_folder_path,
+                                   resume_from_saved = True,
+                                   output_file_name_root = MREC_RecommenderWrapper.RECOMMENDER_NAME)
+
 
 
         except Exception as e:

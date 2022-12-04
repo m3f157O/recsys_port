@@ -60,7 +60,10 @@ for iter=1:max_iter
             fprintf(',recall@50=%.3f, recall@100=%.3f', metric.item_recall(1,50), metric.item_recall(1,100));
         end
     end
+    size(P)
+    size(Q)
     fprintf('\n');
+
 end
 if(~isempty(test))
     if mod(max_iter, k_verbose)~=0

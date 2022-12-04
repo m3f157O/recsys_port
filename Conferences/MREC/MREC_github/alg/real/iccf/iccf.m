@@ -61,6 +61,8 @@ for iter=1:max_iter
         end
     end
     fprintf('\n');
+
+
 end
 if(~isempty(test))
     if mod(max_iter, k_verbose)~=0
