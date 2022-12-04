@@ -19,14 +19,12 @@ def pandas_df_to_coo(dataset):
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
-def preprocessing_interactions_pandas(dataset, interactions):
+def preprocessing_interactions_pandas(dataset, interactions,file,filename):
 
 
     filtered_users = dataset.groupby(["user_id"]).size().reset_index(name='interactions')
     filtered_users = filtered_users[filtered_users['interactions'] >= interactions]
     dataset = dataset[dataset["user_id"].isin(filtered_users["user_id"])]
-
-
 
     filtered_items = dataset.groupby(["item_id"]).size().reset_index(name='interactions')
     filtered_items = filtered_items[filtered_items['interactions'] >= interactions]
@@ -36,10 +34,7 @@ def preprocessing_interactions_pandas(dataset, interactions):
 
 
 
-
-
-
-    #dataset.to_csv(file+"processed_"+filename, sep='\t', index=False)
+    dataset.to_csv(file+"processed_"+filename, sep='\t', index=False)
 
 
     coo = pandas_df_to_coo(dataset)

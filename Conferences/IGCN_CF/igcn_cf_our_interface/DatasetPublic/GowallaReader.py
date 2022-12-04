@@ -16,7 +16,7 @@ from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import
 
 import os
 import scipy.sparse as sparse
-
+import numpy as np
 class GowallaReader(DataReader):
     URM_DICT = {}
     ICM_DICT = {}
@@ -108,7 +108,6 @@ class GowallaReader(DataReader):
 
 
             URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_val, URM_train, URM_test)
-
 
 
             # Done get the sparse matrices in the correct dictionary with the correct name

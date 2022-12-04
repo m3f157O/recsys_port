@@ -9,7 +9,7 @@ elseif cutoff<=0
         cutoff = 200;
     end
 end
-option = 'output';
+option = '';
 for i=1:2:length(varargin)
     if strcmp(varargin{i}, 'test') || strcmp(varargin{i}, 'test_ratio')
         option = 'heldout';

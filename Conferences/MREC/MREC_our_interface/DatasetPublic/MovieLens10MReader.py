@@ -10,7 +10,6 @@ import os
 import gdown as gd
 from Recommenders.DataIO import DataIO
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
-
 import pandas as pd
 class MovieLens10MReader():
     URM_DICT = {}
@@ -58,6 +57,7 @@ class MovieLens10MReader():
             #if os.path.isfile(output) != True:
             #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
+
             # todo fix zip
             import zipfile
             #with zipfile.ZipFile("DatasetPublic/ml-10M.zip", 'r') as zip_ref:
@@ -68,7 +68,7 @@ class MovieLens10MReader():
             dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
             del dataset["timestamp"]
 
-            URM_all= preprocessing_interactions_pandas(dataset,10)
+            URM_all= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/","ml-10m")
 
             print(URM_all)
 

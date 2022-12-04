@@ -11,6 +11,7 @@ import gdown as gd
 from Recommenders.DataIO import DataIO
 import pandas as pd
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
+import matlab.engine
 
 class GowallaReader():
     URM_DICT = {}
@@ -90,8 +91,12 @@ class GowallaReader():
             del dataset["long"]
             del dataset["lat"]
 
-            URM_all= preprocessing_interactions_pandas(dataset,10)
+            URM_all= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/","gowalla")
 
+            eng = matlab.engine.start_matlab()
+            matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
+            eng.cd(matlab_script_directory)
+            eng.split_dataset_original(nargout=0)
 
             # TODO assign urms -> no urm val
 
