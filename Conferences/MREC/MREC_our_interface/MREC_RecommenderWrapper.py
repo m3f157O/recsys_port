@@ -11,7 +11,7 @@ import os
 
 from numpy import genfromtxt
 import scipy.sparse as sps
-import scipy.io
+import pandas as pd
 
 from Recommenders.BaseCBFRecommender import BaseItemCBFRecommender
 from Recommenders.BaseMatrixFactorizationRecommender import BaseMatrixFactorizationRecommender

@@ -68,7 +68,7 @@ class MovieLens10MReader():
             dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
             del dataset["timestamp"]
 
-            URM_all= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/","ml-10m")
+            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, "Conferences/MREC/MREC_github/test/dataset/","ml-10m")
 
             print(URM_all)
 
