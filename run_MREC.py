@@ -34,7 +34,7 @@ def read_data_split_and_search(dataset_variant, train_interactions,
     eng = matlab.engine.start_matlab()
     matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
     eng.cd(matlab_script_directory)
-    eng.split_dataset_original(nargout=0)
+    eng.test_script(nargout=0)
 
     dataset = MovieLens10MReader("Data_manager_split_datasets")
 
