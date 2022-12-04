@@ -38,8 +38,8 @@ def preprocessing_interactions_pandas(dataset, interactions,file,filename):
     dataset_train, dataset_test = skl.train_test_split(dataset, test_size=0.80, random_state = 42, shuffle = True)
 
     # writing training and testing into files
-    dataset_train.to_csv(file+"processed_train_testing"+filename, sep='\t', index=False, header=False)
-    dataset_test.to_csv(file+"processed_test_testing"+filename, sep='\t', index=False, header=False)
+    dataset_train.to_csv(file+"train.txt", sep='\t', index=False, header=False)
+    dataset_test.to_csv(file+"test.txt", sep='\t', index=False, header=False)
     URM_test = pandas_df_to_coo(dataset_test)
     URM_train = pandas_df_to_coo(dataset_train)
 

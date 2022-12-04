@@ -31,7 +31,6 @@ class MovieLens10MReader():
         pre_splitted_filename = 'time.zip'
 
         try:
-            raise FileNotFoundError
             print("MovieLens10MReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -70,16 +69,6 @@ class MovieLens10MReader():
             del dataset["timestamp"]
 
             URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, "Conferences/MREC/MREC_github/test/dataset/","ml-10m")
-
-            eng = matlab.engine.start_matlab()
-            matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
-            eng.cd(matlab_script_directory)
-            eng.split_dataset_original(nargout=0)
-
-            # TODO assign urms -> no urm val
-
-            #URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
-
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not

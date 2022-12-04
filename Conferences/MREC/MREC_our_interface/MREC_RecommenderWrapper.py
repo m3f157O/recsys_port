@@ -24,7 +24,7 @@ except ImportError:
 
 
 
-class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRecommender, BaseTempFolder):
+class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder):
 
 
     RECOMMENDER_NAME = "MREC_RecommenderWrapper"
@@ -33,8 +33,8 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
 
     #todo take the dataset lists
 
-    def __init__(self, URM_train, ICM_train):
-        super(MREC_RecommenderWrapper, self).__init__(URM_train, ICM_train)
+    def __init__(self, URM_train):
+        super(MREC_RecommenderWrapper, self).__init__(URM_train)
 
     def fit(self,
             batch_size = 128,
@@ -47,14 +47,6 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
             gsl_file_folder = None):
 
 
-        self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
-
-        if gsl_file_folder is None:
-            print("{}: Using default gsl folder '{}'".format(self.RECOMMENDER_NAME, self.DEFAULT_GSL_LIB_FOLDER))
-            self.gsl_folder = self.DEFAULT_GSL_LIB_FOLDER
-        else:
-            print("{}: Using gsl folder '{}'".format(self.RECOMMENDER_NAME, gsl_file_folder))
-            self.gsl_folder = gsl_file_folder
 
 
 
@@ -65,7 +57,7 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
         print("MREC_RecommenderWrapper: Saving temporary data files for matlab use ... ")
 
 
-        self._save_format(URM_to_save=self.URM_train,file_full_path="Conferences/MREC/MREC_github/test/dataset/train.txt")
+        #self._save_format(URM_to_save=self.URM_train,file_full_path="Conferences/MREC/MREC_github/test/dataset/train.txt")
 
 
         print("MREC_RecommenderWrapper: Saving temporary data files for matlab use ... done!")
@@ -76,7 +68,7 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
         matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
         eng.cd(matlab_script_directory)
 
-        eng.train_from_wrapper(nargout=0)
+        eng.test_script(nargout=0)
 
         # para_pretrain refers to a preexisting trained model. Setting it to False in order to pretrain from scratch
         load_previous_pretrained_model = False
@@ -85,9 +77,7 @@ class MREC_RecommenderWrapper(BaseItemCBFRecommender, BaseMatrixFactorizationRec
 
         print("MREC_RecommenderWrapper: Calling matlab.engine ... done!")
 
-        os.remove(content_file)
-        os.remove(input_user_file)
-        os.remove(input_item_file)
+
 
         print("MREC_RecommenderWrapper: Loading trained model from temp matlab files ... ")
         self.USER_factors = genfromtxt(self.temp_file_folder + "final-U.dat", delimiter=' ')

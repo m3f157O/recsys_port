@@ -15,14 +15,15 @@ from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.SearchSingleCase import SearchSingleCase
 from Utils.ResultFolderLoader import ResultFolderLoader, generate_latex_hyperparameters
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
+from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 
-
+import scipy.sparse as sps
 
 
 
 def read_data_split_and_search(dataset_variant, train_interactions,
                                    flag_baselines_tune = False,
-                                   flag_DL_article_default = False, flag_DL_tune = False,
+                                   flag_DL_article_default = True, flag_DL_tune = False,
                                    flag_print_results = False):
 
 
@@ -31,10 +32,7 @@ def read_data_split_and_search(dataset_variant, train_interactions,
     result_folder_path = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, ALGORITHM_NAME, dataset_variant, train_interactions)
     result_folder_path_CollaborativeVAE = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, "CollaborativeVAE", dataset_variant, train_interactions)
 
-    eng = matlab.engine.start_matlab()
-    matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
-    eng.cd(matlab_script_directory)
-    eng.test_script(nargout=0)
+
 
     dataset = MovieLens10MReader("Data_manager_split_datasets")
 
@@ -43,22 +41,22 @@ def read_data_split_and_search(dataset_variant, train_interactions,
     URM_test = dataset.URM_DICT["URM_test"].copy()
 
     # Ensure IMPLICIT data
-    assert_implicit_data([URM_train, URM_validation, URM_test])
+    #assert_implicit_data([URM_train, URM_validation, URM_test])
 
     # Due to the sparsity of the dataset, choosing an evaluation as subset of the train
     # While keepning validation interaction in the train set
-    if train_interactions == 1:
-        # In this case the train data will contain validation data to avoid cold users
-        assert_disjoint_matrices([URM_train, URM_test])
-        assert_disjoint_matrices([URM_validation, URM_test])
-        exclude_seen_validation = False
-        URM_train_last_test = URM_train
-    else:
-        assert_disjoint_matrices([URM_train, URM_validation, URM_test])
-        exclude_seen_validation = True
-        URM_train_last_test = URM_train + URM_validation
+#if train_interactions == 1:
+### In this case the train data will contain validation data to avoid cold users
+##assert_disjoint_matrices([URM_train, URM_test])
+##assert_disjoint_matrices([URM_validation, URM_test])
+##exclude_seen_validation = False
+    URM_train_last_test = URM_train
+#   else:
+#   #   assert_disjoint_matrices([URM_train, URM_validation, URM_test])
+#   #   exclude_seen_validation = True
+#   #   URM_train_last_test = URM_train + URM_validation
 
-    assert_implicit_data([URM_train_last_test])
+#   assert_implicit_data([URM_train_last_test])
 
 
 
@@ -68,9 +66,9 @@ def read_data_split_and_search(dataset_variant, train_interactions,
 
 
 
-    from Base.Evaluation.Evaluator import EvaluatorHoldout
 
-    evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=[150], exclude_seen = exclude_seen_validation)
+    #evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=[150], exclude_seen = False)
+    URM_test=sps.csr_matrix(URM_test)
     evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=[50, 100, 150, 200, 250, 300])
 
 
@@ -78,6 +76,8 @@ def read_data_split_and_search(dataset_variant, train_interactions,
     ######
     ######      DL ALGORITHM
     ######
+
+    flag_Dl_article_default=True
 
     if flag_DL_article_default:
 
@@ -91,26 +91,8 @@ def read_data_split_and_search(dataset_variant, train_interactions,
                 "epoch_sdae": 200,
                 "epoch_dae": 200,
             }
-
-
-            parameterSearch = SearchSingleCase(CollaborativeDL_Matlab_RecommenderWrapper,
-                                               evaluator_validation=evaluator_validation,
-                                               evaluator_test=evaluator_test)
-
-            recommender_input_args = SearchInputRecommenderArgs(
-                                                CONSTRUCTOR_POSITIONAL_ARGS = [URM_train, dataset.ICM_DICT["ICM_tokens_TFIDF"]],
-                                                FIT_KEYWORD_ARGS = {})
-
-            recommender_input_args_last_test = recommender_input_args.copy()
-            recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
-
-
-            parameterSearch.search(recommender_input_args,
-                                   recommender_input_args_last_test = recommender_input_args_last_test,
-                                   fit_hyperparameters_values=collaborativeDL_article_hyperparameters,
-                                   output_folder_path = result_folder_path,
-                                   resume_from_saved = True,
-                                   output_file_name_root = MREC_RecommenderWrapper.RECOMMENDER_NAME)
+            temp= MREC_RecommenderWrapper(URM_train)
+            temp.fit()
 
 
         except Exception as e:
@@ -189,7 +171,7 @@ if __name__ == '__main__':
 
             read_data_split_and_search(dataset_variant, train_interactions,
                                         flag_baselines_tune=input_flags.baseline_tune,
-                                        flag_DL_article_default= input_flags.DL_article_default,
+                                        flag_DL_article_default= True,
                                         flag_print_results = input_flags.print_results,
                                         )
 

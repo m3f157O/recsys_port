@@ -3,4 +3,4 @@ train = +(train>0); % convert count into binary, since it is observed that this 
 test = +(test>0); % also convert count into binary
 
 
-[summary, detail, elapsed] = item_recommend(@(mat) iccf(mat, 'alpha', 30, 'K', 20, 'max_iter', 20), train, 'test', test); 
+[summary, detail, elapsed] = item_recommend(@(mat) iccf(mat, 'alpha', 30, 'K', 20, 'max_iter', 20), train, 'test', test)
