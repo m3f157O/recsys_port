@@ -8,20 +8,13 @@ Created on 18/12/18
 import os
 
 from Recommenders.BaseRecommender import BaseRecommender
-from Recommenders.BaseSimilarityMatrixRecommender import BaseUserSimilarityMatrixRecommender, \
-    BaseSimilarityMatrixRecommender
 from Recommenders.Incremental_Training_Early_Stopping import Incremental_Training_Early_Stopping
 from Recommenders.BaseTempFolder import BaseTempFolder
 from Recommenders.DataIO import DataIO
 from recbole.data import load_split_dataloaders
-import torch
 import numpy as np
-import tensorflow as tf
 import scipy.sparse as sps
 
-import pandas as pd
-
-from Conferences.CIKM.ExampleAlgorithm_github.main import get_model
 from Conferences.RGCF.RGCF_github.trainer import customized_Trainer
 
 from Conferences.RGCF.RGCF_github.rgcf import RGCF
@@ -284,11 +277,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self.URM_train = sps.csr_matrix(self.URM_train)
         self._init_model()
 
-        # print(self._compute_item_score([0]))
-        # print(self._compute_item_score([0]))
-        # print(self._compute_item_score([0]))
-        # print(self._compute_item_score([0]))
-
         # Done Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
 
@@ -330,9 +318,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         self._print("Saving model in file '{}'".format(folder_path + file_name))
 
-        # TODO replace this with the Saver required by the model
-        #  THERE IS NONE!!!! just save the weights, and force them on the previous model
-
         self.model.save(folder_path+"/_weights")
         data_dict_to_save = {
             # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
@@ -367,13 +352,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         for attrib_name in data_dict.keys():
             self.__setattr__(attrib_name, data_dict[attrib_name])
 
-        # TODO replace this with what required to re-instantiate the model and load its weights,
-        #  Call the init_model function you created before
         self._init_model()
         self.model.load(folder_path+"/_weights")
-
-        # TODO If you are using tensorflow, you may instantiate a new session here
-        # TODO reset the default graph to "clean" the tensorflow state
 
 
         self._print("Loading complete")

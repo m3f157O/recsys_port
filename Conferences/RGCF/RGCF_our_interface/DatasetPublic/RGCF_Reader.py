@@ -15,7 +15,6 @@ def preprocessing_ratings(file, rate,filename):
 """"
     Method to make the preprocessing: checks if the number of interactions is greater than 15 by using URM
 """
-
 def preprocessing_interactions(n_users, n_items, URM_val, URM_train, URM_test):
     URM_val_csr = URM_val.tocsr()
     URM_train_csr = URM_train.tocsr()

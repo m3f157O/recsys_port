@@ -134,7 +134,6 @@ def read_data_split_and_search(dataset_name,
             article_hyperparameters = {
                 #added for config
                 "config": config,
-                #"train_data": train_data,
                 # modified
                 "batch_size": 4096,
                 #added
