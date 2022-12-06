@@ -54,8 +54,8 @@ class GowallaReader():
 
             print("GowallaReader: loading URM")
 
-            #url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            #output = "Data_manager_split_datasets/dataset.zip"
+            #url = "https://drive.google.com/file/d/1-0Yt5TAC9QM4fCXv7FDY_f2rwC_0AW_F/view?usp=share_link"
+            output = "DatasetPublic/Gowalla_totalCheckins.zip"
 
             #if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
             #    os.makedirs("Data_manager_split_datasets")
@@ -70,18 +70,10 @@ class GowallaReader():
             AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
             """
 
-            """
-            FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
-            """
-            # todo fix config
-            # config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
-
-            # todo fix zip
             import zipfile
-            #with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-            #    zip_ref.extractall("Data_manager_split_datasets/")
+            with zipfile.ZipFile("DatasetPublic/Gowalla_totalCheckins.zip", 'r') as zip_ref:
+                zip_ref.extractall("DatasetPublic/Gowalla")
 
-            # TODO acquire the dataset
 
             dataset = pd.read_csv("DatasetPublic/Gowalla/Gowalla_totalCheckins.txt", sep='\t')
 
@@ -90,18 +82,12 @@ class GowallaReader():
             del dataset["long"]
             del dataset["lat"]
 
-            URM_all= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/","gowalla")
+            URM_train, URM_test= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/")
 
             eng = matlab.engine.start_matlab()
             matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
             eng.cd(matlab_script_directory)
             eng.split_dataset_original(nargout=0)
-
-            # TODO assign urms -> no urm val
-
-            URM_train = []
-            URM_test = []
-            # URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
