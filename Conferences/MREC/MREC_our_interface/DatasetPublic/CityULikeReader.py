@@ -8,9 +8,15 @@ Created on 08/11/18
 
 import os
 import gdown as gd
+from scipy.io import matlab
+import pandas as pd
 from Recommenders.DataIO import DataIO
 from Data_manager.Movielens.Movielens10MReader import *
-from MRECReader import preprocessing_ratings
+from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
+
+import csv
+
+
 class CityULikeReader():
     URM_DICT = {}
     ICM_DICT = {}
@@ -19,15 +25,11 @@ class CityULikeReader():
 
         super(CityULikeReader, self).__init__()
 
-
-
-
         """"
         CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
         IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
         WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
         """
-
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
@@ -40,7 +42,7 @@ class CityULikeReader():
 
         try:
             print("CityULikeReader: Attempting to load pre-splitted data")
-
+            raise FileNotFoundError
             ##attrib name is file name
             ##attrib object is panda object
 
@@ -55,14 +57,15 @@ class CityULikeReader():
 
             print("CityULikeReader: loading URM")
 
-            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "Data_manager_split_datasets/dataset.zip"
+            # TODO LINK FROM WHERE I TOOK THE DATASET: https://github.com/js05212/citeulike-a
+            # url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
+            output = "DatasetPublic/cityulike-a-master.zip"
 
-            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-                os.makedirs("Data_manager_split_datasets")
+            # if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+            #    os.makedirs("Data_manager_split_datasets")
 
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            # if os.path.isfile(output) != True:
+            #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
 
@@ -71,27 +74,21 @@ class CityULikeReader():
             AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
             """
 
-            """
-            FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
-            """
-            # todo fix config
-            # config[0][0]["path"] = 'Data_manager_split_datasets/Gowalla/time'
-
-            # todo fix zip
             import zipfile
-            with zipfile.ZipFile("Data_manager_split_datasets/dataset.zip", 'r') as zip_ref:
-                zip_ref.extractall("Data_manager_split_datasets/")
+            with zipfile.ZipFile("DatasetPublic/citeulike-a-master.zip", 'r') as zip_ref:
+                zip_ref.extractall("DatasetPublic/CityULike")
 
-            # TODO acquire the dataset
+            # dataset = pd.read_csv('DatasetPublic/CityULike/citeulike-a-master/users.dat', sep='|', header=0, skipinitialspace=True)
+            dataset = pd.read_csv('DatasetPublic/CityULike/citeulike-a-master/users.dat',
+                                  names=['user_id', 'item_id'])
 
-            # taken by the paper
-            n_items = 2991
-            n_users = 1151
+            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10,
+                                                                    "Conferences/MREC/MREC_github/test/dataset/")
 
-            # TODO assign urms -> no urm val
-
-            URM_train = []
-            URM_test = []
+            eng = matlab.engine.start_matlab()
+            matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
+            eng.cd(matlab_script_directory)
+            eng.split_dataset_original(nargout=0)
             # URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
@@ -100,12 +97,12 @@ class CityULikeReader():
 
             dataset = pd.read_csv("DatasetPublic/CiteULike/users.dat", sep='\t')
 
-            dataset.columns = ['user_id', 'timestamp', 'long', 'lat','item_id']
+            dataset.columns = ['user_id', 'timestamp', 'long', 'lat', 'item_id']
             del dataset["timestamp"]
             del dataset["long"]
             del dataset["lat"]
 
-            URM_all= preprocessing_interactions_pandas(dataset,10)
+            URM_all = preprocessing_interactions_pandas(dataset, 10)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case
