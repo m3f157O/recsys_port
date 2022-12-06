@@ -12,6 +12,7 @@ from scipy.io import matlab
 import pandas as pd
 from Recommenders.DataIO import DataIO
 from Data_manager.Movielens.Movielens10MReader import *
+from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_lists
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
 
 import csv
@@ -79,11 +80,18 @@ class CityULikeReader():
                 zip_ref.extractall("DatasetPublic/CityULike")
 
             # dataset = pd.read_csv('DatasetPublic/CityULike/citeulike-a-master/users.dat', sep='|', header=0, skipinitialspace=True)
-            dataset = pd.read_csv('DatasetPublic/CityULike/citeulike-a-master/users.dat',
-                                  names=['user_id', 'item_id'])
+            with open('DatasetPublic/CityULike/citeulike-a-master/users.dat', 'r') as input_file:
+                lines = input_file.readlines()
+                newLines = []
+                for line in lines:
+                    newLine = line.strip(' ').split()
+                    newLines.append(newLine)
 
-            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10,
-                                                                    "Conferences/MREC/MREC_github/test/dataset/")
+            URM_all = preprocessing_interactions_lists(newLines)
+
+            URMtoPandasCsv("DatasetPublic/CityULike/citeulike-a-master/users-items.csv", URM_all)
+            dataset = pd.read_csv("DatasetPublic/CityULike/citeulike-a-master/users-items.csv", sep="\t")
+            URM_train, URM_test = preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/")
 
             eng = matlab.engine.start_matlab()
             matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"

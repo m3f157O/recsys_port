@@ -3,6 +3,7 @@ import scipy.sparse as sp
 import sklearn.model_selection as skl
 from pandas.api.types import CategoricalDtype
 
+
 import pandas as pd
 
 from Data_manager.split_functions.split_train_validation_random_holdout import \
@@ -41,15 +42,7 @@ def preprocessing_interactions_pandas(dataset, interactions, file):
         n_users_updated = len(dataset.groupby(["user_id"]).size())
         n_items_updated = len(dataset.groupby(["item_id"]).size())
 
-        print("Users" + str(n_users))
-        print("UsersUpdated" + str(n_users_updated))
-        print("Items" + str(n_items))
-        print("ItemsUpdated" + str(n_items_updated))
         if n_users == n_users_updated and n_items == n_items_updated:
-            print("Users" + str(n_users))
-            print("UsersUpdated" + str(n_users_updated))
-            print("Items" + str(n_items))
-            print("ItemsUpdated" + str(n_items_updated))
             break
 
 
@@ -63,4 +56,41 @@ def preprocessing_interactions_pandas(dataset, interactions, file):
 
 
     return URM_train, URM_test
+
+def URMtoPandasCsv(path,URM):
+    column = (URM.col).copy()
+    row = (URM.row).copy()
+    number_users = np.unique(row)
+    number_items = np.unique(column)
+    file = open(path , "w")
+
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        items = items_to_add
+        column = column[count:]
+        for j in range(len(items)):
+            # only users and items matters because the preprocessing is already done in the reader
+            file.write(str(i + 1) + "\t" + str(items[j]) + "\t" + "1.0")
+
+def preprocessing_interactions_lists(lists):
+    cols = np.array([])
+    rows = np.array([])
+    datas = np.array([])
+    for index in range(len(lists)):
+        adj = np.array(lists[index])  # get number of elements on given row
+        data = np.ones_like(adj)  # all data is both 0 or 1
+        row = np.ones_like(adj)
+        row.fill(index)  # get correct row number
+        col = adj  # useless
+        datas = np.append(datas, data)  # concatenate to all
+        rows = np.append(rows, row)
+        cols = np.append(cols, col)
+    size = len(np.unique(rows))
+    size2 = len(np.unique(cols))
+    return sp.coo_matrix((datas, (rows, cols)), shape=(size2, size))
+
+
+
+
 
