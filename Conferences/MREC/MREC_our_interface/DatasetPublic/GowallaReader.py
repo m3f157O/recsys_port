@@ -11,7 +11,6 @@ import gdown as gd
 from Recommenders.DataIO import DataIO
 import pandas as pd
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
-import matlab.engine
 
 class GowallaReader():
     URM_DICT = {}

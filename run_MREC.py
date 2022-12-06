@@ -33,7 +33,7 @@ def read_data_split_and_search(flag_baselines_tune = False,
 
 
 
-    dataset = MovieLens10MReader("Data_manager_split_datasets")
+    dataset = GowallaReader("Data_manager_split_datasets")
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()

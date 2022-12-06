@@ -32,7 +32,7 @@ class MovieLens10MReader():
 
         try:
             print("MovieLens10MReader: Attempting to load pre-splitted data")
-
+            raise FileNotFoundError
             ##attrib name is file name
             ##attrib object is panda object
 
@@ -47,28 +47,27 @@ class MovieLens10MReader():
 
             print("MovieLens10MReader: loading URM")
 
-            ##todo fix download
-            #url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            #output = "Data_manager_split_datasets/dataset.zip"
+            ## todo fix
+            #url = "https://drive.google.com/file/d/1r29caf988qL8jcr6VBKEEJ5-LwHO7xLD/view"
+            output = "DatasetPublic/ml-10M.zip"
 
-            #if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-            #    os.makedirs("Data_manager_split_datasets")
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
 
             #if os.path.isfile(output) != True:
             #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
-
-            # todo fix zip
             import zipfile
-            #with zipfile.ZipFile("DatasetPublic/ml-10M.zip", 'r') as zip_ref:
-            #    zip_ref.extractall("DatasetPublic/")
+            with zipfile.ZipFile("DatasetPublic/ml-10M.zip", 'r') as zip_ref:
+                zip_ref.extractall("DatasetPublic/")
 
             dataset = pd.read_csv("DatasetPublic/ml-10M/ratings.dat", sep='::')
 
             dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
+
             del dataset["timestamp"]
 
-            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, "Conferences/MREC/MREC_github/test/dataset/","ml-10m")
+            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, "Conferences/MREC/MREC_github/test/dataset/")
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not

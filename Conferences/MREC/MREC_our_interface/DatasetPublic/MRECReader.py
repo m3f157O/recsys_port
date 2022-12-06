@@ -23,16 +23,34 @@ def pandas_df_to_coo(dataset):
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
-def preprocessing_interactions_pandas(dataset, interactions,file,filename):
+def preprocessing_interactions_pandas(dataset, interactions, file):
 
     # filtering users and items with less than 10 interactions
-    filtered_users = dataset.groupby(["user_id"]).size().reset_index(name='interactions')
-    filtered_users = filtered_users[filtered_users['interactions'] >= interactions]
-    dataset = dataset[dataset["user_id"].isin(filtered_users["user_id"])]
+    while(True):
+        n_users = len(dataset.groupby(["user_id"]).size())
+        n_items = len(dataset.groupby(["item_id"]).size())
 
-    filtered_items = dataset.groupby(["item_id"]).size().reset_index(name='interactions')
-    filtered_items = filtered_items[filtered_items['interactions'] >= interactions]
-    dataset = dataset[dataset["item_id"].isin(filtered_items["item_id"])]
+        filtered_users = dataset.groupby(["user_id"]).size().reset_index(name='interactions')
+        filtered_users = filtered_users[filtered_users['interactions'] >= interactions]
+        dataset = dataset[dataset["user_id"].isin(filtered_users["user_id"])]
+
+        filtered_items = dataset.groupby(["item_id"]).size().reset_index(name='interactions')
+        filtered_items = filtered_items[filtered_items['interactions'] >= interactions]
+        dataset = dataset[dataset["item_id"].isin(filtered_items["item_id"])]
+
+        n_users_updated = len(dataset.groupby(["user_id"]).size())
+        n_items_updated = len(dataset.groupby(["item_id"]).size())
+
+        print("Users" + str(n_users))
+        print("UsersUpdated" + str(n_users_updated))
+        print("Items" + str(n_items))
+        print("ItemsUpdated" + str(n_items_updated))
+        if n_users == n_users_updated and n_items == n_items_updated:
+            print("Users" + str(n_users))
+            print("UsersUpdated" + str(n_users_updated))
+            print("Items" + str(n_items))
+            print("ItemsUpdated" + str(n_items_updated))
+            break
 
 
     dataset_train, dataset_test = skl.train_test_split(dataset, test_size=0.80, random_state = 42, shuffle = True)
