@@ -45,7 +45,7 @@ class Movielens1MReader(object):
             print("Movielens20MReader: loading URM")
 
 
-            url = "https://drive.google.com/file/d/1sqgFpwHNWNPaMlVFHbQQXIRaAN9i3KUJ/view"
+            url = "https://drive.google.com/file/d/1vGGUmYfd4U0Rv3ZpsFdqXh2vExtoFdzZ/view?usp=share_link"
             output = "Data_manager_split_datasets/ml-1m_RGCF.zip"
 
             if os.path.isfile(output) != True:

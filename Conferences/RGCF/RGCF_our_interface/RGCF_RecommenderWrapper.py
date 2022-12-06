@@ -69,7 +69,6 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
             user_id = user_id_array[user_index]
 
-            # TODO this predict function should be replaced by whatever code is needed to compute the prediction for a user
 
             # The prediction requires a list of two arrays user_id, item_id of equal length
             # To compute the recommendations for a single user, we must provide its index as many times as the
@@ -120,6 +119,15 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
                 missing.append(i)
 
 
+        for i in missing:
+            row=np.append(row,0)
+            print("before")
+            print(len(column))
+            column=np.append(column,i)
+            print("after")
+            print(len(column))
+
+
         print(len(np.unique(column)))
         for i in range(len(number_users)):
             count = np.count_nonzero(row == i)
@@ -141,67 +149,64 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         It should be used both in the fit function and in the load_model function
         :return:
         """
-        config = Config(model=RGCF, dataset="DONT-CARE",
-                        config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                        './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
-        config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
-                                                   'item': ['item_id', 'genre']}
-        config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
-        config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
-        config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
-        config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
-        config.final_config_dict['training_neg_sample_num'] = 1
-        config.internal_config_dict['training_neg_sample_num'] = 1
-        config.final_config_dict['epochs'] = 500
-        config.internal_config_dict['epochs'] = 500
-        config.final_config_dict['train_batch_size'] = 4096
-        config.internal_config_dict['train_batch_size'] = 4096
-        config.final_config_dict['topk'] = [10, 20, 50]
-        config.internal_config_dict['topk'] = [10, 20, 50]
-        config.final_config_dict['save_dataloaders'] = True
-        config.internal_config_dict['save_dataloaders'] = True
 
-        train_data, test_data, val_data = load_split_dataloaders("./saved/ml-1m-for-RGCF-dataloader.pth")
-        print(train_data.dataset)
-        #dataset_name = "datasetRecbole"
-        #dataset_path = "./Conferences/RGCF/RGCF_github/dataset"
-        #self.URM_train.eliminate_zeros()
-        #a=self.URM_train.tocoo(copy=True)
-        #b=np.unique(a.col)
-        #self.fromURMToRecbole(dataset_name, dataset_path)
-
-        #config = Config(model=RGCF, dataset=dataset_name,
-        #                config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-        #                                  './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-        #config.final_config_dict['data_path'] = dataset_path
-        #config.final_config_dict['normalize_field'] = False
-        #config.internal_config_dict['normalize_field'] = False
-        #config.final_config_dict['normalize_all'] = False
-        #config.internal_config_dict['normalize_all'] = False
-        # to pass to recbole only the trained data
-        #config.internal_config_dict['eval_args']['split'] = {'RS': [1.0, 0, 0]}
-
-        #dataset = create_dataset(config)
-
-        #train_data, valid_data, test_data = data_preparation(config, dataset)
-        print(train_data.dataset)
-        model = RGCF
-
-        train_data, test_data, val_data = load_split_dataloaders("./saved/"+self.dataset_name+"-for-RGCF-dataloader.pth")
-        check=train_data.dataset.inter_matrix(form='csr')
 
         try:
-            assert np.all(check.indices == self.URM_train.indices)
-            assert np.all(check.indptr == self.URM_train.indptr)
-        except AssertionError:
-            _, _, tb = sys.exc_info()
-            traceback.print_tb(tb)  # Fixed format
-            tb_info = traceback.extract_tb(tb)
-            filename, line, func, text = tb_info[-1]
+            config = Config(model=RGCF, dataset="DONT-CARE",
+                            config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                              './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+            config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
+                                                    'item': ['item_id', 'genre']}
+            config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
+                                                       'item': ['item_id', 'genre']}
+            config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
+            config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
+            config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+            config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+            config.final_config_dict['training_neg_sample_num'] = 1
+            config.internal_config_dict['training_neg_sample_num'] = 1
+            config.final_config_dict['epochs'] = 500
+            config.internal_config_dict['epochs'] = 500
+            config.final_config_dict['train_batch_size'] = 4096
+            config.internal_config_dict['train_batch_size'] = 4096
+            config.final_config_dict['topk'] = [10, 20, 50]
+            config.internal_config_dict['topk'] = [10, 20, 50]
+            config.final_config_dict['save_dataloaders'] = True
+            config.internal_config_dict['save_dataloaders'] = True
+            model = RGCF
+            train_data, test_data, val_data = load_split_dataloaders("./saved/"+self.dataset_name+"-for-RGCF-dataloader.pth")
+            print(train_data.dataset)
 
-            print('DataLoader representing the URM_train is corrupted.')
-            exit(1)
+            check = train_data.dataset.inter_matrix(form='csr')
+
+            try:
+                assert np.all(check.indices == self.URM_train.indices)
+                assert np.all(check.indptr == self.URM_train.indptr)
+            except AssertionError:
+                _, _, tb = sys.exc_info()
+                traceback.print_tb(tb)  # Fixed format
+                tb_info = traceback.extract_tb(tb)
+                print('DataLoader representing the URM_train is corrupted.')
+                exit(1)
+        except:
+            dataset_name = "datasetRecbole"
+            dataset_path = "."
+            self.fromURMToRecbole(name=dataset_name, path=dataset_path)
+            config = Config(model=RGCF, dataset=dataset_name,
+                            config_file_list=['../Conferences/RGCF/RGCF_github/config/data.yaml',
+                                              '../Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+            config.final_config_dict['data_path'] = dataset_path
+
+            config.internal_config_dict['eval_args']['split'] = {'RS': [1, 0, 0]}
+
+            dataset = create_dataset(config)
+
+            train_data, valid_data, test_data = data_preparation(config, dataset)
+            print(train_data.dataset)
+            model = RGCF
+
+
+
 
         self.model = model(config, train_data.dataset).to(config['device'])
         self.trainer = customized_Trainer(config, self.model)
@@ -209,6 +214,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         print(self._compute_item_score([1,10,15]))
         print(self.model)
         print(self.trainer)
+
+
 
     def fit(self,
             article_hyperparameters=None,
@@ -319,18 +326,18 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         self._print("Saving model in file '{}'".format(folder_path + file_name))
 
         self.model.save(folder_path+"/_weights")
-        data_dict_to_save = {
-            # TODO replace this with the hyperparameters and attribute list you need to re-instantiate
-            #  the model when calling the load_model
-            "n_users": self.n_users,
-            "n_items": self.n_items,
-            "dataset_name":self.dataset_name,
-            #"train_data":self.train_data,
-            #"mf_dim": self.mf_dim,
-            #"layers": self.layers,
-            #"reg_layers": self.reg_layers,
-            #"reg_mf": self.reg_mf,
-        }
+
+        if(hasattr(self,"dataset_name")):
+            data_dict_to_save = {
+                "n_users": self.n_users,
+                "n_items": self.n_items,
+                "dataset_name":self.dataset_name,
+            }
+        else: ##THIS IS JUST TO MAKE TEST NOT CRASH, AS NAME IS ASSIGNED BY THE run
+            data_dict_to_save = {
+                "n_users": self.n_users,
+                "n_items": self.n_items,
+            }
 
         # Do not change this
         dataIO = DataIO(folder_path=folder_path)

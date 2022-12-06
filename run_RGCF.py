@@ -38,7 +38,7 @@ def read_data_split_and_search(dataset_name,
 
 
 
-    config = Config(model=RGCF, dataset="ml-1m",
+    config = Config(model=RGCF, dataset=dataset_name,
                     config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                         './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
     config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
@@ -335,7 +335,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["ml-1m"] #,"yelp2018","amz"]
+    dataset_list = ["amz"] #,"yelp2018","amz"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
