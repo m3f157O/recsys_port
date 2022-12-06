@@ -34,7 +34,6 @@ class YelpReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
-
             raise FileNotFoundError
             print("YelpReader: Attempting to load pre-splitted data")
 
@@ -46,26 +45,21 @@ class YelpReader(object):
 
             print("YelpReader: Pre-splitted data not found, building new one")
 
-            ##todo find a way to download from logged-in kaggle account
-            ##or upload on drive :)
+
             print("YelpReader: loading URM")
 
             url = "https://drive.google.com/file/d/1Hte_6IDyqy-1Fjs6ArIqKp1NzGE4FcVn/view?usp=sharing"
             output = "Data_manager_split_datasets/Yelp_RGCF.zip"
-            #todo fix download
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
             with zipfile.ZipFile(output, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
-            #fix this broken dataset
-            #if os.path.isfile(pre_splitted_path+'yelp2018') != True:
-            #    shutil.move("./yelp2018",pre_splitted_path)
 
-            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0,filename="/yelp2018.inter")
 
             dataset = create_dataset(config)
-            train_data, valid_data, test_data = data_preparation(config, dataset)
+            print(dataset)
+            train_data, valid_data, test_data = data_preparation(config, dataset, True)
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
@@ -74,7 +68,7 @@ class YelpReader(object):
             n_users = URM_train.shape[0] - 1
             n_items = URM_train.shape[1]
 
-            URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
+            #URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required

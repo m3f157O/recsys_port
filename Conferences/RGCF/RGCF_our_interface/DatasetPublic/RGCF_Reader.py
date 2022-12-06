@@ -7,15 +7,15 @@ import pandas as pd
 """
 def preprocessing_ratings(file, rate,filename):
     dataset = pd.read_csv(file+filename, sep='\t')
-    dataset.drop(dataset[dataset['rating:float'] <= 3.0].index, inplace=True)
+    #dataset.drop(dataset[dataset['rating:float'] <= 3.0].index, inplace=True)
     dataset=dataset.reset_index()
+    del dataset["index"]
     dataset.to_csv(file+filename, sep='\t', index=False)
 
 
 """"
     Method to make the preprocessing: checks if the number of interactions is greater than 15 by using URM
 """
-
 def preprocessing_interactions(n_users, n_items, URM_val, URM_train, URM_test):
     URM_val_csr = URM_val.tocsr()
     URM_train_csr = URM_train.tocsr()

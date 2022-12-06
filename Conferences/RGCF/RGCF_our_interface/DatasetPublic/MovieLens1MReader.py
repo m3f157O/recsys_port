@@ -45,7 +45,7 @@ class Movielens1MReader(object):
             print("Movielens20MReader: loading URM")
 
 
-            url = "https://drive.google.com/file/d/1sqgFpwHNWNPaMlVFHbQQXIRaAN9i3KUJ/view"
+            url = "https://drive.google.com/file/d/1vGGUmYfd4U0Rv3ZpsFdqXh2vExtoFdzZ/view?usp=share_link"
             output = "Data_manager_split_datasets/ml-1m_RGCF.zip"
 
             if os.path.isfile(output) != True:
@@ -58,17 +58,16 @@ class Movielens1MReader(object):
 
 
             dataset = create_dataset(config)
-            print(dataset)
+
+            # in MovieLens, is not required a pre-processing
+
             train_data, valid_data, test_data = data_preparation(config, dataset,True)
-            print(train_data.dataset)
-            print(valid_data.dataset)
-            print(test_data.dataset)
+
 
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
-
 
 
             #preprocessing DONE BY RECBOLE >.<

@@ -35,11 +35,11 @@ class AmazonReader(object):
 
         try:
             raise FileNotFoundError
-
             print("AmazonReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                  self.__setattr__(attrib_name, attrib_object)
+                 print(attrib_object)
 
 
         except FileNotFoundError:
@@ -59,10 +59,10 @@ class AmazonReader(object):
                 zip_ref.extractall(pre_splitted_path)
 
 
-            preprocessing_ratings(file=config.final_config_dict['data_path'], rate=3.0,filename="/amz.inter")
 
             dataset = create_dataset(config)
-            train_data, valid_data, test_data = data_preparation(config, dataset)
+            print(dataset)
+            train_data, valid_data, test_data = data_preparation(config, dataset,save=True)
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
@@ -71,7 +71,7 @@ class AmazonReader(object):
             n_users = URM_train.shape[0] - 1
             n_items = URM_train.shape[1]
 
-            URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
+            #URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required
