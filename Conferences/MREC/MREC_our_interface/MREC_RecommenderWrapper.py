@@ -80,8 +80,11 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
 
 
         print("MREC_RecommenderWrapper: Loading trained model from temp matlab files ... ")
-        self.USER_factors = genfromtxt(self.temp_file_folder + "final-U.dat", delimiter=' ')
-        self.ITEM_factors = genfromtxt(self.temp_file_folder + "final-V.dat", delimiter=' ')
+        self.USER_factors = genfromtxt("Conferences/MREC/MREC_github/test/P.txt", delimiter=',')
+        print(self.USER_factors.shape)
+        self.ITEM_factors = genfromtxt("Conferences/MREC/MREC_github/test/Q.txt", delimiter=',')
+        print(self.ITEM_factors.shape)
+
 
         assert self.USER_factors.shape[0] == self.URM_train.shape[0]
         assert self.ITEM_factors.shape[0] == self.URM_train.shape[1]
@@ -89,7 +92,6 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         assert self.USER_factors.shape[1] == self.ITEM_factors.shape[1]
 
         print("MREC_RecommenderWrapper: Loading trained model from temp matlab files ... done!")
-        self._clean_temp_folder(temp_file_folder=self.temp_file_folder)
 
 
 

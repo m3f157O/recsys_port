@@ -490,9 +490,8 @@ class SearchAbstractClass(object):
 
         self._print("{}: Evaluation with constructor data for final test. Using best config: {}".format(self.ALGORITHM_NAME, self.metadata_dict["hyperparameters_best"]))
 
-        # Use the hyperparameters that have been saved
-        #assert self.metadata_dict["hyperparameters_best"] is not None, "{}: Best hyperparameters not available, the search might have failed.".format(self.ALGORITHM_NAME)
-        #hyperparameters_best_args = self.metadata_dict["hyperparameters_best"].copy()
+        assert self.metadata_dict["hyperparameters_best"] is not None, "{}: Best hyperparameters not available, the search might have failed.".format(self.ALGORITHM_NAME)
+        hyperparameters_best_args = self.metadata_dict["hyperparameters_best"].copy()
 
         recommender_instance.fit(*self.recommender_input_args_last_test.FIT_POSITIONAL_ARGS,
                                  **self.recommender_input_args.FIT_KEYWORD_ARGS)

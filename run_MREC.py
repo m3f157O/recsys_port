@@ -21,8 +21,7 @@ import scipy.sparse as sps
 
 
 
-def read_data_split_and_search(dataset_variant, train_interactions,
-                                   flag_baselines_tune = False,
+def read_data_split_and_search(flag_baselines_tune = False,
                                    flag_DL_article_default = True, flag_DL_tune = False,
                                    flag_print_results = False):
 
@@ -103,7 +102,6 @@ def read_data_split_and_search(dataset_variant, train_interactions,
             recommender_input_args_last_test = recommender_input_args.copy()
             recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
 
-
             parameterSearch.search(recommender_input_args,
                                    recommender_input_args_last_test = recommender_input_args_last_test,
                                    fit_hyperparameters_values=collaborativeDL_article_hyperparameters,
@@ -142,7 +140,7 @@ def read_data_split_and_search(dataset_variant, train_interactions,
 
 
         result_loader.generate_latex_results(file_name + "{}_latex_results.txt".format("article_metrics"),
-                                           metrics_list = ["RECALL"],
+                                           metrics_list = ["NDGC"],
                                            cutoffs_list = [50, 100, 150, 200, 250, 300],
                                            table_title = None,
                                            highlight_best = True)
@@ -187,8 +185,7 @@ if __name__ == '__main__':
 
         for train_interactions in train_interactions_list:
 
-            read_data_split_and_search(dataset_variant, train_interactions,
-                                        flag_baselines_tune=input_flags.baseline_tune,
+            read_data_split_and_search(flag_baselines_tune=input_flags.baseline_tune,
                                         flag_DL_article_default= True,
                                         flag_print_results = input_flags.print_results,
                                         )

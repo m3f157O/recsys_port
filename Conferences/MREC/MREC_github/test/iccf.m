@@ -60,11 +60,16 @@ for iter=1:max_iter
             fprintf(',recall@50=%.3f, recall@100=%.3f', metric.item_recall(1,50), metric.item_recall(1,100));
         end
     end
-    size(P)
-    size(Q)
+
     fprintf('\n');
 
 end
+
+writematrix(P)
+type 'P.txt'
+writematrix(Q)
+type 'Q.txt'
+
 if(~isempty(test))
     if mod(max_iter, k_verbose)~=0
         metric = evaluate_item(R, test, P, Q, 200, 200);
