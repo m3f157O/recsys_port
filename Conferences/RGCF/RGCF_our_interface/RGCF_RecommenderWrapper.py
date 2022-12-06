@@ -193,8 +193,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             dataset_path = "."
             self.fromURMToRecbole(name=dataset_name, path=dataset_path)
             config = Config(model=RGCF, dataset=dataset_name,
-                            config_file_list=['../Conferences/RGCF/RGCF_github/config/data.yaml',
-                                              '../Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+                            config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                              './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
             config.final_config_dict['data_path'] = dataset_path
 
             config.internal_config_dict['eval_args']['split'] = {'RS': [1, 0, 0]}

@@ -7,8 +7,9 @@ import pandas as pd
 """
 def preprocessing_ratings(file, rate,filename):
     dataset = pd.read_csv(file+filename, sep='\t')
-    dataset.drop(dataset[dataset['rating:float'] <= 3.0].index, inplace=True)
+    #dataset.drop(dataset[dataset['rating:float'] <= 3.0].index, inplace=True)
     dataset=dataset.reset_index()
+    del dataset["index"]
     dataset.to_csv(file+filename, sep='\t', index=False)
 
 

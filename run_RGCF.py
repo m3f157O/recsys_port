@@ -74,15 +74,17 @@ def read_data_split_and_search(dataset_name,
         config.dataset='yelp2018'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
         init_seed(config['seed'], config['reproducibility'])
-
+        config.final_config_dict["user_inter_num_interval"]= "[15,inf)"
+        config.final_config_dict["item_inter_num_interval"]= "[15,inf)"
         dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
-    elif dataset_name == "amz":
+    elif dataset_name == "Amazon_Books":
         ##NEVER USE RECBOLE AND DATASET NAMES WITH UNDERSCORE :D
-        config.dataset='amz'
-        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/amz"
+        config.dataset='Amazon_Books'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/Amazon_Books"
         init_seed(config['seed'], config['reproducibility'])
-
-        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/amz", config=config)
+        config.final_config_dict["user_inter_num_interval"]= "[15,inf)"
+        config.final_config_dict["item_inter_num_interval"]= "[15,inf)"
+        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/Amazon_Books", config=config)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
@@ -335,7 +337,8 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["amz"] #,"yelp2018","amz"]
+    ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
+    dataset_list = ["yelp2018"] #,"yelp2018","Amazon_Books"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
