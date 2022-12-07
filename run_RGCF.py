@@ -125,7 +125,7 @@ def read_data_split_and_search(dataset_name,
 
     n_cases = 50
     n_processes = 3
-    resume_from_saved = False
+    resume_from_saved = True
 
     # Done Select the evaluation protocol
     evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
@@ -310,7 +310,7 @@ def read_data_split_and_search(dataset_name,
                                            )
 
         result_loader.generate_latex_results(result_folder_path + "{}_latex_results.txt".format("accuracy_metrics"),
-                                             metrics_list=['RECALL', 'PRECISION', 'MAP', 'NDCG'],
+                                             metrics_list=['RECALL', 'PRECISION', 'MAP', 'NDCG','MRR'],
                                              cutoffs_list=[cutoff_to_optimize],
                                              table_title=None,
                                              highlight_best=True)
