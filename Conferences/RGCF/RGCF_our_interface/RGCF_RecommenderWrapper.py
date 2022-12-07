@@ -193,7 +193,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
                 exit(1)
         except:
             dataset_name = "datasetRecbole"
-            dataset_path = "."
+            dataset_path = ""
             self.fromURMToRecbole(name=dataset_name, path=dataset_path)
             config = Config(model=RGCF, dataset=dataset_name,
                             config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',

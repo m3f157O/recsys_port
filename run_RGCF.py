@@ -11,15 +11,13 @@ from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
 from recbole.utils import init_seed
 
-
-from recbole.data import create_dataset, data_preparation, load_split_dataloaders
 from functools import partial
 import numpy as np
 import os, traceback, argparse, multiprocessing
 
 from Conferences.CIKM.ExampleAlgorithm_our_interface.Example_RecommenderWrapper import Example_RecommenderWrapper
 
-from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
+from Evaluation.Evaluator import EvaluatorHoldout
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from recbole.config import Config
 from Conferences.RGCF.RGCF_github.rgcf import RGCF
@@ -75,7 +73,7 @@ def read_data_split_and_search(dataset_name,
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
         init_seed(config['seed'], config['reproducibility'])
 
-        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/ml-1m", config=config)
+        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
 
     elif dataset_name == "yelp2018":
         config.dataset='yelp2018'
@@ -347,7 +345,8 @@ if __name__ == '__main__':
 
     # Done: Replace with dataset names
     ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
-    dataset_list = ["ml-1m","Amazon_Books","yelp2018"]
+    ##atomic file dataset are all available here https://drive.google.com/drive/folders/1so0lckI6N6_niVEYaBu-LIcpOdZf99kj
+    dataset_list = ["ml-1m","Amazon_Books","yelp2018",]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

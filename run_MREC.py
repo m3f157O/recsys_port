@@ -34,7 +34,7 @@ def read_data_split_and_search(flag_baselines_tune = False,
 
 
 
-    dataset = CityULikeReader("Data_manager_split_datasets")
+    dataset = MovieLens10MReader("etmp/Data_manager_split_datasets")
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()

@@ -57,9 +57,9 @@ class YelpReader(object):
 
 
 
-            filename = "DatasetPublic/Yelp_RGCF.zip"
+            filename = "Data_manager_split_datasets/Yelp_RGCF.zip"
 
-            url="https://drive.google.com/uc?id=1x5I2wHvKf2C4KxtczGHLNvofHX_G5fS3&confirm=no_antivirus"
+            url="https://drive.google.com/u/0/uc?id=1Hte_6IDyqy-1Fjs6ArIqKp1NzGE4FcVn&export=download&confirm=no_antivirus"
 
             import requests
             req = requests.get(url)

@@ -56,6 +56,9 @@ class YelpReader(object):
 
             print("YelpReader: loading URM")
 
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
+
             url = "https://drive.google.com/u/0/uc?id=1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b&export=download&confirm=no_antivirus"
 
             import requests
@@ -68,8 +71,7 @@ class YelpReader(object):
                 output_file.write(req.content)
             print('Downloading Completed')
 
-            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-                os.makedirs("Data_manager_split_datasets")
+
 
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py

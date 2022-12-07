@@ -45,12 +45,14 @@ class Movielens1MReader(object):
 
 
             filename = "Data_manager_split_datasets/ml-1m_RGCF.zip"
-
-            url="https://files.grouplens.org/datasets/movielens/ml-1m.zip"
+            ##this is a trick because google drive is bugged for files too small
+            url="https://codeload.github.com/m3f157O/ml-1m/zip/refs/heads/main"
 
             import requests
             req = requests.get(url)
 
+            if not os.path.exists("Data_manager_split_datasets"):
+                os.makedirs("Data_manager_split_datasets")
 
             # Writing the file to the local file system
             with open(filename, 'wb') as output_file:

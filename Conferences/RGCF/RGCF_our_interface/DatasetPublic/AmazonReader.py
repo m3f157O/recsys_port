@@ -51,13 +51,14 @@ class AmazonReader(object):
 
 
 
-            filename = "DatasetPublic/Amazon_Books_RGCF.zip"
+            filename = "Data_manager_split_datasets/Amazon_Books_RGCF.zip"
 
-            url="https://drive.google.com/u/0/uc?id=1Y7bvGSeWZ7TjGx5qA-4n59a457IpvQLO&export=download&confirm=no_antivirus"
+            url="https://drive.google.com/u/0/uc?id=1x4MXPyX6ClQs779lHyPwIz2ivTBAUfUV&export=download&confirm=no_antivirus"
 
             import requests
             req = requests.get(url)
-
+            if not os.path.exists("Data_manager_split_datasets"):
+                os.makedirs("Data_manager_split_datasets")
 
             # Writing the file to the local file system
             with open(filename, 'wb') as output_file:
