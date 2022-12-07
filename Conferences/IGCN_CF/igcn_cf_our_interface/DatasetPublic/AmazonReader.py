@@ -62,6 +62,11 @@ class AmazonReader(DataReader):
             import requests
             req = requests.get(url)
 
+
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
+
+
             filename = "Data_manager_split_datasets/dataset.zip"
 
             # Writing the file to the local file system
@@ -69,8 +74,7 @@ class AmazonReader(DataReader):
                 output_file.write(req.content)
             print('Downloading Completed')
 
-            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-                os.makedirs("Data_manager_split_datasets")
+
 
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
@@ -105,7 +109,6 @@ class AmazonReader(DataReader):
             n_items = 96421
             n_users = 109730
 
-            print(max(dataset.test_data))
             start = time.time()
 
             datas, rows, cols = adjacencyList2COO(dataset.test_data)
@@ -123,6 +126,8 @@ class AmazonReader(DataReader):
 
             end = time.time()
             print(end - start)
+
+            print(URM_train.shape)
 
             URM_val, URM_train, URM_test = preprocessing(n_users, n_items, URM_val, URM_train, URM_test)
 

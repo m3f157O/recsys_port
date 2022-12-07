@@ -44,7 +44,7 @@ class Movielens1MReader(object):
             print("Movielens20MReader: loading URM")
 
 
-            filename = "DatasetPublic/ml-1m_RGCF.zip"
+            filename = "Data_manager_split_datasets/ml-1m_RGCF.zip"
 
             url="https://files.grouplens.org/datasets/movielens/ml-1m.zip"
 
