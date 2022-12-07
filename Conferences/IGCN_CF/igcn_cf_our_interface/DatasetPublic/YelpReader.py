@@ -38,7 +38,6 @@ class YelpReader(object):
 
         print("YelpReader: Attempting to load pre-splitted data")
         try:
-            raise FileNotFoundError
             print("YelpReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name

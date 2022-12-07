@@ -43,7 +43,6 @@ class GowallaReader(DataReader):
 
 
         try:
-            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name

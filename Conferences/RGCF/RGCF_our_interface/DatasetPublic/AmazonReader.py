@@ -34,7 +34,6 @@ class AmazonReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
-            raise FileNotFoundError
             print("AmazonReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
