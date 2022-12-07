@@ -38,6 +38,13 @@ def read_data_split_and_search(dataset_name,
 
 
 
+    """
+    All of this stuff below is needed to make recbole work. The authors didn't explain
+    their use of recbole, so we tried to emulate what they said (remove less than 15 interaction
+    for amazon and yelp) but for some reason some config options are taken
+    from internal config, some from final config, but it is not stated which is taken from which,
+    so we set both. Option names are self explanatory
+    """
     config = Config(model=RGCF, dataset=dataset_name,
                     config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                         './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
@@ -175,11 +182,13 @@ def read_data_split_and_search(dataset_name,
             # You may use this for a simpler testing
             recommender_instance = RGCF_RecommenderWrapper(URM_train)
             #
-            ##THIS IS NECESSARY BECAUSE THE GIVEN SEED INCLUDES SPLIT RANDOMIZATION
-            ##SO TO TURN IT INTO A RECBOLE READABLE FILE, WE NEED THE WHOLE DATA.
-            ##IT WILL BE DESTROYED BEFORE THE TRAINING STARTS ANYWAY
-            #recommender_instance.URM_val=URM_validation
-            #recommender_instance.URM_test=URM_test
+            """
+            This is needed for the Wrapper to load the correct DataLoader, an object previously
+            saved from DataReader. It would have been good to pass it directly from the DataReader
+            to the Wrapper, but unluckily it is not compatible with DataIO. Reading
+            from file is the only solution remaining. Of course dataset_name will be saved
+            as a model attribute 
+            """
             recommender_instance.dataset_name=dataset_name
 
             recommender_instance.fit(article_hyperparameters,
@@ -338,7 +347,7 @@ if __name__ == '__main__':
 
     # Done: Replace with dataset names
     ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
-    dataset_list = ["Amazon_Books"] #,"yelp2018","Amazon_Books"]
+    dataset_list = ["yelp2018"] #,"yelp2018","Amazon_Books"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

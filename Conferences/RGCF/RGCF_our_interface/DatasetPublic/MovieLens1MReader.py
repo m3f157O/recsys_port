@@ -45,8 +45,8 @@ class Movielens1MReader(object):
             print("Movielens20MReader: loading URM")
 
 
-            url = "https://drive.google.com/file/d/1vGGUmYfd4U0Rv3ZpsFdqXh2vExtoFdzZ/view?usp=share_link"
-            output = "Data_manager_split_datasets/ml-1m_RGCF.zip"
+            url = "https://drive.google.com/file/d/1sqgFpwHNWNPaMlVFHbQQXIRaAN9i3KUJ/view?usp=share_link"
+            output = "DatasetPublic/ml-1m_RGCF.zip"
 
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
@@ -56,11 +56,23 @@ class Movielens1MReader(object):
 
 
 
-
+            """
+            This is the native RecBole function used to create the recbole.data.dataset.Dataset object.
+            Unluckily, when parsing an already split URM, it cannot avoid reindexing of cold items.
+            explained better below
+            """
             dataset = create_dataset(config)
-
+            print(dataset)
             # in MovieLens, is not required a pre-processing
 
+
+            """
+            This is the native RecBole function used to preprocess the data. Removing interactions
+            and ratings under a certain threshold. The "True" parameters allows us to save
+            these DataLoaders to reload them in the wrapper. Of course verifying the correctness.
+            The ideal solution would have been passing in to the Wrapper explicitly, but the DataLoader object
+            is not compatible with DataIO
+            """
             train_data, valid_data, test_data = data_preparation(config, dataset,True)
 
 
@@ -88,6 +100,7 @@ class Movielens1MReader(object):
 
             # You likely will not need to modify this part
             data_dict_to_save = {
+                #"train_data":train_data <---------This is not serializable by DataIO
                 "ICM_DICT": self.ICM_DICT,
                 "UCM_DICT": self.UCM_DICT,
                 "URM_DICT": self.URM_DICT,

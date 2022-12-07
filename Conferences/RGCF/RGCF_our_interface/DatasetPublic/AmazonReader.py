@@ -48,9 +48,10 @@ class AmazonReader(object):
 
             print("AmazonReader: loading URM")
 
-
-            url = "https://drive.google.com/file/d/1x5I2wHvKf2C4KxtczGHLNvofHX_G5fS3/view?usp=share_link"
-            output = "Data_manager_split_datasets/Amazon_Books_RGCF.zip"
+            ##For some reason these urls are broken. Can download normally from browser. Sorry
+            url = 'https://drive.google.com/file/d/1vHht4nTy2uSjMWQhtYjq0C94PCnuj2T6/view?usp=share_link'
+            url = "https://drive.google.com/file/d/1Y7bvGSeWZ7TjGx5qA-4n59a457IpvQLO/view?usp=share_link"
+            output = "DatasetPublic/Amazon_Books_RGCF.zip"
 
             if os.path.isfile(output) != True:
                 gd.download(url=url, output=output, quiet=False, fuzzy=True)
@@ -59,17 +60,30 @@ class AmazonReader(object):
                 zip_ref.extractall(pre_splitted_path)
 
 
-
+            """
+            This is the native RecBole function used to create the recbole.data.dataset.Dataset object.
+            Unluckily, when parsing an already split URM, it cannot avoid reindexing of cold items.
+            explained better below
+            """
             dataset = create_dataset(config)
             print(dataset)
+
+
+
+            """
+            This is the native RecBole function used to preprocess the data. Removing interactions
+            and ratings under a certain threshold. The "True" parameters allows us to save
+            these DataLoaders to reload them in the wrapper. Of course verifying the correctness.
+            The ideal solution would have been passing in to the Wrapper explicitly, but the DataLoader object
+            is not compatible with DataIO
+            """
             train_data, valid_data, test_data = data_preparation(config, dataset,save=True)
 
             URM_train = train_data.dataset.inter_matrix(form='coo')
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
 
-            n_users = URM_train.shape[0] - 1
-            n_items = URM_train.shape[1]
+
 
             #URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
 
@@ -87,6 +101,7 @@ class AmazonReader(object):
 
             # You likely will not need to modify this part
             data_dict_to_save = {
+                # "train_data":train_data <---------This is not serializable by DataIO
                 "ICM_DICT": self.ICM_DICT,
                 "UCM_DICT": self.UCM_DICT,
                 "URM_DICT": self.URM_DICT,

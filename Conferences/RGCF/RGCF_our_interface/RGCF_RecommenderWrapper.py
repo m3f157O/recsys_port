@@ -46,6 +46,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         super().__init__(URM_train)
         self._item_indices = np.arange(0, self.n_items, dtype=np.int)
 
+    """No problems here"""
     def _compute_item_score(self, user_id_array, items_to_compute=None):
         # Done if the model in the end is either a matrix factorization algorithm or an ItemKNN/UserKNN
         #  you can have this class inherit from BaseMatrixFactorization, BaseItemSimilarityMatrixRecommender
@@ -73,8 +74,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             # The prediction requires a list of two arrays user_id, item_id of equal length
             # To compute the recommendations for a single user, we must provide its index as many times as the
             # number of items
-            toPredict = {"user_id": user_id}
 
+            toPredict = {"user_id": user_id}
             scores = self.model.full_sort_predict(toPredict)
 
             item_score_user = scores.cpu().detach().numpy()
@@ -88,7 +89,9 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         return item_scores
 
     """
-        From URM to file Recbole 
+        From URM to file Recbole, used only to tweak the recbole filter mechanism to
+        let it pass the test (by forcing it not to reindex by adding fake items).
+        This is ONLY used for the test and never in a real run situation 
     """
     def fromURMToRecbole(self, name, path):
 
@@ -142,13 +145,13 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         fileu.close()
         filei.close()
 
-
+        """
+        As suggested, to make the wrapper pass the test, we added an huge try/catch block:
+        -In a normal situation, the saved DataLoaders are NECESSARILY in a file after the DataReader all
+        -In a testing situation, when these are not found, RecBole is tweaked to make it work anyway
+        """
     def _init_model(self):
-        """
-        This function instantiates the model, it should only rely on attributes and not function parameters
-        It should be used both in the fit function and in the load_model function
-        :return:
-        """
+
 
 
         try:
@@ -313,6 +316,11 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
     def _run_epoch(self, currentEpoch):
         # Done replace this with the train loop for one epoch of the model
 
+        """
+        Tried to decouple trainer, got no errors but it was not correct. Decided to leave this.
+        The only modification done to the original training loop is adding a Loading bar animation
+        for debugging (no effects on correctness)
+        """
         total_loss = self.trainer.train_epoch(self.train_data, currentEpoch)
         print(" loss=%.5f" % (total_loss))
 
@@ -325,8 +333,15 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         self._print("Saving model in file '{}'".format(folder_path + file_name))
 
+        """
+        This is not an original model function. We added it to ease the saving.
+        """
         self.model.save(folder_path+"/_weights")
 
+
+        """
+        This is also JUST for the test. Sorry if it's a bad practice 
+        """
         if(hasattr(self,"dataset_name")):
             data_dict_to_save = {
                 "n_users": self.n_users,
