@@ -21,7 +21,7 @@ class AmazonReader(DataReader):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path):
+    def __init__(self, pre_splitted_path,config):
 
         super(AmazonReader, self).__init__()
         """"
@@ -81,7 +81,6 @@ class AmazonReader(DataReader):
             """
             FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
             """
-            config = get_amazon_config(device)
             config[0][0]["path"] = 'Data_manager_split_datasets/Amazon/time'
 
             # DO Replace this with the publicly available dataset you need
@@ -122,7 +121,7 @@ class AmazonReader(DataReader):
             #  in the way you need, if you are not sure, ask me via email
             # Split the data in train, validation and test
             # URM_train, URM_test = split_train_in_two_percentage_global_sample(URM_all, train_percentage=0.8)
-            # URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
+            #URM_train, URM_validation = split_train_in_two_percentage_global_sample(URM_train, train_percentage=0.8)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case

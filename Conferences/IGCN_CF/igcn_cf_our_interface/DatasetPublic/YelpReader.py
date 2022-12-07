@@ -22,15 +22,10 @@ class YelpReader(object):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path):
+    def __init__(self, pre_splitted_path,config):
 
         super(YelpReader, self).__init__()
 
-        """"
-        CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
-        IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
-        WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
-        """
 
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
@@ -43,6 +38,7 @@ class YelpReader(object):
 
         print("YelpReader: Attempting to load pre-splitted data")
         try:
+            raise FileNotFoundError
             print("YelpReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -84,7 +80,12 @@ class YelpReader(object):
             """
             FIX RUNTIME CONFIG TO COMPLY WITH recsys_port README.md
             """
-            config = get_yelp_config(device)
+            """"
+            CONFIG IS NEEDED TO USE THE get_dataset method from original dataset.py
+            IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
+            WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
+            """
+
             # fix runtime config to comply with recsys_port README.md
             config[0][0]["path"] = "Data_manager_split_datasets/Yelp/time"
 
@@ -112,6 +113,7 @@ class YelpReader(object):
             datas, rows, cols = adjacencyList2COO(dataset.train_data)
             URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
 
+            print(URM_train.shape)
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)

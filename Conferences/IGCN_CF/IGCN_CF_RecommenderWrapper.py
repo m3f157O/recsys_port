@@ -34,7 +34,7 @@ class DatasetOriginal(BasicDataset):
 
     def __len__(self):
         return len(self.train_array)
-    ## ^^^ AS IN model.AuxiliaryDataset (wtf)
+    ## ^^^ AS IN model.AuxiliaryDataset
 
 
 """
@@ -67,7 +67,7 @@ def restoreTrainArray(matrix):
     return list
 
 """
-    Class to define the parameters used in the fit model
+    Class to define the parameters used in the fit 
 """
 class Params():
     lambda_u = 0
@@ -164,12 +164,6 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         return item_scores
 
-    """
-            This function instantiates the model, it should only rely on attributes and not function parameters
-            It should be used both in the fit function and in the load_model function
-            :return:
-    """
-
 
     """
         This function instantiates the model, it should only rely on attributes and not function parameters
@@ -185,7 +179,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         AND NOT TO WASTE TONS OF SPACE:
 
         WE WOULD NEED TO SAVE TWO CONFIG DICTIONARIES TO REINSTANTIATE THE MODEL AFTER SAVING IT:
-        IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE DATA STRUCTURES WHICH ARE
+        IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE OTHER DATA STRUCTURES WHICH ARE
         IN FACT NOT NEEDED TO REINSTANTIATE THE MODEL.
 
         INSTEAD WE DECIDED, GIVEN THAT THE TRAINER AND MODEL CONFIG
@@ -279,17 +273,6 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         # Get unique temporary folder
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
 
-
-        # DONE replace the following code with what needed to create an instance of the model.
-        #  Preferably create an init_model function
-        #  If you are using tensorflow before creating the model call tf.reset_default_graph()
-
-        """
-        THIS MAY BE AN OPINABLE CHOICE, BUT, AS SAID BEFORE, THE FUNCTION WILL DEFAULT TO THE GOWALLA MODEL
-        
-        WHEN A MODEL IS SUBSEQUENTLY RELOADED, IT WILL ALWAYS LOAD THE CORRECT TRAINER (IGCN TRAINER), AND ALWAYS LOAD THE CORRECT MODEL,
-        EXCEPT FOR AMAZON CONFIGURATION, BECAUSE IT DIFFERS FROM ALL THE OTHER MODELS (NO DROPOUT, NO EXPLANATION GIVEN BY AUTHORS)
-        """
 
         ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
         #self.model_config=article_hyperparameters['model_config']
@@ -417,7 +400,9 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
             "batch_size": 2048,
             "epochs": 1000,
             "embedding_size": 64,
-
+            ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
+            #"model_config"=self.model_config,
+            #"trainer_config"=self.trainer_config,
             # default
             "epochs_MFBPR": 500,
             "hidden_size": 128,

@@ -60,12 +60,12 @@ def read_data_split_and_search(dataset_name,
         config = get_yelp_config(device)
         dataset_config, model_config, trainer_config = config[2]
         pre_splitted_path = base_path+"Yelp/"
-        dataset_reader = YelpReader(pre_splitted_path)
+        dataset_reader = YelpReader(pre_splitted_path,config)
     elif dataset_name == "amazon-book":
         config = get_amazon_config(device)
         dataset_config, model_config, trainer_config = config[2]
         pre_splitted_path = base_path+"Amazon/"
-        dataset_reader = AmazonReader(pre_splitted_path)
+        dataset_reader = AmazonReader(pre_splitted_path,config)
     elif dataset_name == "gowalla":
         config = get_gowalla_config(device)
         dataset_config, model_config, trainer_config = config[2]
@@ -363,7 +363,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["gowalla","yelp2018","amazon-book"]
+    dataset_list = ["amazon-book"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
