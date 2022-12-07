@@ -780,6 +780,7 @@ class ResultFolderLoader(object):
 
         # If there is only a single cutoff, the multilevel columns can be collapsed
         if collapse_multicolumn_if_needed and (len(metrics_list) == 1):
+            print(result_dataframe.to_csv)
             result_dataframe.columns = ['@'.join([self._get_metric_label(col[1]), col[0]]).strip() for col in result_dataframe.columns.values]
 
         else:

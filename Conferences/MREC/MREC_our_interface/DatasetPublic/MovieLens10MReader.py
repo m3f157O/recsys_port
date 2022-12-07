@@ -32,7 +32,6 @@ class MovieLens10MReader():
 
         try:
             print("MovieLens10MReader: Attempting to load pre-splitted data")
-            raise FileNotFoundError
             ##attrib name is file name
             ##attrib object is panda object
 

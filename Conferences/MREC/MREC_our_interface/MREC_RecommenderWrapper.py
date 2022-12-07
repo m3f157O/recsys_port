@@ -83,9 +83,9 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         self.USER_factors = genfromtxt("Conferences/MREC/MREC_github/test/P.txt", delimiter=',')
         print(self.USER_factors.shape)
         self.ITEM_factors = genfromtxt("Conferences/MREC/MREC_github/test/Q.txt", delimiter=',')
+
         print(self.ITEM_factors.shape)
-
-
+        print(self.recommend([1]))
         assert self.USER_factors.shape[0] == self.URM_train.shape[0]
         assert self.ITEM_factors.shape[0] == self.URM_train.shape[1]
 

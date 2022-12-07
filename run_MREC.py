@@ -34,7 +34,7 @@ def read_data_split_and_search(flag_baselines_tune = False,
 
 
 
-    dataset = CityULikeReader("Data_manager_split_datasets")
+    dataset = MovieLens10MReader("Data_manager_split_datasets")
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
@@ -65,10 +65,11 @@ def read_data_split_and_search(flag_baselines_tune = False,
         os.makedirs(result_folder_path)
 
 
+    URM_test=sps.csr_matrix(URM_test)
 
+    evaluator_validation = EvaluatorHoldout(URM_test, cutoff_list=[150], exclude_seen = True)
 
     #evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=[150], exclude_seen = False)
-    URM_test=sps.csr_matrix(URM_test)
     evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=[50, 100, 150, 200, 250, 300])
 
 
@@ -94,6 +95,7 @@ def read_data_split_and_search(flag_baselines_tune = False,
 
 
             parameterSearch = SearchSingleCase(MREC_RecommenderWrapper,
+                                               evaluator_validation=evaluator_validation,
                                                evaluator_test=evaluator_test)
 
             recommender_input_args = SearchInputRecommenderArgs(
@@ -103,12 +105,9 @@ def read_data_split_and_search(flag_baselines_tune = False,
             recommender_input_args_last_test = recommender_input_args.copy()
             recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
 
-            parameterSearch.search(recommender_input_args,
-                                   recommender_input_args_last_test = recommender_input_args_last_test,
-                                   fit_hyperparameters_values=collaborativeDL_article_hyperparameters,
-                                   output_folder_path = result_folder_path,
-                                   resume_from_saved = True,
-                                   output_file_name_root = MREC_RecommenderWrapper.RECOMMENDER_NAME)
+            recommender_instance= MREC_RecommenderWrapper(URM_train)
+            recommender_instance.fit()
+            evaluator_test.evaluateRecommender(recommender_instance)
 
 
 

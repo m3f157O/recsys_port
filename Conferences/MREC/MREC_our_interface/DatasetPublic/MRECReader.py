@@ -20,7 +20,7 @@ def pandas_df_to_coo(dataset):
     user_index = dataset["user_id"].astype(user_cat).cat.codes
     movie_index = dataset["item_id"].astype(movie_cat).cat.codes
     data_len=len(dataset["user_id"])
-    data=np.ones(data_len)
+    data=np.ones(data_len) #todo fix
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
@@ -46,20 +46,21 @@ def preprocessing_interactions_pandas(dataset, interactions, file):
             break
 
 
-    dataset_train, dataset_test = skl.train_test_split(dataset, test_size=0.80, random_state = 42, shuffle = True)
+    dataset_train, dataset_test = skl.train_test_split(dataset, test_size=0.50, random_state = 42, shuffle = True)
 
     # writing training and testing into files
-    dataset_train.to_csv(file+"train.txt", sep='\t', index=False, header=False)
-    dataset_test.to_csv(file+"test.txt", sep='\t', index=False, header=False)
+
     URM_test = pandas_df_to_coo(dataset_test)
     URM_train = pandas_df_to_coo(dataset_train)
-
+    URMtoPandasCsvWithScores(file+"train.txt",URM_train)
+    URMtoPandasCsvWithScores(file+"test.txt",URM_test)
 
     return URM_train, URM_test
 
 def URMtoPandasCsv(path,URM):
     column = (URM.col).copy()
     row = (URM.row).copy()
+    data = (URM.data).copy()
     number_users = np.unique(row)
     number_items = np.unique(column)
     file = open(path , "w")
@@ -69,9 +70,31 @@ def URMtoPandasCsv(path,URM):
         items_to_add = column[:count]
         items = items_to_add
         column = column[count:]
+        data = data[count:]
         for j in range(len(items)):
             # only users and items matters because the preprocessing is already done in the reader
             file.write(str(i + 1) + "\t" + str(items[j]) + "\t" + "1.0")
+
+
+def URMtoPandasCsvWithScores(path,URM):
+    column = (URM.col).copy()
+    row = (URM.row).copy()
+    number_users = np.unique(row)
+    number_items = np.unique(column)
+    file = open(path , "w")
+    data = (URM.data).copy()
+
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        datas = data[:count]
+
+        items = items_to_add
+        column = column[count:]
+        data = data[count:]
+        for j in range(len(items)):
+            # only users and items matters because the preprocessing is already done in the reader
+            file.write(str(i) + " " + str(items[j]) + " " + str(datas[j])+"\n")
 
 def preprocessing_interactions_lists(lists):
     cols = np.array([])
