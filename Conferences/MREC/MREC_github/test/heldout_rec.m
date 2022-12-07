@@ -9,12 +9,23 @@ assert(test_ratio >0 && test_ratio <1)
 assert(train_ratio >0 && train_ratio <= 1 - test_ratio)
 train_ratio = min(train_ratio, 1 - test_ratio);
 elapsed = zeros(times,2);
+
+
+
+%{
 if ~isempty(test)
-    % recommendation for the given dataset
+    %}
+
+
     train = mat;
     tic; [P, Q] = rec(train, rec_opt{:}); elapsed(1,1) = toc;
+    eval_summary=0;
+    eval_detail=0;
+
+
+    %{
     tic; eval_detail = scoring(train, test, P,  Q); elapsed(1,2) = toc;
-    if(nnz(test)>0) % Truth condition indicates regular evaluation returning struct  
+    if(nnz(test)>0) % Truth condition indicates regular evaluation returning struct
         fns = fieldnames(eval_detail);
         for f=1:length(fns)
             fieldname = fns{f};
@@ -47,7 +58,7 @@ else
         end
         t2 = toc;
         elapsed(t, :) = [t1,t2];
-        
+
     end
     for t=1:times
         metric_time = metric_times{t};
@@ -75,3 +86,5 @@ else
 end
 
 end
+
+%}
