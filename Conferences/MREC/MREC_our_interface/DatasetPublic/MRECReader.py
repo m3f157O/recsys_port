@@ -111,7 +111,7 @@ def preprocessing_interactions_lists(lists):
         rows = np.append(rows, row)
         cols = np.append(cols, col)
     n_row = len(rows)+1
-    n_col = len(cols)+1
+    n_col = len(np.unique(cols))+1
     return sp.coo_matrix((datas, (rows, cols)), shape=(n_row, n_col))
 
 
