@@ -140,7 +140,7 @@ def read_data_split_and_search(flag_baselines_tune = False,
 
 
         result_loader.generate_latex_results(file_name + "{}_latex_results.txt".format("article_metrics"),
-                                           metrics_list = ["NDGC"],
+                                           metrics_list = ["MRR"],
                                            cutoffs_list = [50, 100, 150, 200, 250, 300],
                                            table_title = None,
                                            highlight_best = True)

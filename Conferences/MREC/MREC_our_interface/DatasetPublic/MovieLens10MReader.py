@@ -81,7 +81,7 @@ class MovieLens10MReader():
             self.URM_DICT = {
                 "URM_train": URM_train,
                 "URM_test": URM_test,
-                "URM_validation": [],
+                "URM_validation": URM_test,
             }
 
             # You likely will not need to modify this part
