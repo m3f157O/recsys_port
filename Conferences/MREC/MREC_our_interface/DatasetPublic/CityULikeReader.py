@@ -14,8 +14,8 @@ from Recommenders.DataIO import DataIO
 from Data_manager.Movielens.Movielens10MReader import *
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_lists
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
+from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import URMtoPandasCsv
 
-import csv
 
 
 class CityULikeReader():

@@ -100,6 +100,7 @@ def preprocessing_interactions_lists(lists):
     cols = np.array([])
     rows = np.array([])
     datas = np.array([])
+
     for index in range(len(lists)):
         adj = np.array(lists[index])  # get number of elements on given row
         data = np.ones_like(adj)  # all data is both 0 or 1
@@ -109,9 +110,9 @@ def preprocessing_interactions_lists(lists):
         datas = np.append(datas, data)  # concatenate to all
         rows = np.append(rows, row)
         cols = np.append(cols, col)
-    size = len(np.unique(rows))
-    size2 = len(np.unique(cols))
-    return sp.coo_matrix((datas, (rows, cols)), shape=(size2, size))
+    n_row = len(rows)+1
+    n_col = len(cols)+1
+    return sp.coo_matrix((datas, (rows, cols)), shape=(n_row, n_col))
 
 
 
