@@ -54,14 +54,27 @@ class GowallaReader():
 
             print("GowallaReader: loading URM")
 
-            #url = "https://drive.google.com/file/d/1-0Yt5TAC9QM4fCXv7FDY_f2rwC_0AW_F/view?usp=share_link"
-            output = "DatasetPublic/Gowalla_totalCheckins.zip"
 
-            #if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-            #    os.makedirs("Data_manager_split_datasets")
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
 
-            #if os.path.isfile(output) != True:
-            #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            filename = "DatasetPublic/Gowalla_totalCheckins.zip"
+
+            url = "https://drive.google.com/u/0/uc?id=1-0Yt5TAC9QM4fCXv7FDY_f2rwC_0AW_F&export=download&confirm=no_antivirus"
+
+            import requests
+            req = requests.get(url)
+
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
+
+            import zipfile
+            with zipfile.ZipFile("DatasetPublic/Gowalla_totalCheckins.zip", 'r') as zip_ref:
+                zip_ref.extractall("DatasetPublic/Gowalla")
+
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
 
@@ -70,9 +83,7 @@ class GowallaReader():
             AND LET THE ORIGINAL METHODS FUNCTION PROPERLY
             """
 
-            import zipfile
-            with zipfile.ZipFile("DatasetPublic/Gowalla_totalCheckins.zip", 'r') as zip_ref:
-                zip_ref.extractall("DatasetPublic/Gowalla")
+
 
 
             dataset = pd.read_csv("DatasetPublic/Gowalla/Gowalla_totalCheckins.txt", sep='\t')
@@ -84,10 +95,6 @@ class GowallaReader():
 
             URM_train, URM_test= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/")
 
-            eng = matlab.engine.start_matlab()
-            matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
-            eng.cd(matlab_script_directory)
-            eng.split_dataset_original(nargout=0)
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not

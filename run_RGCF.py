@@ -347,7 +347,7 @@ if __name__ == '__main__':
 
     # Done: Replace with dataset names
     ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
-    dataset_list = ["ml-1m"] #,"yelp2018","Amazon_Books"]
+    dataset_list = ["ml-1m","Amazon_Books","yelp2018"]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

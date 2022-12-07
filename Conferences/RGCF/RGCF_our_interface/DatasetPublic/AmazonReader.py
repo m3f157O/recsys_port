@@ -49,15 +49,26 @@ class AmazonReader(object):
             print("AmazonReader: loading URM")
 
             ##For some reason these urls are broken. Can download normally from browser. Sorry
-            url = 'https://drive.google.com/file/d/1vHht4nTy2uSjMWQhtYjq0C94PCnuj2T6/view?usp=share_link'
-            url = "https://drive.google.com/file/d/1Y7bvGSeWZ7TjGx5qA-4n59a457IpvQLO/view?usp=share_link"
-            output = "DatasetPublic/Amazon_Books_RGCF.zip"
 
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
-            with zipfile.ZipFile(output, 'r') as zip_ref:
+
+            filename = "DatasetPublic/Amazon_Books_RGCF.zip"
+
+            url="https://drive.google.com/u/0/uc?id=1Y7bvGSeWZ7TjGx5qA-4n59a457IpvQLO&export=download&confirm=no_antivirus"
+
+            import requests
+            req = requests.get(url)
+
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
+
+
+            with zipfile.ZipFile(filename, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
+
 
 
             """

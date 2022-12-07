@@ -31,6 +31,7 @@ class Movielens1MReader(object):
         dataIO = DataIO(pre_splitted_path)
 
         try:
+            raise FileNotFoundError
             print("Movielens20MReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -44,14 +45,24 @@ class Movielens1MReader(object):
             print("Movielens20MReader: loading URM")
 
 
-            url = "https://drive.google.com/file/d/1sqgFpwHNWNPaMlVFHbQQXIRaAN9i3KUJ/view?usp=share_link"
-            output = "DatasetPublic/ml-1m_RGCF.zip"
+            filename = "DatasetPublic/ml-1m_RGCF.zip"
 
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            url="https://files.grouplens.org/datasets/movielens/ml-1m.zip"
 
-            with zipfile.ZipFile(output, 'r') as zip_ref:
+            import requests
+            req = requests.get(url)
+
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
+
+
+            with zipfile.ZipFile(filename, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
+
+
 
 
 

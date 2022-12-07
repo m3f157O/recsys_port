@@ -46,16 +46,33 @@ class YelpReader(object):
             print("YelpReader: Pre-splitted data not found, building new one")
 
 
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
             print("YelpReader: loading URM")
 
 
-            ##Official recbole link may be busy
-            url = "https://drive.google.com/uc?id=1x5I2wHvKf2C4KxtczGHLNvofHX_G5fS3"
-            output = "DatasetPublic/Yelp_RGCF.zip"
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
-            with zipfile.ZipFile(output, 'r') as zip_ref:
+
+            ##Official recbole link may be busy
+
+
+
+
+            filename = "DatasetPublic/Yelp_RGCF.zip"
+
+            url="https://drive.google.com/uc?id=1x5I2wHvKf2C4KxtczGHLNvofHX_G5fS3&confirm=no_antivirus"
+
+            import requests
+            req = requests.get(url)
+
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
+
+
+            with zipfile.ZipFile(filename, 'r') as zip_ref:
                 zip_ref.extractall(pre_splitted_path)
 
             """
