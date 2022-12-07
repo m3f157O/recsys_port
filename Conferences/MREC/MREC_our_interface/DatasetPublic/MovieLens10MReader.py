@@ -46,12 +46,23 @@ class MovieLens10MReader():
 
             print("MovieLens10MReader: loading URM")
 
-            ## todo fix
-            #url = "https://drive.google.com/file/d/1r29caf988qL8jcr6VBKEEJ5-LwHO7xLD/view"
-            output = "DatasetPublic/ml-10M.zip"
 
             if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
                 os.makedirs("Data_manager_split_datasets")
+
+            filename = "DatasetPublic/ml-10M.zip"
+
+            url = "https://drive.google.com/u/0/uc?id=1r29caf988qL8jcr6VBKEEJ5-LwHO7xLD&export=download&confirm=no_antivirus"
+
+            import requests
+            req = requests.get(url)
+
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
+
 
             #if os.path.isfile(output) != True:
             #    gd.download(url=url, output=output, quiet=False, fuzzy=True)

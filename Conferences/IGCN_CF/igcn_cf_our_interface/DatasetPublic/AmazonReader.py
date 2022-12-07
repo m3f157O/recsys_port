@@ -40,6 +40,7 @@ class AmazonReader(DataReader):
         pre_splitted_filename = 'time.zip'
 
         try:
+            raise FileNotFoundError
             print("AmazonReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -57,11 +58,20 @@ class AmazonReader(DataReader):
 
             print("AmazonReader: loading URM")
 
-            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "Data_manager_split_datasets/dataset.zip"
+            url = "https://drive.google.com/u/0/uc?id=1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b&export=download&confirm=no_antivirus"
 
-            if os.path.isfile(output) != True:
-                gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            import requests
+            req = requests.get(url)
+
+            filename = "Data_manager_split_datasets/dataset.zip"
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
+
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
 
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
