@@ -175,41 +175,25 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         """
 
-        WHAT DONE BELOW MAY SEEM LIKE A BAD PRACTICE, BUT WE ONLY DID IT TO INCREASE THE SPEED
-        AND NOT TO WASTE TONS OF SPACE:
-
         WE WOULD NEED TO SAVE TWO CONFIG DICTIONARIES TO REINSTANTIATE THE MODEL AFTER SAVING IT:
-        IT IS REALLY SLOW, BECAUSE THESE DICTIONARIES CONTAIN WHOLE OTHER DATA STRUCTURES WHICH ARE
-        IN FACT NOT NEEDED TO REINSTANTIATE THE MODEL.
 
-        INSTEAD WE DECIDED, GIVEN THAT THE TRAINER AND MODEL CONFIG
-        ARE THE SAME FOR ALL THREE DATASET (EXCEPT FOR AMAZON WHICH HAS DROPOUT ZERO)
-        TO  JUST USE THE GOWALLA CONFIGURATION, WHICH IS THE EXACT
-        SAME AS THE OTHER TWO (THE DIFFERENCE IS THE DATASET BUT WE ALREADY HAVE THAT AS self.URM)
-        EXCEPT FOR A DROPOUT VALUE IN model_config FOR Amazon (NO EXPLANATION OF THIS DIFFERENCE HAS BEEN
-        GIVEN BY THE AUTHORS, PROBABLY DROPOUT WORSENS THE PERFORMANCES ON BIGGER DATASETS)
-
-        SO, TO SPEED UP THE RELOADING AND AVOID SAVING HUGE DICTIONARIES, WE DECIDE TO USE THIS APPROACH.
-
-        THE RESULT WILL BE:
-        INSTANTIATE THE CORRECT MODEL AND TRAINER, WITH DIFFERENT CONFIG BUT RIGHT DATASET.
-        (OPTIONAL) PUT DROPOUT TO ZERO IF IT'S AMAZON DATASET (EASILY DETECTED)
-        USE THE BUILT IN MODEL FUNCTION TO RELOAD THE CORRECT WEIGHTS
-
-        IF ITS NOT STRUCTURALLY CORRECT, IT WOULD ALSO BE EASY FOR US TO CORRECT THIS AND JUST SAVE
-        ALL IN THE DataIO DICTIONARY
-        JUST DECOMMENT ALL THE LINES IN ALL FILES BELOW THE FOLLOWING:
-                ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
+        AMAZON MODEL HAS NO DROPOUT(NO EXPLANATION GIVEN)
 
         """
 
 
-        config = get_gowalla_config(device=torch.device('cuda'))
-        dataset_config, model_config, trainer_config = config[2]
 
-        ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
-        #model_config=self.model_config
-        #trainer_config=self.trainer_config
+
+        dataset_config = {'name': 'ProcessedDataset', 'path': 'dont/care', 'device': torch.device('cuda')}
+        model_config = {'name': 'IGCN', 'embedding_size': self.embedding_size, 'n_layers': self.n_layers, 'device': torch.device('cuda'),
+                        'dropout': self.dropout, 'feature_ratio': self.feature_ratio}
+        print(model_config)
+        trainer_config = {'name': self.name_t, 'optimizer': self.optimizer, 'lr': self.lr, 'l2_reg': self.l2_reg, 'aux_reg': self.aux_reg,
+                          'device': torch.device('cuda'), 'n_epochs': self.n_epochs, 'batch_size': self.batch_size, 'dataloader_num_workers': self.dataloader_num_workers,
+                          'test_batch_size': self.test_batch_size, 'topks': self.topks}
+
+        print(trainer_config)
+
         datasetOriginalFormat = DatasetOriginal(dataset_config)
         URM_coo = self.URM_train.tocoo(copy=True)
         datasetOriginalFormat.n_users = URM_coo.shape[0]
@@ -219,7 +203,6 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         datasetOriginalFormat.length = len(datasetOriginalFormat.train_array)
         datasetOriginalFormat.train_data = from_matrix_to_adjlist(URM_coo)
 
-        ###model needs dataset as attribute to train and predict
 
         if(datasetOriginalFormat.n_users>100000):
             model_config['dropout']=0.0
@@ -236,6 +219,8 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         print(self.trainer)
 
 
+
+
     """
         Function to instantiate and train the model 
     """
@@ -243,6 +228,27 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
     def fit(self,
             article_hyperparameters=None,
             # default params
+            name= 'IGCN',
+            embedding_size= 64,
+            n_layers= 3,
+            device= torch.device('cuda'),
+            name_t= 'IGCNTrainer',
+            optimizer= 'Adam',
+            lr= 1.e-3,
+            l2_reg= 0.,
+            aux_reg= 0.01,
+
+            n_epochs= 1000,
+            batch_size= 2048,
+            dataloader_num_workers= 6,
+
+            test_batch_size= 512,
+            topks=20,
+
+            dropout= 0.3,
+
+            feature_ratio= 1.,
+            ##^from get config unpacked
             learning_rate_vae=1e-2,
             learning_rate_cvae=1e-3,
             num_factors=50,
@@ -256,13 +262,11 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
             # new hyperparameters from the paper
             learning_rate=[0.0001, 0.001, 0.01],
             regularization_coefficient=[0, 0.00001, 0.0001, 0.001, 0.01],
-            dropout_rate=[0, 0.1, 0.3, 0.5, 0.7, 0.9],
+            dropout_rate=0.3,
             sampling_size=50,
-            batch_size=2048,
             a=1,
             b=0.01,
             epochs=1000,
-            embedding_size=64,
 
             # These are standard
             temp_file_folder=None,
@@ -274,49 +278,57 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
 
 
-        ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
-        #self.model_config=article_hyperparameters['model_config']
-        #self.trainer_config=article_hyperparameters['trainer_config']
-        self._init_model()
-
 
 
         # The following code contains various operations needed by another wrapper
 
-
         self._params = Params()
-        self._params.lambda_u = lambda_u
-        self._params.lambda_v = lambda_v
-        self._params.lambda_r = lambda_r
-        self._params.a = a
-        self._params.b = b
-        self._params.M = M
-        self._params.n_epochs = epochs
+        if(article_hyperparameters is None):
+            article_hyperparameters = {
+                'name': name,
+                'embedding_size': embedding_size,
+                'n_layers': n_layers,
+                'device': device,
+                'name_t': name_t,
+                'optimizer': optimizer,
+                'lr': lr,
+                'l2_reg': l2_reg,
+                'aux_reg': aux_reg,
+
+                'n_epochs': n_epochs,
+                'batch_size': batch_size,
+                'dataloader_num_workers': dataloader_num_workers,
+
+                'test_batch_size': test_batch_size,
+                'topks': topks,
+
+                'dropout': dropout,
+
+                'feature_ratio': feature_ratio,
+            }
+
+        self.name = article_hyperparameters["name"]
+        self.embedding_size = article_hyperparameters["embedding_size"]
+        self.n_layers = article_hyperparameters['n_layers']
+        self.device = article_hyperparameters['device']
+        self.name_t = article_hyperparameters['name_t']
+        self.optimizer = article_hyperparameters['optimizer']
+        self.lr = article_hyperparameters['lr']
+        self.l2_reg = article_hyperparameters['l2_reg']
+        self.aux_reg = article_hyperparameters['aux_reg']
+        self.n_epochs = article_hyperparameters['n_epochs']
+        self.batch_size = article_hyperparameters['batch_size']
+        self.dataloader_num_workers = article_hyperparameters['dataloader_num_workers']
+        self.test_batch_size = article_hyperparameters['test_batch_size']
+        self.topks = article_hyperparameters['topks']
+        self.dropout = article_hyperparameters['dropout']
+        self.feature_ratio = article_hyperparameters['feature_ratio']
+
+
+
         # These are the train instances as a list of lists
-        # The following code processed the URM into the data structure the model needs to train
-        self._train_users = []
-
-        self.URM_train = sps.csr_matrix(self.URM_train)
-
-        for user_index in range(self.n_users):
-            start_pos = self.URM_train.indptr[user_index]
-            end_pos = self.URM_train.indptr[user_index + 1]
-
-            user_profile = self.URM_train.indices[start_pos:end_pos]
-            self._train_users.append(list(user_profile))
-
-        self._train_items = []
-
-        self.URM_train = sps.csc_matrix(self.URM_train)
-
-        for user_index in range(self.n_items):
-            start_pos = self.URM_train.indptr[user_index]
-            end_pos = self.URM_train.indptr[user_index + 1]
-
-            item_profile = self.URM_train.indices[start_pos:end_pos]
-            self._train_items.append(list(item_profile))
-
-        self.URM_train = sps.csr_matrix(self.URM_train)
+        # The URM is then processed in the init_model function
+        self._init_model()
 
         # Done Close all sessions used for training and open a new one for the "_best_model"
         # close session tensorflow
@@ -396,31 +408,25 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
             #  the model when calling the load_model
             "n_users": self.n_users,
             "n_items": self.n_items,
-            # modified
-            "batch_size": 2048,
-            "epochs": 1000,
-            "embedding_size": 64,
-            ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
-            #"model_config"=self.model_config,
-            #"trainer_config"=self.trainer_config,
-            # default
-            "epochs_MFBPR": 500,
-            "hidden_size": 128,
-            "negative_sample_per_positive": 1,
-            "negative_instances_per_positive": 4,
-            "regularization_users_items": 0.01,
-            "regularization_weights": 10,
-            "regularization_filter_weights": 1,
-            "learning_rate_embeddings": 0.05,
-            "learning_rate_CNN": 0.05,
-            "channel_size": [32, 32, 32, 32, 32, 32],
-            "dropout": 0.0,
-            "epoch_verbose": 1,
-            # hyperparameter from the paper
-            "learning_rate": [0.0001, 0.001, 0.01],
-            "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
-            "dropout_rate": [0, 0.1, 0.3, 0.5, 0.7, 0.9],
-            "sampling_size": 50
+            'name': self.name,
+            'embedding_size': self.embedding_size,
+            'n_layers': self.n_layers,
+            'name_t': self.name_t,
+            'optimizer': self.optimizer,
+            'lr': self.lr,
+            'l2_reg': self.l2_reg,
+            'aux_reg': self.aux_reg,
+
+            'n_epochs': self.n_epochs,
+            'batch_size': self.batch_size,
+            'dataloader_num_workers': self.dataloader_num_workers,
+
+            'test_batch_size': self.test_batch_size,
+            'topks': self.topks,
+
+            'dropout': self.dropout,
+
+            'feature_ratio': self.feature_ratio,
         }
 
         # Do not change this

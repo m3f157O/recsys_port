@@ -9,11 +9,11 @@ Created on 08/11/18
 
 from Data_manager.DataReader import DataReader
 
-
+from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config
 from Recommenders.DataIO import DataIO
 import gdown as gd
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
-
+import torch
 import os
 import scipy.sparse as sparse
 import numpy as np
@@ -21,7 +21,7 @@ class GowallaReader(DataReader):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path,config):
+    def __init__(self, pre_splitted_path):
 
         super(GowallaReader, self).__init__()
 
@@ -30,9 +30,9 @@ class GowallaReader(DataReader):
         IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
         WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
         """
-
-        config = config
-
+        device = torch.device('cuda')
+        config = get_gowalla_config(device)
+        pre_splitted_path = pre_splitted_path + "Gowalla/"
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
         # If directory does not exist, create

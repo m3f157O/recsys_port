@@ -57,20 +57,14 @@ def read_data_split_and_search(dataset_name,
 
     base_path="Conferences/IGCN_CF/igcn_cf_our_interface/DatasetPublic/data/"
     if dataset_name == "yelp2018":
-        config = get_yelp_config(device)
-        dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = base_path+"Yelp/"
-        dataset_reader = YelpReader(pre_splitted_path,config)
+        pre_splitted_path = base_path
+        dataset_reader = YelpReader(pre_splitted_path)
     elif dataset_name == "amazon-book":
-        config = get_amazon_config(device)
-        dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = base_path+"Amazon/"
-        dataset_reader = AmazonReader(pre_splitted_path,config)
+        pre_splitted_path = base_path
+        dataset_reader = AmazonReader(pre_splitted_path)
     elif dataset_name == "gowalla":
-        config = get_gowalla_config(device)
-        dataset_config, model_config, trainer_config = config[2]
-        pre_splitted_path = base_path+"Gowalla/"
-        dataset_reader = GowallaReader(pre_splitted_path,config)
+        pre_splitted_path = base_path
+        dataset_reader = GowallaReader(pre_splitted_path)
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
@@ -105,7 +99,7 @@ def read_data_split_and_search(dataset_name,
     # parameters taken from the articles section 5.1
     n_cases = 20
     n_processes = 5
-    resume_from_saved = True
+    resume_from_saved = False
 
     # Done Select the evaluation protocol
     evaluator_validation_earlystopping = EvaluatorHoldout(URM_validation, cutoff_list=[cutoff_to_optimize])
@@ -125,15 +119,7 @@ def read_data_split_and_search(dataset_name,
                                         'test_batch_size': 512, 'topks': [20]}
         IN GENERAL, THE MODEL CONFIG DOESN'T DIFFER BETWEEN DATASETS, EXCEPT FOR AMAZON, WHERE
         THERE IS NO DROPOUT AT ALL. THIS MAY BE A PROBLEM WHEN THE MODEL IS RELOADED, BECAUSE,
-        GIVEN THAT THE ENTIRE DATASET STRUCTURE IS NEEDED TO CALL get_model(), TO AVOID
-        SAVING AND RELOADING AND PASSING THE configs TO init_model() IN IGCN_CF_RecommenderWrapper.py,
-        WHICH ARE !!!REALLY!!! HEAVY DATA STRUCTURES (they contain the reference to a number of objects used during training)
-        WE DECIDED TO ADD A DEFAULT LOADING OPTION IN init_model, WHICH 
-        WILL ALWAYS PROCESS THE DATASET CORRECTLY, AND LOAD THE CORRECT TRAINER, 
-        BUT THE STANDARD MODEL CONFIG (gowalla) BE WILL MODIFIED ON THE ['dropout'] ENTRY
-        
-        THIS IS AN "HARDCODED" SOLUTION TO SPEED UP MODEL INSTANTIATION WHEN RELOADING. IF IT'S A BAD PRACTICE, 
-        OR AGAINST THE REQUIREMENTS, IT WOULD BE EASY FOR US TO CORRECT IT
+        GIVEN THAT THE ENTIRE DATASET STRUCTURE IS NEEDED TO CALL get_model()
 
     """
 
@@ -148,9 +134,27 @@ def read_data_split_and_search(dataset_name,
             """
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
-                  "dataset_config":dataset_config,
-                  "model_config": model_config,
-                  "trainer_config": trainer_config,
+                'name': 'IGCN',
+                'embedding_size': 64,
+                'n_layers': 3,
+                'device': device,
+                'name_t': 'IGCNTrainer',
+                'optimizer': 'Adam',
+                'lr': 1.e-3,
+                'l2_reg': 0.,
+                'aux_reg': 0.01,
+
+                'n_epochs': 1000,
+                'batch_size': 2048,
+                'dataloader_num_workers': 6,
+
+                'test_batch_size': 512,
+                'topks': [20],
+
+                'dropout': 0.3,
+
+                'feature_ratio': 1.,
+                  ##from get config unpacked ^
                   "epochs_MFBPR": 500,
                   "hidden_size": 128,
                   "negative_sample_per_positive": 1,
@@ -161,7 +165,6 @@ def read_data_split_and_search(dataset_name,
                   "learning_rate_embeddings": 0.05,
                   "learning_rate_CNN": 0.05,
                   "channel_size": [32, 32, 32, 32, 32, 32],
-                  "dropout": 0.0,
                   "epoch_verbose": 1,
                   "learning_rate_vae":1e-2,
                   "learning_rate_cvae":1e-3,
@@ -176,11 +179,9 @@ def read_data_split_and_search(dataset_name,
                   "regularization_coefficient": [0, 0.00001, 0.0001, 0.001, 0.01],
                   "dropout_rate": [0, 0.1, 0.3, 0.5, 0.7, 0.9],
                   "sampling_size":50,
-                  "batch_size":2048,
                   "a":1,
                   "b":0.01,
                   "epochs":1000,
-                  "embedding_size":64,
                   "temp_file_folder":None,
 
             }
@@ -202,8 +203,6 @@ def read_data_split_and_search(dataset_name,
             recommender_instance = IGCN_CF_RecommenderWrapper(URM_train)
 
             ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
-            #recommender_instance.model_config=model_config
-            #recommender_instance.trainer_config=trainer_config
 
 
 
@@ -363,7 +362,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["amazon-book","yelp2018","gowalla"]
+    dataset_list = ["gowalla","amazon-book","yelp2018",]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

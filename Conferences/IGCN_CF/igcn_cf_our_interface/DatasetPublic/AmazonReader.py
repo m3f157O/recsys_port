@@ -16,12 +16,12 @@ from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config, get_ye
 
 import os
 import time
-
+import torch
 class AmazonReader(DataReader):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path,config):
+    def __init__(self, pre_splitted_path):
 
         super(AmazonReader, self).__init__()
         """"
@@ -29,7 +29,9 @@ class AmazonReader(DataReader):
         IT USES A sys.module REFERENCE SO IT IS NECESSARY TO CREATE A dataset.py LOCAL FILE
         WITH THE CORRECT import OR CHANGE THE ORIGINAL SOURCE CODE
         """
-
+        device = torch.device('cuda')
+        config = get_gowalla_config(device)
+        pre_splitted_path = pre_splitted_path + "Gowalla/"
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 

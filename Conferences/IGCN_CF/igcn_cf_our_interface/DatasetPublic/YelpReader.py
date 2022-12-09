@@ -16,7 +16,7 @@ from Conferences.IGCN_CF.igcn_cf_github.config import get_gowalla_config, get_ye
 from Conferences.IGCN_CF.igcn_cf_our_interface.DatasetPublic.IGN_CFReader import adjacencyList2COO,init_file_and_device,acquire_dataset,preprocessing
 
 import os
-
+import torch
 
 class YelpReader(object):
     URM_DICT = {}
@@ -25,8 +25,10 @@ class YelpReader(object):
     def __init__(self, pre_splitted_path,config):
 
         super(YelpReader, self).__init__()
+        device = torch.device('cuda')
 
-
+        config = get_yelp_config(device)
+        pre_splitted_path = pre_splitted_path+"Yelp/"
 
         dataIO = DataIO(pre_splitted_path)  ##initialize cool data manager
 
