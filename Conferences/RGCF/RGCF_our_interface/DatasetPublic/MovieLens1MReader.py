@@ -5,11 +5,12 @@ Created on 08/11/18
 
 @author: Maurizio Ferrari Dacrema
 """
+from recbole.utils import init_seed
 
 from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
-from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import *
 import zipfile
 import gdown as gd
 class Movielens1MReader(object):
@@ -17,9 +18,17 @@ class Movielens1MReader(object):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path,config):
+    def __init__(self, pre_splitted_path):
+
+
+
 
         super(Movielens1MReader, self).__init__()
+
+        config=get_config_preproc('ml-1m')
+        config.dataset='ml-1m'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
+        init_seed(config['seed'], config['reproducibility'])
 
         #pre_splitted_path += "data_split/"
         pre_splitted_filename = "ml-1m-processed"
@@ -29,6 +38,8 @@ class Movielens1MReader(object):
             os.makedirs(pre_splitted_path)
 
         dataIO = DataIO(pre_splitted_path)
+
+
 
         try:
             print("Movielens20MReader: Attempting to load pre-splitted data")
