@@ -84,16 +84,51 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         print(self.USER_factors.shape)
         self.ITEM_factors = genfromtxt("Conferences/MREC/MREC_github/test/Q.txt", delimiter=',')
 
-        print(self.ITEM_factors.shape)
-        print(self.recommend([1]))
+        import numpy as np
+        self.USER_factors= np.insert(self.USER_factors,0,0,axis=0)
+        self.ITEM_factors = np.insert(self.ITEM_factors, 0, 0, axis=0)
+
         assert self.USER_factors.shape[0] == self.URM_train.shape[0]
         assert self.ITEM_factors.shape[0] == self.URM_train.shape[1]
-
+            #todo fix conflict, add 1 to all users and items id when rewriting urm
         assert self.USER_factors.shape[1] == self.ITEM_factors.shape[1]
 
         print("MREC_RecommenderWrapper: Loading trained model from temp matlab files ... done!")
 
 
+    def _compute_item_score(self, user_id_array, items_to_compute = None):
+        """
+        USER_factors is n_users x n_factors
+        ITEM_factors is n_items x n_factors
+
+        The prediction for cold users will always be -inf for ALL items
+
+        :param user_id_array:
+        :param items_to_compute:
+        :return:
+        """
+        import numpy as np
+        assert self.USER_factors.shape[1] == self.ITEM_factors.shape[1], \
+            "{}: User and Item factors have inconsistent shape".format(self.RECOMMENDER_NAME)
+
+        assert self.USER_factors.shape[0] > np.max(user_id_array),\
+                "{}: Cold users not allowed. Users in trained model are {}, requested prediction for users up to {}".format(
+                self.RECOMMENDER_NAME, self.USER_factors.shape[0], np.max(user_id_array))
+
+        if items_to_compute is not None:
+            item_scores = - np.ones((len(user_id_array), self.n_items), dtype=np.float32)*np.inf
+            item_scores[:, items_to_compute] = np.dot(self.USER_factors[user_id_array], self.ITEM_factors[items_to_compute,:].T)
+
+        else:
+            item_scores = np.dot(self.USER_factors[user_id_array], self.ITEM_factors.T)
+
+
+        # No need to select only the specific negative items or warm users because the -inf score will not change
+        if self.use_bias:
+            item_scores += self.ITEM_bias + self.GLOBAL_bias
+            item_scores = (item_scores.T + self.USER_bias[user_id_array]).T
+
+        return item_scores
 
     def _save_dat_file_from_URM(self, URM_to_save, file_full_path):
 

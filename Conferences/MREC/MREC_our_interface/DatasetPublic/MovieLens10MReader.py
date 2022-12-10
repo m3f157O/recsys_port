@@ -47,10 +47,11 @@ class MovieLens10MReader():
             print("MovieLens10MReader: loading URM")
 
 
+
             if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
                 os.makedirs("Data_manager_split_datasets")
 
-            filename = "DatasetPublic/ml-10M.zip"
+            filename = "Data_manager_split_datasets/ml-10M.zip"
 
             url = "https://drive.google.com/u/0/uc?id=1r29caf988qL8jcr6VBKEEJ5-LwHO7xLD&export=download&confirm=no_antivirus"
 
@@ -68,10 +69,15 @@ class MovieLens10MReader():
             #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
 
             import zipfile
-            with zipfile.ZipFile("DatasetPublic/ml-10M.zip", 'r') as zip_ref:
-                zip_ref.extractall("DatasetPublic/")
+            with zipfile.ZipFile("Data_manager_split_datasets/ml-10M.zip", 'r') as zip_ref:
+                zip_ref.extractall("Data_manager_split_datasets/")
 
-            dataset = pd.read_csv("DatasetPublic/ml-10M/ratings.dat", sep='::')
+            import matlab.engine
+
+
+
+
+            dataset = pd.read_csv("Data_manager_split_datasets/ml-10M/ratings.dat", sep='::',engine='python')
 
             dataset.columns = ['user_id', 'item_id', 'rating', 'timestamp']
 

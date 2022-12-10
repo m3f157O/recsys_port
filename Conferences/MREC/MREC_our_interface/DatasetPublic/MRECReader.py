@@ -9,6 +9,8 @@ import pandas as pd
 from Data_manager.split_functions.split_train_validation_random_holdout import \
     split_train_in_two_percentage_global_sample
 
+import matlab.engine
+
 
 def pandas_df_to_coo(dataset):
     users = dataset["user_id"].unique()
@@ -24,7 +26,7 @@ def pandas_df_to_coo(dataset):
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
-def preprocessing_interactions_pandas(dataset, interactions, file):
+def preprocessing_interactions_pandas(dataset, interactions, file,n_users,n_items):
 
     # filtering users and items with less than 10 interactions
     while(True):
@@ -46,14 +48,58 @@ def preprocessing_interactions_pandas(dataset, interactions, file):
             break
 
 
-    dataset_train, dataset_test = skl.train_test_split(dataset, test_size=0.50, random_state = 42, shuffle = True)
+    dataset = pandas_df_to_coo(dataset)
+    URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/dataset.txt", dataset)
 
-    # writing training and testing into files
+    import matlab.engine
 
-    URM_test = pandas_df_to_coo(dataset_test)
-    URM_train = pandas_df_to_coo(dataset_train)
-    URMtoPandasCsvWithScores(file+"train.txt",URM_train)
-    URMtoPandasCsvWithScores(file+"test.txt",URM_test)
+    eng = matlab.engine.start_matlab()
+    matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_our_interface/"
+    eng.cd(matlab_script_directory)
+    eng.prova(nargout=0)
+
+    ##with open('./Conferences/MREC/MREC_our_interface/train.txt', 'r') as input_file:
+    ##    lines = input_file.readlines()
+    ##    newLines = []
+    ##    for line in lines:
+    ##        newLine = line.strip(' ').split()
+    ##        newLines.append(newLine)
+    ##URM_train = preprocessing_interactions_lists(newLines)
+
+    #àwith open('./Conferences/MREC/MREC_our_interface/test.txt', 'r') as input_file:
+    ##    lines = input_file.readlines()
+    ##    newLines = []
+    ##        for line in lines:
+    ##        newLine = line.strip(' ').split()
+    ##        newLines.append(newLine)
+
+    #URM_test = preprocessing_interactions_lists(newLines)
+    dataset_train = pd.read_csv("./Conferences/MREC/MREC_our_interface/train.txt", sep=' ',engine='python')
+    dataset_train.columns = ['user_id', 'item_id', 'rating']
+
+    ##max for no error (reindexing needed, not wanted)
+
+    row=dataset_train.to_numpy()[:,0]
+    col=dataset_train.to_numpy()[:,1]
+    data=dataset_train.to_numpy()[:, 2]
+    print(max(row))
+    print(max(col))
+
+    URM_train=sp.coo_matrix((data,(row,col)),shape=(n_users+1, n_items+1))
+
+
+    dataset_test = pd.read_csv("./Conferences/MREC/MREC_our_interface/test.txt", sep=' ',engine='python')
+    dataset_test.columns = ['user_id', 'item_id', 'rating']
+    print(len(np.unique(dataset_train.to_numpy()[:,1])))
+
+
+    row=dataset_test.to_numpy()[:,0]
+    col=dataset_test.to_numpy()[:,1]
+    data=dataset_test.to_numpy()[:, 2]
+    print(max(row))
+    print(max(col))
+
+    URM_test=sp.coo_matrix((data,(row,col)),shape=(n_users+1,n_items+1))
 
     return URM_train, URM_test
 
@@ -94,7 +140,7 @@ def URMtoPandasCsvWithScores(path,URM):
         data = data[count:]
         for j in range(len(items)):
             # only users and items matters because the preprocessing is already done in the reader
-            file.write(str(i) + " " + str(items[j]) + " " + str(datas[j])+"\n")
+            file.write(str(i+1) + "\t" + str(items[j]) + "\t" + str(int(datas[j]))+"\n")
 
 def preprocessing_interactions_lists(lists):
     cols = np.array([])
