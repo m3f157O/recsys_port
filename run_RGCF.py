@@ -91,7 +91,7 @@ def read_data_split_and_search(dataset_name,
 
     n_cases = 50
     n_processes = 3
-    resume_from_saved = True
+    resume_from_saved = False
 
     # Done Select the evaluation protocol
     evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=cutoff_list)
@@ -314,7 +314,7 @@ if __name__ == '__main__':
     # Done: Replace with dataset names
     ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
     ##atomic file dataset are all available here https://drive.google.com/drive/folders/1so0lckI6N6_niVEYaBu-LIcpOdZf99kj
-    dataset_list = ["Amazon_Books","Amazon_Books","yelp2018",]
+    dataset_list = ["ml-1m","Amazon_Books","yelp2018",]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

@@ -29,7 +29,11 @@ class AmazonReader(object):
         config.dataset='Amazon_Books'
         config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/Amazon_Books"
         init_seed(config['seed'], config['reproducibility'])
-
+        config.dataset='Amazon_Books'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/Amazon_Books"
+        init_seed(config['seed'], config['reproducibility'])
+        config.final_config_dict["user_inter_num_interval"]= "[15,inf)"
+        config.final_config_dict["item_inter_num_interval"]= "[15,inf)"
         #pre_splitted_path += "data_split/"
         pre_splitted_filename = "amazon-processed"
 
@@ -99,7 +103,7 @@ class AmazonReader(object):
             URM_train = train_data.dataset.inter_matrix(form='coo')
             URM_validation = valid_data.dataset.inter_matrix(form='coo')
             URM_test = test_data.dataset.inter_matrix(form='coo')
-
+            print(train_data.dataset)
 
 
             #URM_validation, URM_train, URM_test = preprocessing_interactions(n_users, n_items, URM_validation, URM_train, URM_test)
