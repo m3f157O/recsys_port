@@ -42,6 +42,7 @@ class AmazonReader(DataReader):
         pre_splitted_filename = 'time.zip'
 
         try:
+            raise FileNotFoundError
             print("AmazonReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name

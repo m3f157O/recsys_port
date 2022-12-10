@@ -69,14 +69,6 @@ def restoreTrainArray(matrix):
 """
     Class to define the parameters used in the fit 
 """
-class Params():
-    lambda_u = 0
-    lambda_v = 0
-    lambda_r = 0
-    a = 0
-    b = 0
-    M = 0
-    n_epochs = 0
 
 
 # Done replace the recommender class name with the correct one
@@ -277,12 +269,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         # Get unique temporary folder
         self.temp_file_folder = self._get_unique_temp_folder(input_temp_file_folder=temp_file_folder)
 
-
-
-
-        # The following code contains various operations needed by another wrapper
-
-        self._params = Params()
+        #prepare for model instantiation
         if(article_hyperparameters is None):
             article_hyperparameters = {
                 'name': name,
@@ -307,6 +294,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
                 'feature_ratio': feature_ratio,
             }
 
+        ## Assignin as wrapper attributes because for some reason creating an object to contain them corrupts model
         self.name = article_hyperparameters["name"]
         self.embedding_size = article_hyperparameters["embedding_size"]
         self.n_layers = article_hyperparameters['n_layers']
@@ -323,7 +311,6 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
         self.topks = article_hyperparameters['topks']
         self.dropout = article_hyperparameters['dropout']
         self.feature_ratio = article_hyperparameters['feature_ratio']
-
 
 
         # These are the train instances as a list of lists

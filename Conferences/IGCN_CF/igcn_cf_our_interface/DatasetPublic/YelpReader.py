@@ -22,7 +22,7 @@ class YelpReader(object):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path,config):
+    def __init__(self, pre_splitted_path):
 
         super(YelpReader, self).__init__()
         device = torch.device('cuda')
