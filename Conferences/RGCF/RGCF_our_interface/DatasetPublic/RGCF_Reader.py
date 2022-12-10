@@ -1,7 +1,9 @@
 import numpy as np
 import scipy.sparse as sp
 import pandas as pd
+from Conferences.RGCF.RGCF_github.rgcf import RGCF
 
+from recbole.config import *
 """"
     Method to make the preprocessing: checks if ratings are less than 3 and delete them from the file.inter
 """
@@ -12,7 +14,28 @@ def preprocessing_ratings(file, rate,filename):
     del dataset["index"]
     dataset.to_csv(file+filename, sep='\t', index=False)
 
+def get_config_preproc(dataset_name):
+    config = Config(model=RGCF, dataset=dataset_name,
+                    config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
+                                        './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
+    config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
+    config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
+    config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
+    config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
+    config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+    config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
+    config.final_config_dict['training_neg_sample_num'] = 1
+    config.internal_config_dict['training_neg_sample_num'] = 1
+    config.final_config_dict['epochs'] = 500
+    config.internal_config_dict['epochs'] = 500
+    config.final_config_dict['train_batch_size'] = 4096
+    config.internal_config_dict['train_batch_size'] = 4096
+    config.final_config_dict['topk'] = [10, 20, 50]
+    config.internal_config_dict['topk'] = [10, 20, 50]
+    config.final_config_dict['save_dataloaders'] = True
+    config.internal_config_dict['save_dataloaders'] = True
 
+    return config
 """"
     Method to make the preprocessing: checks if the number of interactions is greater than 15 by using URM
 """

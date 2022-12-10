@@ -13,6 +13,8 @@ from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import prepro
 import gdown as gd
 import zipfile
 from  Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_ratings
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import *
+from recbole.utils import init_seed
 
 
 class YelpReader(object):
@@ -20,9 +22,19 @@ class YelpReader(object):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path, config):
+    def __init__(self, pre_splitted_path):
 
         super(YelpReader, self).__init__()
+
+        config=get_config_preproc('yelp2018')
+        config.dataset='yelp2018'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
+        init_seed(config['seed'], config['reproducibility'])
+        config.dataset='yelp2018'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
+        init_seed(config['seed'], config['reproducibility'])
+        config.final_config_dict["user_inter_num_interval"]= "[15,inf)"
+        config.final_config_dict["item_inter_num_interval"]= "[15,inf)"
 
         #pre_splitted_path += "data_split/"
         pre_splitted_filename = "yelp2018-processed"

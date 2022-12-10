@@ -11,18 +11,24 @@ Created on 08/11/18
 from Recommenders.DataIO import DataIO
 import os
 from recbole.data import create_dataset, data_preparation
-from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import preprocessing_interactions
+from Conferences.RGCF.RGCF_our_interface.DatasetPublic.RGCF_Reader import *
 import zipfile
 import gdown as gd
+from recbole.utils import init_seed
 
 class AmazonReader(object):
 
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path, config):
+    def __init__(self, pre_splitted_path):
 
         super(AmazonReader, self).__init__()
+
+        config=get_config_preproc('Amazon_Books')
+        config.dataset='Amazon_Books'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/Amazon_Books"
+        init_seed(config['seed'], config['reproducibility'])
 
         #pre_splitted_path += "data_split/"
         pre_splitted_filename = "amazon-processed"

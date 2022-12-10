@@ -9,7 +9,6 @@ from HyperparameterTuning.SearchAbstractClass import SearchInputRecommenderArgs
 from HyperparameterTuning.functions_for_parallel_model import _get_model_list_given_dataset, _optimize_single_model
 from Recommenders.Recommender_import_list import *
 from Utils.ResultFolderLoader import ResultFolderLoader
-from recbole.utils import init_seed
 
 from functools import partial
 import numpy as np
@@ -20,7 +19,6 @@ from Conferences.CIKM.ExampleAlgorithm_our_interface.Example_RecommenderWrapper 
 from Evaluation.Evaluator import EvaluatorHoldout
 from Utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from recbole.config import Config
-from Conferences.RGCF.RGCF_github.rgcf import RGCF
 import scipy.sparse as sps
 
 def read_data_split_and_search(dataset_name,
@@ -43,53 +41,23 @@ def read_data_split_and_search(dataset_name,
     from internal config, some from final config, but it is not stated which is taken from which,
     so we set both. Option names are self explanatory
     """
-    config = Config(model=RGCF, dataset=dataset_name,
-                    config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
-                                        './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-    config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
-    config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'], 'item': ['item_id', 'genre']}
-    config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
-    config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
-    config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
-    config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
-    config.final_config_dict['training_neg_sample_num'] = 1
-    config.internal_config_dict['training_neg_sample_num'] = 1
-    config.final_config_dict['epochs'] = 500
-    config.internal_config_dict['epochs'] = 500
-    config.final_config_dict['train_batch_size'] = 4096
-    config.internal_config_dict['train_batch_size'] = 4096
-    config.final_config_dict['topk'] = [10, 20, 50]
-    config.internal_config_dict['topk'] = [10, 20, 50]
-    config.final_config_dict['save_dataloaders'] = True
-    config.internal_config_dict['save_dataloaders'] = True
-    init_seed(config['seed'], config['reproducibility'])
+
 
 
 
 
 
     if dataset_name == "ml-1m":
-        config.dataset='ml-1m'
-        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
-        init_seed(config['seed'], config['reproducibility'])
 
-        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
+
+        dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/")
 
     elif dataset_name == "yelp2018":
-        config.dataset='yelp2018'
-        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/yelp2018"
-        init_seed(config['seed'], config['reproducibility'])
-        config.final_config_dict["user_inter_num_interval"]= "[15,inf)"
-        config.final_config_dict["item_inter_num_interval"]= "[15,inf)"
-        dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/", config=config)
+
+        dataset = YelpReader("Conferences/RGCF/RGCF_github/dataset/")
     elif dataset_name == "Amazon_Books":
-        ##NEVER USE RECBOLE AND DATASET NAMES WITH UNDERSCORE :D
-        config.dataset='Amazon_Books'
-        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/Amazon_Books"
-        init_seed(config['seed'], config['reproducibility'])
-        config.final_config_dict["user_inter_num_interval"]= "[15,inf)"
-        config.final_config_dict["item_inter_num_interval"]= "[15,inf)"
-        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/Amazon_Books", config=config)
+
+        dataset = AmazonReader("Conferences/RGCF/RGCF_github/dataset/Amazon_Books")
     else:
         print("Dataset name not supported, current is {}".format(dataset_name))
         return
@@ -139,10 +107,7 @@ def read_data_split_and_search(dataset_name,
         try:
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
-                #added for config
-                "config": config,
                 # modified
-                "batch_size": 4096,
                 #added
                 "number_of_layers_K": [2, 3],
                 "learning_rate": [1e-5, 1e-3],
@@ -150,13 +115,10 @@ def read_data_split_and_search(dataset_name,
                 "temperature_tau": [0.05, 0.1, 0.2],
                 "diversity_loss_coefficient_lambda1": [1e-5, 1e-6, 1e-7, 1e-8],
                 "regularization_coefficient_lambda2": 1e-5,
-
                 #default
-                "epochs": 500,
                 "epochs_MFBPR": 500,
                 "embedding_size": 64,
                 "hidden_size": 128,
-                "negative_sample_per_positive": 1,
                 "negative_instances_per_positive": 4,
                 "regularization_users_items": 0.01,
                 "regularization_weights": 10,
@@ -166,6 +128,12 @@ def read_data_split_and_search(dataset_name,
                 "channel_size": [32, 32, 32, 32, 32, 32],
                 "dropout": 0.0,
                 "epoch_verbose": 1,
+                ##from code
+                "topk": [10, 20, 50],
+                "negative_sample_per_positive": 1,
+                "epochs": 500,
+                "batch_size": 4096,
+
             }
 
             # Do not modify earlystopping
@@ -346,7 +314,7 @@ if __name__ == '__main__':
     # Done: Replace with dataset names
     ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
     ##atomic file dataset are all available here https://drive.google.com/drive/folders/1so0lckI6N6_niVEYaBu-LIcpOdZf99kj
-    dataset_list = ["ml-1m","Amazon_Books","yelp2018",]
+    dataset_list = ["Amazon_Books","Amazon_Books","yelp2018",]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

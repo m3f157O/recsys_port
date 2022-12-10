@@ -158,20 +158,15 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             config = Config(model=RGCF, dataset="DONT-CARE",
                             config_file_list=['./Conferences/RGCF/RGCF_github/config/data.yaml',
                                               './Conferences/RGCF/RGCF_github/config/model-rgcf.yaml'])
-            config.final_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
-                                                    'item': ['item_id', 'genre']}
-            config.internal_config_dict['load_col'] = {'inter': ['user_id', 'item_id', 'rating'],
-                                                       'item': ['item_id', 'genre']}
-            config.final_config_dict['val_interval'] = {'rating': '[3,inf)'}
-            config.internal_config_dict['val_interval'] = {'rating': '[3,inf)'}
+
             config.final_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
             config.internal_config_dict['metrics'] = ['Recall', 'MRR', 'NDCG', 'Hit']
-            config.final_config_dict['training_neg_sample_num'] = 1
-            config.internal_config_dict['training_neg_sample_num'] = 1
-            config.final_config_dict['epochs'] = 500
-            config.internal_config_dict['epochs'] = 500
-            config.final_config_dict['train_batch_size'] = 4096
-            config.internal_config_dict['train_batch_size'] = 4096
+            config.final_config_dict['training_neg_sample_num'] = self.negative_sample_per_positive
+            config.internal_config_dict['training_neg_sample_num'] = self.negative_sample_per_positive
+            config.final_config_dict['epochs'] = self.epochs
+            config.internal_config_dict['epochs'] = self.epochs
+            config.final_config_dict['train_batch_size'] = self.batch_size
+            config.internal_config_dict['train_batch_size'] = self.batch_size
             config.final_config_dict['topk'] = [10, 20, 50]
             config.internal_config_dict['topk'] = [10, 20, 50]
             config.final_config_dict['save_dataloaders'] = True
@@ -224,18 +219,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             article_hyperparameters=None,
             epochs=300,
             # Done replace those hyperparameters with the ones you need
-            learning_rate_vae=1e-2,
-            learning_rate_cvae=1e-3,
-            num_factors=50,
-            dimensions_vae=[200, 100],
-            epochs_vae=[50, 50],
-            batch_size=128,
-            lambda_u=0.1,
-            lambda_v=10,
-            lambda_r=1,
-            a=1,
-            b=0.01,
-            M=300,
+            negative_sample_per_positive= 1,
+            batch_size= 4096,
 
             # These are standard
             temp_file_folder=None,
@@ -249,42 +234,15 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         #  Preferably create an init_model function
         #  If you are using tensorflow before creating the model call tf.reset_default_graph()
 
-        # The following code contains various operations needed by another wrapper
-
-        self._params = Params()
-        self._params.lambda_u = lambda_u
-        self._params.lambda_v = lambda_v
-        self._params.lambda_r = lambda_r
-        self._params.a = a
-        self._params.b = b
-        self._params.M = M
-        self._params.n_epochs = epochs
-
-        # These are the train instances as a list of lists
-        # The following code processed the URM into the data structure the model needs to train
-        self._train_users = []
-
-        self.URM_train = sps.csr_matrix(self.URM_train)
-
-        for user_index in range(self.n_users):
-            start_pos = self.URM_train.indptr[user_index]
-            end_pos = self.URM_train.indptr[user_index + 1]
-
-            user_profile = self.URM_train.indices[start_pos:end_pos]
-            self._train_users.append(list(user_profile))
-
-        self._train_items = []
-
-        self.URM_train = sps.csc_matrix(self.URM_train)
-
-        for user_index in range(self.n_items):
-            start_pos = self.URM_train.indptr[user_index]
-            end_pos = self.URM_train.indptr[user_index + 1]
-
-            item_profile = self.URM_train.indices[start_pos:end_pos]
-            self._train_items.append(list(item_profile))
-
-        self.URM_train = sps.csr_matrix(self.URM_train)
+        if(article_hyperparameters is None):
+            article_hyperparameters = {
+                "negative_sample_per_positive": 1,
+                "epochs": 500,
+                "batch_size": 4096,
+            }
+        self.epochs=article_hyperparameters['epochs']
+        self.batch_size=article_hyperparameters['batch_size']
+        self.negative_sample_per_positive=article_hyperparameters['negative_sample_per_positive']
         self._init_model()
 
         # Done Close all sessions used for training and open a new one for the "_best_model"
@@ -347,11 +305,17 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
                 "n_users": self.n_users,
                 "n_items": self.n_items,
                 "dataset_name":self.dataset_name,
+                "negative_sample_per_positive": self.negative_sample_per_positive,
+                "epochs": self.epochs,
+                "batch_size": self.batch_size,
             }
         else: ##THIS IS JUST TO MAKE TEST NOT CRASH, AS NAME IS ASSIGNED BY THE run
             data_dict_to_save = {
                 "n_users": self.n_users,
                 "n_items": self.n_items,
+                "negative_sample_per_positive": self.negative_sample_per_positive,
+                "epochs": self.epochs,
+                "batch_size": self.batch_size,
             }
 
         # Do not change this
