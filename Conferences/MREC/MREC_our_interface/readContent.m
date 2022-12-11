@@ -2,7 +2,7 @@ function [ mat ] = readContent( fileName, varargin )
 %Read item content from fileName
 %   mat: returning sparse matrix of item content
 [nrows, ncols, sep, zero_start] = ...
-   process_options(varargin, 'nrows', -1, 'ncols', -1, 'sep', ' ', 'zero_start', true);
+   process_options(varargin, 'nrows', -1, 'ncols', -1, 'sep', '\t', 'zero_start', true);
 
 data = dlmread(fileName, sep);
 

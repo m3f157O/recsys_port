@@ -85,8 +85,7 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         self.ITEM_factors = genfromtxt("Conferences/MREC/MREC_github/test/Q.txt", delimiter=',')
 
         import numpy as np
-        self.USER_factors= np.insert(self.USER_factors,0,0,axis=0)
-        self.ITEM_factors = np.insert(self.ITEM_factors, 0, 0, axis=0)
+
 
         assert self.USER_factors.shape[0] == self.URM_train.shape[0]
         assert self.ITEM_factors.shape[0] == self.URM_train.shape[1]

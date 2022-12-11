@@ -494,7 +494,8 @@ class SearchAbstractClass(object):
         hyperparameters_best_args = self.metadata_dict["hyperparameters_best"].copy()
 
         recommender_instance.fit(*self.recommender_input_args_last_test.FIT_POSITIONAL_ARGS,
-                                 **self.recommender_input_args.FIT_KEYWORD_ARGS)
+                                 **self.recommender_input_args.FIT_KEYWORD_ARGS,
+                                 **hyperparameters_best_args)
 
         train_time = time.time() - start_time
         self.metadata_dict["time_on_last_df"].loc[0, "train"] = train_time

@@ -22,7 +22,8 @@ def pandas_df_to_coo(dataset):
     user_index = dataset["user_id"].astype(user_cat).cat.codes
     movie_index = dataset["item_id"].astype(movie_cat).cat.codes
     data_len=len(dataset["user_id"])
-    data=np.ones(data_len) #todo fix
+    data=dataset.to_numpy()[:, 2]
+
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
@@ -85,7 +86,7 @@ def preprocessing_interactions_pandas(dataset, interactions, file,n_users,n_item
     print(max(row))
     print(max(col))
 
-    URM_train=sp.coo_matrix((data,(row,col)),shape=(n_users+1, n_items+1))
+    URM_train=sp.coo_matrix((data,(row,col)),shape=(max(row)+1, max(col)+1))
 
 
     dataset_test = pd.read_csv("./Conferences/MREC/MREC_our_interface/test.txt", sep=' ',engine='python')
@@ -99,7 +100,7 @@ def preprocessing_interactions_pandas(dataset, interactions, file,n_users,n_item
     print(max(row))
     print(max(col))
 
-    URM_test=sp.coo_matrix((data,(row,col)),shape=(n_users+1,n_items+1))
+    URM_test=sp.coo_matrix((data,(row,col)),shape=(max(row)+1,max(col)+1))
 
     return URM_train, URM_test
 
