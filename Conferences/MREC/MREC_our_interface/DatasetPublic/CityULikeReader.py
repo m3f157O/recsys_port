@@ -91,10 +91,7 @@ class CityULikeReader():
             dataset = pd.read_csv("DatasetPublic/CityULike/citeulike-a-master/users-items.csv", sep="\t")
             URM_train, URM_test = preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/")
 
-            eng = matlab.engine.start_matlab()
-            matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
-            eng.cd(matlab_script_directory)
-            eng.split_dataset_original(nargout=0)
+
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
