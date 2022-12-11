@@ -58,15 +58,14 @@ class CityULikeReader():
 
             print("CityULikeReader: loading URM")
 
-            # TODO LINK FROM WHERE I TOOK THE DATASET: https://github.com/js05212/citeulike-a
-            # url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b/view?usp=sharing"
-            output = "DatasetPublic/cityulike-a-master.zip"
+            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b&export=download&confirm=no_antivirus"
+            output = "DatasetPublic/CityULike/cityulike-a-master.zip"
 
-            # if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
-            #    os.makedirs("Data_manager_split_datasets")
+            if not os.path.exists("DatasetPublic/CityULike"):  ##avoid eventual crash if directory doesn't exist
+               os.makedirs("DatasetPublic/CityULike")
 
-            # if os.path.isfile(output) != True:
-            #    gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            if os.path.isfile(output) != True:
+               gd.download(url=url, output=output, quiet=False, fuzzy=True)
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
 
@@ -76,10 +75,9 @@ class CityULikeReader():
             """
 
             import zipfile
-            with zipfile.ZipFile("DatasetPublic/citeulike-a-master.zip", 'r') as zip_ref:
+            with zipfile.ZipFile("DatasetPublic/CityULike/citeulike-a-master.zip", 'r') as zip_ref:
                 zip_ref.extractall("DatasetPublic/CityULike")
 
-            # dataset = pd.read_csv('DatasetPublic/CityULike/citeulike-a-master/users.dat', sep='|', header=0, skipinitialspace=True)
             with open('DatasetPublic/CityULike/citeulike-a-master/users.dat', 'r') as input_file:
                 lines = input_file.readlines()
                 newLines = []
@@ -97,20 +95,11 @@ class CityULikeReader():
             matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
             eng.cd(matlab_script_directory)
             eng.split_dataset_original(nargout=0)
-            # URM_train = sparse.coo_matrix((datas, (rows, cols)), shape=(n_users, n_items))
-
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not
             # binarize the data (only keep ratings >= 4)
 
-            dataset = pd.read_csv("DatasetPublic/CiteULike/users.dat", sep='\t')
 
-            dataset.columns = ['user_id', 'timestamp', 'long', 'lat', 'item_id']
-            del dataset["timestamp"]
-            del dataset["long"]
-            del dataset["lat"]
-
-            URM_all = preprocessing_interactions_pandas(dataset, 10)
 
             # Done get the sparse matrices in the correct dictionary with the correct name
             # Done ICM_DICT and UCM_DICT can be empty if no ICMs or UCMs are required -> it's this case

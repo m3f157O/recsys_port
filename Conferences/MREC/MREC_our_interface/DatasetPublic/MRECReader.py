@@ -1,17 +1,14 @@
 import numpy as np
 import scipy.sparse as sp
-import sklearn.model_selection as skl
 from pandas.api.types import CategoricalDtype
-
-
+import os
 import pandas as pd
 
-from Data_manager.split_functions.split_train_validation_random_holdout import \
-    split_train_in_two_percentage_global_sample
-
-import matlab.engine
 
 
+"""
+    Transform a dataset into a coo matrix
+"""
 def pandas_df_to_coo(dataset):
     users = dataset["user_id"].unique()
     movies = dataset["item_id"].unique()
@@ -21,13 +18,15 @@ def pandas_df_to_coo(dataset):
     movie_cat = CategoricalDtype(categories=sorted(movies), ordered=True)
     user_index = dataset["user_id"].astype(user_cat).cat.codes
     movie_index = dataset["item_id"].astype(movie_cat).cat.codes
-    data_len=len(dataset["user_id"])
-    data=dataset.to_numpy()[:, 2]
+    data = dataset.to_numpy()[:, 2]
 
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
 
-def preprocessing_interactions_pandas(dataset, interactions, file,n_users,n_items):
+"""
+    Read the dataset and splt it into URM train and URM test
+"""
+def preprocessing_interactions_pandas(dataset, interactions):
 
     # filtering users and items with less than 10 interactions
     while(True):
@@ -59,22 +58,6 @@ def preprocessing_interactions_pandas(dataset, interactions, file,n_users,n_item
     eng.cd(matlab_script_directory)
     eng.prova(nargout=0)
 
-    ##with open('./Conferences/MREC/MREC_our_interface/train.txt', 'r') as input_file:
-    ##    lines = input_file.readlines()
-    ##    newLines = []
-    ##    for line in lines:
-    ##        newLine = line.strip(' ').split()
-    ##        newLines.append(newLine)
-    ##URM_train = preprocessing_interactions_lists(newLines)
-
-    #àwith open('./Conferences/MREC/MREC_our_interface/test.txt', 'r') as input_file:
-    ##    lines = input_file.readlines()
-    ##    newLines = []
-    ##        for line in lines:
-    ##        newLine = line.strip(' ').split()
-    ##        newLines.append(newLine)
-
-    #URM_test = preprocessing_interactions_lists(newLines)
     dataset_train = pd.read_csv("./Conferences/MREC/MREC_our_interface/train.txt", sep=' ',engine='python')
     dataset_train.columns = ['user_id', 'item_id', 'rating']
 
@@ -83,33 +66,31 @@ def preprocessing_interactions_pandas(dataset, interactions, file,n_users,n_item
     row=dataset_train.to_numpy()[:,0]
     col=dataset_train.to_numpy()[:,1]
     data=dataset_train.to_numpy()[:, 2]
-    print(max(row))
-    print(max(col))
 
     URM_train=sp.coo_matrix((data,(row,col)),shape=(max(row)+1, max(col)+1))
 
 
     dataset_test = pd.read_csv("./Conferences/MREC/MREC_our_interface/test.txt", sep=' ',engine='python')
     dataset_test.columns = ['user_id', 'item_id', 'rating']
-    print(len(np.unique(dataset_train.to_numpy()[:,1])))
 
 
     row=dataset_test.to_numpy()[:,0]
-    col=dataset_test.to_numpy()[:,1]
-    data=dataset_test.to_numpy()[:, 2]
-    print(max(row))
-    print(max(col))
+    col = dataset_test.to_numpy()[:,1]
+    data = dataset_test.to_numpy()[:, 2]
 
-    URM_test=sp.coo_matrix((data,(row,col)),shape=(max(row)+1,max(col)+1))
+
+    URM_test = sp.coo_matrix((data,(row,col)),shape=(max(row)+1,max(col)+1))
 
     return URM_train, URM_test
 
-def URMtoPandasCsv(path,URM):
+"""
+    Write an URM into a file with the generic scores
+"""
+def URMtoPandasCsv(path, URM):
     column = (URM.col).copy()
     row = (URM.row).copy()
     data = (URM.data).copy()
     number_users = np.unique(row)
-    number_items = np.unique(column)
     file = open(path , "w")
 
     for i in range(len(number_users)):
@@ -123,11 +104,13 @@ def URMtoPandasCsv(path,URM):
             file.write(str(i + 1) + "\t" + str(items[j]) + "\t" + "1.0")
 
 
-def URMtoPandasCsvWithScores(path,URM):
+"""
+    Write an URM into a file with the specific scores
+"""
+def URMtoPandasCsvWithScores(path, URM):
     column = (URM.col).copy()
     row = (URM.row).copy()
     number_users = np.unique(row)
-    number_items = np.unique(column)
     file = open(path , "w")
     data = (URM.data).copy()
 
@@ -143,6 +126,10 @@ def URMtoPandasCsvWithScores(path,URM):
             # only users and items matters because the preprocessing is already done in the reader
             file.write(str(i+1) + "\t" + str(items[j]) + "\t" + str(int(datas[j]))+"\n")
 
+
+"""
+    Transform an adjency list into a coo matrix
+"""
 def preprocessing_interactions_lists(lists):
     cols = np.array([])
     rows = np.array([])
