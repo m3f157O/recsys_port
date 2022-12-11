@@ -144,7 +144,7 @@ def read_data_split_and_search(dataset_name,
                 'l2_reg': 0.,
                 'aux_reg': 0.01,
 
-                'n_epochs': 1000,
+                'n_epochs': 1,
                 'batch_size': 2048,
                 'dataloader_num_workers': 6,
 
@@ -200,13 +200,11 @@ def read_data_split_and_search(dataset_name,
 
             # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
             # You may use this for a simpler testing
-            recommender_instance = IGCN_CF_RecommenderWrapper(URM_train)
 
             ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
 
 
 
-            recommender_instance.fit(article_hyperparameters,**earlystopping_hyperparameters)
             #
             # recommender_instance.fit(**article_hyperparameters,
             #                          **earlystopping_hyperparameters)
@@ -223,7 +221,7 @@ def read_data_split_and_search(dataset_name,
             # and the hyperparameters required by the earlystopping are provided separately.
             recommender_input_args = SearchInputRecommenderArgs(
                 CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
-                FIT_KEYWORD_ARGS={},
+                FIT_KEYWORD_ARGS={"article_hyperparameters":article_hyperparameters},
                 EARLYSTOPPING_KEYWORD_ARGS=earlystopping_hyperparameters)
 
             # Create the attributes needed to fit the last model on the union of training and validation data
@@ -362,7 +360,7 @@ if __name__ == '__main__':
     KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
     # Done: Replace with dataset names
-    dataset_list = ["amazon-book","amazon-book","yelp2018",]
+    dataset_list = ["gowalla","amazon-book","yelp2018",]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,

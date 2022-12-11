@@ -327,7 +327,7 @@ class IGCN_CF_RecommenderWrapper(BaseMatrixFactorizationRecommender, Incremental
 
         self._update_best_model()
         print("[!][!][!] STARTING TRAINING WITH EARLY STOPPING [!][!][!]")
-        self._train_with_early_stopping(epochs,
+        self._train_with_early_stopping(1,
                                         algorithm_name=self.RECOMMENDER_NAME,
                                         **earlystopping_kwargs)
 
