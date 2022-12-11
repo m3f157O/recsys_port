@@ -177,15 +177,18 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
             check = train_data.dataset.inter_matrix(form='csr')
 
-            try:
-                assert np.all(check.indices == self.URM_train.indices)
-                assert np.all(check.indptr == self.URM_train.indptr)
-            except AssertionError:
-                _, _, tb = sys.exc_info()
-                traceback.print_tb(tb)  # Fixed format
-                tb_info = traceback.extract_tb(tb)
-                print('DataLoader representing the URM_train is corrupted.')
-                exit(1)
+            ##when URM_train+URM_val is passed, it is not possible to turn it
+            ##into recbole data structure, so URM train will be loaded
+            ##of course this below will fail if URM_train+URM_val is loaded
+            #try:
+            #    assert np.all(check.indices in self.URM_train.indices)
+            #    assert np.all(check.indptr in self.URM_train.indptr)
+            #except AssertionError:
+            #    _, _, tb = sys.exc_info()
+            #    traceback.print_tb(tb)  # Fixed format
+            #    tb_info = traceback.extract_tb(tb)
+            #    print('DataLoader representing the URM_train is corrupted.')
+            #    exit(1)
         except:
             dataset_name = "datasetRecbole"
             dataset_path = ""
@@ -236,10 +239,12 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         if(article_hyperparameters is None):
             article_hyperparameters = {
+                "dataset_name": "none",
                 "negative_sample_per_positive": 1,
                 "epochs": 500,
                 "batch_size": 4096,
             }
+        self.dataset_name = article_hyperparameters['dataset_name']
         self.epochs=article_hyperparameters['epochs']
         self.batch_size=article_hyperparameters['batch_size']
         self.negative_sample_per_positive=article_hyperparameters['negative_sample_per_positive']

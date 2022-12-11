@@ -109,6 +109,7 @@ def read_data_split_and_search(dataset_name,
             article_hyperparameters = {
                 # modified
                 #added
+                "dataset_name":dataset_name,
                 "number_of_layers_K": [2, 3],
                 "learning_rate": [1e-5, 1e-3],
                 "pruning_threshold_beta":[0.02, 0.04, 0.1],
@@ -155,10 +156,8 @@ def read_data_split_and_search(dataset_name,
             from file is the only solution remaining. Of course dataset_name will be saved
             as a model attribute 
             """
-            recommender_instance.dataset_name=dataset_name
 
-            recommender_instance.fit(article_hyperparameters,
-                                      **earlystopping_hyperparameters)
+
             #
             # evaluator_test.evaluateRecommender(recommender_instance)
 
@@ -172,7 +171,7 @@ def read_data_split_and_search(dataset_name,
             # and the hyperparameters required by the earlystopping are provided separately.
             recommender_input_args = SearchInputRecommenderArgs(
                 CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
-                FIT_KEYWORD_ARGS={},
+                FIT_KEYWORD_ARGS={"article_hyperparameters":article_hyperparameters},
                 EARLYSTOPPING_KEYWORD_ARGS=earlystopping_hyperparameters)
 
             # Create the attributes needed to fit the last model on the union of training and validation data
