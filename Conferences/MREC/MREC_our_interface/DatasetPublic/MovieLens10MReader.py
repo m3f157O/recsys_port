@@ -83,7 +83,9 @@ class MovieLens10MReader():
 
             del dataset["timestamp"]
 
-            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, "Conferences/MREC/MREC_github/test/dataset/")
+            URM_train, URM_test = preprocessing_interactions_pandas(dataset, 10, )
+
+
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
             # we checked if the preprocessing is correct or not

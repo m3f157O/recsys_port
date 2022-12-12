@@ -59,10 +59,10 @@ class CityULikeReader():
             print("CityULikeReader: loading URM")
 
             url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b&export=download&confirm=no_antivirus"
-            output = "DatasetPublic/CityULike/cityulike-a-master.zip"
+            output = "Data_manager_split_datasets/CityULike/cityulike-a-master.zip"
 
-            if not os.path.exists("DatasetPublic/CityULike"):  ##avoid eventual crash if directory doesn't exist
-               os.makedirs("DatasetPublic/CityULike")
+            if not os.path.exists("Data_manager_split_datasets/CityULike"):  ##avoid eventual crash if directory doesn't exist
+               os.makedirs("Data_manager_split_datasets/CityULike")
 
             if os.path.isfile(output) != True:
                gd.download(url=url, output=output, quiet=False, fuzzy=True)
@@ -75,10 +75,10 @@ class CityULikeReader():
             """
 
             import zipfile
-            with zipfile.ZipFile("DatasetPublic/CityULike/citeulike-a-master.zip", 'r') as zip_ref:
-                zip_ref.extractall("DatasetPublic/CityULike")
+            with zipfile.ZipFile("Data_manager_split_datasets/CityULike/citeulike-a-master.zip", 'r') as zip_ref:
+                zip_ref.extractall("Data_manager_split_datasets/CityULike")
 
-            with open('DatasetPublic/CityULike/citeulike-a-master/users.dat', 'r') as input_file:
+            with open('Data_manager_split_datasets/CityULike/citeulike-a-master/users.dat', 'r') as input_file:
                 lines = input_file.readlines()
                 newLines = []
                 for line in lines:

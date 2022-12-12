@@ -31,7 +31,6 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
 
     DEFAULT_GSL_LIB_FOLDER = '/usr/lib/x86_64-linux-gnu/'
 
-    #todo take the dataset lists
 
     def __init__(self, URM_train):
         super(MREC_RecommenderWrapper, self).__init__(URM_train)
