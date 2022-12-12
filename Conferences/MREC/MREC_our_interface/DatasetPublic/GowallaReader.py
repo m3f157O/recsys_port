@@ -58,7 +58,7 @@ class GowallaReader():
             if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
                 os.makedirs("Data_manager_split_datasets")
 
-            filename = "DatasetPublic/Gowalla_totalCheckins.zip"
+            filename = "Data_manager_split_datasets/Gowalla_totalCheckins.zip"
 
             url = "https://drive.google.com/u/0/uc?id=1-0Yt5TAC9QM4fCXv7FDY_f2rwC_0AW_F&export=download&confirm=no_antivirus"
 
@@ -72,8 +72,8 @@ class GowallaReader():
             print('Downloading Completed')
 
             import zipfile
-            with zipfile.ZipFile("DatasetPublic/Gowalla_totalCheckins.zip", 'r') as zip_ref:
-                zip_ref.extractall("DatasetPublic/Gowalla")
+            with zipfile.ZipFile("Data_manager_split_datasets/Gowalla_totalCheckins.zip", 'r') as zip_ref:
+                zip_ref.extractall("Data_manager_split_datasets/Gowalla")
 
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
@@ -86,7 +86,7 @@ class GowallaReader():
 
 
 
-            dataset = pd.read_csv("DatasetPublic/Gowalla/Gowalla_totalCheckins.txt", sep='\t')
+            dataset = pd.read_csv("Data_manager_split_datasets/Gowalla/Gowalla_totalCheckins.txt", sep='\t')
 
             dataset.columns = ['user_id', 'timestamp', 'long', 'lat','item_id']
             del dataset["timestamp"]

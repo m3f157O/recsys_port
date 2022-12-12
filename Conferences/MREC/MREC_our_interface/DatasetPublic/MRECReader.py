@@ -101,7 +101,7 @@ def URMtoPandasCsv(path, URM):
         data = data[count:]
         for j in range(len(items)):
             # only users and items matters because the preprocessing is already done in the reader
-            file.write(str(i + 1) + "\t" + str(items[j]) + "\t" + "1.0")
+            file.write(str(i + 1) + "\t" + str(items[j]) + "\t" + "1.0\n")
 
 
 """

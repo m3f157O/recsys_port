@@ -27,7 +27,6 @@ class MovieLens10MReader():
         if not os.path.exists(pre_splitted_path):  ##avoid eventual crash if directory doesn't exist
             os.makedirs(pre_splitted_path)
 
-        #TODO fix
         pre_splitted_filename = 'movielens_MREC.zip'
 
         try:

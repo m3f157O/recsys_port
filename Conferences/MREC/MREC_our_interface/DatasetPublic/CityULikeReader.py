@@ -85,7 +85,7 @@ class CityULikeReader():
             with zipfile.ZipFile(filename, 'r') as zip_ref:
                 zip_ref.extractall("Data_manager_split_datasets/CiteULike")
 
-            with open('Data_manager_split_datasets/CityULike/citeulike-a-master/users.dat', 'r') as input_file:
+            with open('Data_manager_split_datasets/CiteULike/citeulike-a-master/users.dat', 'r') as input_file:
                 lines = input_file.readlines()
                 newLines = []
                 for line in lines:
@@ -94,8 +94,11 @@ class CityULikeReader():
 
             URM_all = preprocessing_interactions_lists(newLines)
 
-            URMtoPandasCsv("Data_manager_split_datasets/CityULike/citeulike-a-master/users-items.csv", URM_all)
-            dataset = pd.read_csv("Data_manager_split_datasets/CityULike/citeulike-a-master/users-items.csv", sep="\t")
+            URMtoPandasCsv("Data_manager_split_datasets/CiteULike/users-items.csv", URM_all)
+            dataset = pd.read_csv("Data_manager_split_datasets/CiteULike/users-items.csv", sep="\t")
+
+            dataset.columns = ['user_id', 'item_id', 'rating']
+
             URM_train, URM_test = preprocessing_interactions_pandas(dataset,10)
 
 
