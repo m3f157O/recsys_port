@@ -28,7 +28,7 @@ class MovieLens10MReader():
             os.makedirs(pre_splitted_path)
 
         #TODO fix
-        pre_splitted_filename = 'time.zip'
+        pre_splitted_filename = 'movielens_MREC.zip'
 
         try:
             print("MovieLens10MReader: Attempting to load pre-splitted data")

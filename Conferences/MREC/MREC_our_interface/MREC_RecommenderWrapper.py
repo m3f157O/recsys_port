@@ -36,6 +36,7 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         super(MREC_RecommenderWrapper, self).__init__(URM_train)
 
     def fit(self,
+            article_hyperparameters=None,
             batch_size = 128,
             para_lv=10,
             para_lu=1,
@@ -47,6 +48,15 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
 
 
 
+        if(article_hyperparameters is None):
+            article_hyperparameters={
+                'alpha': 30,
+                'K': 20,
+                'max_iter': 20,
+            }
+        alpha=article_hyperparameters['alpha']
+        K=article_hyperparameters['K']
+        max_iter=article_hyperparameters['max_iter']
 
 
 
@@ -67,7 +77,8 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
         eng.cd(matlab_script_directory)
 
-        eng.test_script(nargout=0)
+
+        eng.test_script(alpha,K,max_iter,nargout=0)
 
         # para_pretrain refers to a preexisting trained model. Setting it to False in order to pretrain from scratch
         load_previous_pretrained_model = False

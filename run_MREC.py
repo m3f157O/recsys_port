@@ -21,57 +21,52 @@ from Evaluation.Evaluator import EvaluatorHoldout, EvaluatorNegativeItemSample
 import scipy.sparse as sps
 
 
-def read_data_split_and_search(flag_baselines_tune=False,
-                               flag_DL_article_default=True, flag_DL_tune=False,
+def read_data_split_and_search(dataset_name,
+                               flag_baselines_tune=False,
+                               flag_DL_article_default=False, flag_DL_tune=False,
                                flag_print_results=False):
     # Using dataReader from CollaborativeVAE_our_interface as they use the same data in the same way
 
-    result_folder_path = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME, ALGORITHM_NAME,
-                                                                            dataset_variant, train_interactions)
-    result_folder_path_CollaborativeVAE = "result_experiments/{}/{}_citeulike_{}_{}/".format(CONFERENCE_NAME,
-                                                                                             "CollaborativeVAE",
-                                                                                             dataset_variant,
-                                                                                             train_interactions)
+    result_folder_path = "result_experiments/{}/{}_MREC_{}/".format(CONFERENCE_NAME, ALGORITHM_NAME,
+                                                                            dataset_name)
 
-    dataset = CityULikeReader("etmp/Data_manager_split_datasets")
+    if dataset_name == 'ml-10m':
+        dataset = MovieLens10MReader("Data_manager_split_datasets/")
+    else:
+        if dataset_name == 'cite-u-like':
+            dataset = CityULikeReader("Data_manager_split_datasets/")
+        else:
+            if dataset_name == 'gowalla':
+                dataset = GowallaReader("Data_manager_split_datasets/")
 
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
     URM_test = dataset.URM_DICT["URM_test"].copy()
-    cutoff_list = [5, 10, 20, 30, 40, 50, 100]
 
-    # Ensure IMPLICIT data
-    # assert_implicit_data([URM_train, URM_validation, URM_test])
+
+    #it will be made implicit by algorithm
+    #assert_implicit_data([URM_train, URM_validation, URM_test])
 
     # Due to the sparsity of the dataset, choosing an evaluation as subset of the train
-    # While keepning validation interaction in the train set
-    # if train_interactions == 1:
-    ### In this case the train data will contain validation data to avoid cold users
-    ##assert_disjoint_matrices([URM_train, URM_test])
-    ##assert_disjoint_matrices([URM_validation, URM_test])
-    ##exclude_seen_validation = False
+    #In this case the train data will contain validation data to avoid cold users
+    assert_disjoint_matrices([URM_train, URM_test])
+    #assert_disjoint_matrices([URM_validation, URM_test])
     URM_train_last_test = URM_train
-    #   else:
-    #   #   assert_disjoint_matrices([URM_train, URM_validation, URM_test])
-    #   #   exclude_seen_validation = True
-    #   #   URM_train_last_test = URM_train + URM_validation
 
-    #   assert_implicit_data([URM_train_last_test])
 
     metric_to_optimize = 'NDCG'
 
     cutoff_to_optimize = 10
-
+    cutoff_list=[10.20]
     # If directory does not exist, create
     if not os.path.exists(result_folder_path):
         os.makedirs(result_folder_path)
 
     URM_test = sps.csr_matrix(URM_test)
 
-    evaluator_validation = EvaluatorHoldout(URM_test, cutoff_list=[10], exclude_seen=True)
+    evaluator_validation = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list, exclude_seen=True)
 
-    # evaluator_validation = EvaluatorHoldout(URM_validation, cutoff_list=[150], exclude_seen = False)
-    evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=[10])
+    evaluator_test = EvaluatorHoldout(URM_test, cutoff_list=cutoff_list)
 
     ################################################################################################
     ######
@@ -84,13 +79,10 @@ def read_data_split_and_search(flag_baselines_tune=False,
 
         try:
 
-            collaborativeDL_article_hyperparameters = {
-                "para_lv": 10,
-                "para_lu": 1,
-                "para_ln": 1e3,
-                "batch_size": 128,
-                "epoch_sdae": 200,
-                "epoch_dae": 200,
+            article_hyperparameters = {
+                'alpha' : 30,
+                'K' : 20,
+                'max_iter' : 20,
             }
 
             parameterSearch = SearchSingleCase(MREC_RecommenderWrapper,
@@ -99,7 +91,7 @@ def read_data_split_and_search(flag_baselines_tune=False,
 
             recommender_input_args = SearchInputRecommenderArgs(
                 CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
-                FIT_KEYWORD_ARGS={})
+                FIT_KEYWORD_ARGS={'article_hyperparameters':article_hyperparameters})
 
             recommender_input_args_last_test = recommender_input_args.copy()
             recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
@@ -164,39 +156,26 @@ def read_data_split_and_search(flag_baselines_tune=False,
 if __name__ == '__main__':
 
     ALGORITHM_NAME = "MREC"
-    CONFERENCE_NAME = "Improving Implicit Alternating Least Squares with Ring-based Regularization"
+    CONFERENCE_NAME = " Improving Implicit Alternating Least Squares with Ring-based Regularization"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--baseline_tune', help="Baseline hyperparameter search", type=bool, default=False)
+    parser.add_argument('-b', '--baseline_tune', help="Baseline hyperparameter search", type=bool, default=True)
     parser.add_argument('-a', '--DL_article_default', help="Train the DL model with article hyperparameters", type=bool,
-                        default=False)
+                        default=True)
     parser.add_argument('-p', '--print_results', help="Print results", type=bool, default=True)
 
     input_flags = parser.parse_args()
     print(input_flags)
 
-    KNN_similarity_to_report_list = ["cosine", "dice", "jaccard", "asymmetric", "tversky"]
+    # Reporting only the cosine similarity is enough
+    KNN_similarity_to_report_list = ["cosine"]  # , "dice", "jaccard", "asymmetric", "tversky"]
 
-    dataset_variant_list = ["a", "t"]
-    train_interactions_list = [1, 10]
+    # Done: Replace with dataset names
+    dataset_list = ["ml-10m", "cite-u-like", "gowalla", ]
 
-    for dataset_variant in dataset_variant_list:
-
-        for train_interactions in train_interactions_list:
-            read_data_split_and_search(flag_baselines_tune=input_flags.baseline_tune,
-                                       flag_DL_article_default=True,
-                                       flag_print_results=input_flags.print_results,
-                                       )
-
-    if input_flags.print_results:
-        generate_latex_hyperparameters(result_folder_path="result_experiments/{}/".format(CONFERENCE_NAME),
-                                       algorithm_name=ALGORITHM_NAME,
-                                       experiment_subfolder_list=[
-                                           "citeulike_{}_{}".format(dataset_variant, train_interactions) for
-                                           dataset_variant in dataset_variant_list for train_interactions in
-                                           train_interactions_list
-                                       ],
-                                       ICM_names_to_report_list=["ICM_tokens_TFIDF", "ICM_tokens_bool"],
-                                       KNN_similarity_to_report_list=KNN_similarity_to_report_list,
-                                       other_algorithm_list=[MREC_RecommenderWrapper],
-                                       split_per_algorithm_type=True)
+    for dataset_name in dataset_list:
+        read_data_split_and_search(dataset_name,
+                                   flag_baselines_tune=input_flags.baseline_tune,
+                                   flag_DL_article_default=True,
+                                   flag_print_results=input_flags.print_results,
+                                   )

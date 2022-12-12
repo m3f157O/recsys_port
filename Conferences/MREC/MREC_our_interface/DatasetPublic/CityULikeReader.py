@@ -38,8 +38,7 @@ class CityULikeReader():
         if not os.path.exists(pre_splitted_path):  ##avoid eventual crash if directory doesn't exist
             os.makedirs(pre_splitted_path)
 
-        # TODO fix
-        pre_splitted_filename = 'time.zip'
+        pre_splitted_filename = 'city_u_like_MREC.zip'
 
         try:
             print("CityULikeReader: Attempting to load pre-splitted data")
@@ -87,9 +86,9 @@ class CityULikeReader():
 
             URM_all = preprocessing_interactions_lists(newLines)
 
-            URMtoPandasCsv("DatasetPublic/CityULike/citeulike-a-master/users-items.csv", URM_all)
-            dataset = pd.read_csv("DatasetPublic/CityULike/citeulike-a-master/users-items.csv", sep="\t")
-            URM_train, URM_test = preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/")
+            URMtoPandasCsv("Data_manager_split_datasets/CityULike/citeulike-a-master/users-items.csv", URM_all)
+            dataset = pd.read_csv("Data_manager_split_datasets/CityULike/citeulike-a-master/users-items.csv", sep="\t")
+            URM_train, URM_test = preprocessing_interactions_pandas(dataset,10)
 
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)

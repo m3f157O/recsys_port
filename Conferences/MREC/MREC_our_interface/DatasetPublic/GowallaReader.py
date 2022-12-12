@@ -34,7 +34,7 @@ class GowallaReader():
             os.makedirs(pre_splitted_path)
 
         # TODO fix
-        pre_splitted_filename = 'time.zip'
+        pre_splitted_filename = 'gowalla_MREC.zip'
 
         try:
             raise FileNotFoundError
@@ -93,7 +93,7 @@ class GowallaReader():
             del dataset["long"]
             del dataset["lat"]
 
-            URM_train, URM_test= preprocessing_interactions_pandas(dataset,10,"Conferences/MREC/MREC_github/test/dataset/")
+            URM_train, URM_test= preprocessing_interactions_pandas(dataset,10)
 
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)
