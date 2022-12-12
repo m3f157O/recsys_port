@@ -42,6 +42,7 @@ def read_data_split_and_search(dataset_name,
     URM_train = dataset.URM_DICT["URM_train"].copy()
     URM_validation = dataset.URM_DICT["URM_validation"].copy()
     URM_test = dataset.URM_DICT["URM_test"].copy()
+    cutoff_list = [10, 20]
 
 
     #it will be made implicit by algorithm
@@ -57,7 +58,7 @@ def read_data_split_and_search(dataset_name,
     metric_to_optimize = 'NDCG'
 
     cutoff_to_optimize = 10
-    cutoff_list=[10.20]
+
     # If directory does not exist, create
     if not os.path.exists(result_folder_path):
         os.makedirs(result_folder_path)
