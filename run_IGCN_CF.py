@@ -134,6 +134,7 @@ def read_data_split_and_search(dataset_name,
             """
             # Done fill this dictionary with the hyperparameters of the algorithm
             article_hyperparameters = {
+                ##The name and t_name are attributes to access the classes, they can be put to a default if needed
                 'name': 'IGCN',
                 'embedding_size': 64,
                 'n_layers': 3,
@@ -198,34 +199,19 @@ def read_data_split_and_search(dataset_name,
 
 
 
-            # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
-            # You may use this for a simpler testing
 
-            ##DECOMMENT IF YOU WANT TO SAVE CONFIGS TO DataIO
-
-
-
-            #
-            # recommender_instance.fit(**article_hyperparameters,
-            #                          **earlystopping_hyperparameters)
-            #
-            # evaluator_test.evaluateRecommender(recommender_instance)
-
-            # Fit the DL model, select the optimal number of epochs and save the result
             hyperparameterSearch = SearchSingleCase(IGCN_CF_RecommenderWrapper,
                                                     evaluator_validation=evaluator_validation_earlystopping,
                                                     evaluator_test=evaluator_test)
 
-            # Specify which attributes are needed. In this case the constructor only required the URM train,
-            # no additional fit arguments are required (besides those that are listed previously in the hyperparameters dictionary)
-            # and the hyperparameters required by the earlystopping are provided separately.
+
             recommender_input_args = SearchInputRecommenderArgs(
                 CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
                 FIT_KEYWORD_ARGS={"article_hyperparameters":article_hyperparameters},
                 EARLYSTOPPING_KEYWORD_ARGS=earlystopping_hyperparameters)
 
-            # Create the attributes needed to fit the last model on the union of training and validation data
-            # This model will be fit with the optimal hyperparameters found and then will be evaluated on the test data
+
+
             recommender_input_args_last_test = recommender_input_args.copy()
             recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
 
