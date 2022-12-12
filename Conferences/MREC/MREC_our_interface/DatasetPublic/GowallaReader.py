@@ -93,7 +93,7 @@ class GowallaReader():
             del dataset["long"]
             del dataset["lat"]
 
-            URM_train, URM_test= preprocessing_interactions_pandas(dataset,10)
+            URM_train, URM_test= preprocessing_interactions_pandas(dataset,15,scores=False)
 
 
             # Done Apply data preprocessing if required (for example binarizing the data, removing users ...)

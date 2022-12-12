@@ -22,6 +22,25 @@ try:
 except ImportError:
     print("MREC_RecommenderWrapper: Unable to import Matlab engine. Fitting of a new model will not be possible")
 
+import numpy as np
+def URMtoPandasCsvWithScores(path, URM):
+    column = (URM.col).copy()
+    row = (URM.row).copy()
+    number_users = np.unique(row)
+    file = open(path , "w")
+    data = (URM.data).copy()
+
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        datas = data[:count]
+
+        items = items_to_add
+        column = column[count:]
+        data = data[count:]
+        for j in range(len(items)):
+            # only users and items matters because the preprocessing is already done in the reader
+            file.write(str(i) + " " + str(items[j]) + " " + str(int(datas[j]))+"\n")
 
 
 class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder):
@@ -73,6 +92,9 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
 
         print("MREC_RecommenderWrapper: Calling matlab.engine ... ")
 
+
+        #self.URM_train= sps.coo_matrix(self.URM_train)
+        # should be here but too slow for local testing URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/train.txt",self.URM_train)
         eng = matlab.engine.start_matlab()
         matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
         eng.cd(matlab_script_directory)

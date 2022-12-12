@@ -9,7 +9,7 @@ import pandas as pd
 """
     Transform a dataset into a coo matrix
 """
-def pandas_df_to_coo(dataset):
+def pandas_df_to_coo(dataset,scores=True):
     users = dataset["user_id"].unique()
     movies = dataset["item_id"].unique()
     shape = (len(users), len(movies))
@@ -18,7 +18,11 @@ def pandas_df_to_coo(dataset):
     movie_cat = CategoricalDtype(categories=sorted(movies), ordered=True)
     user_index = dataset["user_id"].astype(user_cat).cat.codes
     movie_index = dataset["item_id"].astype(movie_cat).cat.codes
-    data = dataset.to_numpy()[:, 2]
+    if scores:
+        data = dataset.to_numpy()[:, 2]
+    else:
+        data_len = len(dataset["user_id"])
+        data = np.ones(data_len)  #
 
     return sp.coo_matrix((data, (user_index, movie_index)), shape=shape)
 
@@ -26,10 +30,12 @@ def pandas_df_to_coo(dataset):
 """
     Read the dataset and splt it into URM train and URM test
 """
-def preprocessing_interactions_pandas(dataset, interactions):
+def preprocessing_interactions_pandas(dataset, interactions,scores=True):
 
+    count =0
     # filtering users and items with less than 10 interactions
     while(True):
+
         n_users = len(dataset.groupby(["user_id"]).size())
         n_items = len(dataset.groupby(["item_id"]).size())
 
@@ -48,7 +54,7 @@ def preprocessing_interactions_pandas(dataset, interactions):
             break
 
 
-    dataset = pandas_df_to_coo(dataset)
+    dataset = pandas_df_to_coo(dataset,scores=scores)
     URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/dataset.txt", dataset)
 
     import matlab.engine
@@ -67,7 +73,7 @@ def preprocessing_interactions_pandas(dataset, interactions):
     col=dataset_train.to_numpy()[:,1]
     data=dataset_train.to_numpy()[:, 2]
 
-    URM_train=sp.coo_matrix((data,(row,col)),shape=(max(row)+1, max(col)+1))
+    URM_train=sp.coo_matrix((data,(row,col)),shape=(int(max(row))+1, int(max(col))+1))
 
 
     dataset_test = pd.read_csv("./Conferences/MREC/MREC_our_interface/test.txt", sep=' ',engine='python')
@@ -79,7 +85,7 @@ def preprocessing_interactions_pandas(dataset, interactions):
     data = dataset_test.to_numpy()[:, 2]
 
 
-    URM_test = sp.coo_matrix((data,(row,col)),shape=(max(row)+1,max(col)+1))
+    URM_test = sp.coo_matrix((data,(row,col)),shape=(int(max(row))+1, int(max(col))+1))
 
     return URM_train, URM_test
 
@@ -124,7 +130,7 @@ def URMtoPandasCsvWithScores(path, URM):
         data = data[count:]
         for j in range(len(items)):
             # only users and items matters because the preprocessing is already done in the reader
-            file.write(str(i+1) + "\t" + str(items[j]) + "\t" + str(int(datas[j]))+"\n")
+            file.write(str(i) + "\t" + str(items[j]) + "\t" + str(int(datas[j]))+"\n")
 
 
 """

@@ -3,6 +3,7 @@ function test_script(alpha,K,max_iter)
 train = +(train>0); % convert count into binary, since it is observed that this could lead to higher recommendation performance compared to using count
 test = +(test>0); % also convert count into binary
 
+size(train)
 alpha = cast(alpha,"double")
 K = cast(K,"double")
 max_iter = cast(max_iter,"double")

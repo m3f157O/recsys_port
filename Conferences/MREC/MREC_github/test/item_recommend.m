@@ -6,7 +6,7 @@ elseif cutoff<=0
     if topk>0
         cutoff = topk;
     else
-        cutoff = 200;
+        cutoff = 10;
     end
 end
 option = '';

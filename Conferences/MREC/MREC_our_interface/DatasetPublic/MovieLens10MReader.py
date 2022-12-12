@@ -11,6 +11,25 @@ import gdown as gd
 from Recommenders.DataIO import DataIO
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
 import pandas as pd
+import numpy as np
+def URMtoPandasCsvWithScores(path, URM):
+    column = (URM.col).copy()
+    row = (URM.row).copy()
+    number_users = np.unique(row)
+    file = open(path , "w")
+    data = (URM.data).copy()
+
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        datas = data[:count]
+
+        items = items_to_add
+        column = column[count:]
+        data = data[count:]
+        for j in range(len(items)):
+            # only users and items matters because the preprocessing is already done in the reader
+            file.write(str(i) + " " + str(items[j]) + " " + str(int(datas[j]))+"\n")
 class MovieLens10MReader():
     URM_DICT = {}
     ICM_DICT = {}
@@ -30,6 +49,7 @@ class MovieLens10MReader():
         pre_splitted_filename = 'movielens_MREC.zip'
 
         try:
+            raise FileNotFoundError
             print("MovieLens10MReader: Attempting to load pre-splitted data")
             ##attrib name is file name
             ##attrib object is panda object

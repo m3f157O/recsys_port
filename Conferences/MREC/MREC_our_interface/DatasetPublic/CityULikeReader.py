@@ -15,7 +15,25 @@ from Data_manager.Movielens.Movielens10MReader import *
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_lists
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import preprocessing_interactions_pandas
 from Conferences.MREC.MREC_our_interface.DatasetPublic.MRECReader import URMtoPandasCsv
+import numpy as np
+def URMtoPandasCsvWithScores(path, URM):
+    column = (URM.col).copy()
+    row = (URM.row).copy()
+    number_users = np.unique(row)
+    file = open(path , "w")
+    data = (URM.data).copy()
 
+    for i in range(len(number_users)):
+        count = np.count_nonzero(row == i)
+        items_to_add = column[:count]
+        datas = data[:count]
+
+        items = items_to_add
+        column = column[count:]
+        data = data[count:]
+        for j in range(len(items)):
+            # only users and items matters because the preprocessing is already done in the reader
+            file.write(str(i) + " " + str(items[j]) + " " + str(int(datas[j]))+"\n")
 
 
 class CityULikeReader():
@@ -41,6 +59,7 @@ class CityULikeReader():
         pre_splitted_filename = 'city_u_like_MREC.zip'
 
         try:
+            raise FileNotFoundError
             print("CityULikeReader: Attempting to load pre-splitted data")
             ##attrib name is file name
             ##attrib object is panda object
@@ -48,6 +67,8 @@ class CityULikeReader():
             # all files should become like ./Gowalla/time.zip
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
                 self.__setattr__(attrib_name, attrib_object)
+            URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/train.txt",self.URM_DICT["URM_train"])
+            URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/test.txt",self.URM_DICT["URM_test"])
 
 
         except FileNotFoundError:

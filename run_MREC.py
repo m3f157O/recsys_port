@@ -51,7 +51,7 @@ def read_data_split_and_search(dataset_name,
     # Due to the sparsity of the dataset, choosing an evaluation as subset of the train
     #In this case the train data will contain validation data to avoid cold users
     assert_disjoint_matrices([URM_train, URM_test])
-    #assert_disjoint_matrices([URM_validation, URM_test])
+#    assert_disjoint_matrices([URM_validation, URM_test])
     URM_train_last_test = URM_train
 
 
