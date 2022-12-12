@@ -144,9 +144,9 @@ def preprocessing_interactions_lists(lists):
         datas = np.append(datas, data)  # concatenate to all
         rows = np.append(rows, row)
         cols = np.append(cols, col)
-    n_row = len(rows)+1
-    n_col = len(np.unique(cols))+1
-    return sp.coo_matrix((datas, (rows, cols)), shape=(n_row, n_col))
+
+
+    return sp.coo_matrix((datas, (rows, cols)), shape=(len(lists), len(np.unique(cols))))
 
 
 

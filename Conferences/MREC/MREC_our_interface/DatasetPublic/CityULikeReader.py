@@ -42,7 +42,6 @@ class CityULikeReader():
 
         try:
             print("CityULikeReader: Attempting to load pre-splitted data")
-            raise FileNotFoundError
             ##attrib name is file name
             ##attrib object is panda object
 
@@ -57,14 +56,23 @@ class CityULikeReader():
 
             print("CityULikeReader: loading URM")
 
-            url = "https://drive.google.com/file/d/1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b&export=download&confirm=no_antivirus"
-            output = "Data_manager_split_datasets/CityULike/cityulike-a-master.zip"
 
-            if not os.path.exists("Data_manager_split_datasets/CityULike"):  ##avoid eventual crash if directory doesn't exist
-               os.makedirs("Data_manager_split_datasets/CityULike")
 
-            if os.path.isfile(output) != True:
-               gd.download(url=url, output=output, quiet=False, fuzzy=True)
+            if not os.path.exists("Data_manager_split_datasets"):  ##avoid eventual crash if directory doesn't exist
+                os.makedirs("Data_manager_split_datasets")
+
+            filename = "Data_manager_split_datasets/citeulike_MREC.zip"
+
+            url = "https://codeload.github.com/js05212/citeulike-a/zip/refs/heads/master"
+
+            import requests
+            req = requests.get(url)
+
+
+            # Writing the file to the local file system
+            with open(filename, 'wb') as output_file:
+                output_file.write(req.content)
+            print('Downloading Completed')
             """"
             THIS STEP IS NEEDED TO CORRECTLY CREATE THE OBJECT TO CALL get_dataset IN dataset.py
 
@@ -74,8 +82,8 @@ class CityULikeReader():
             """
 
             import zipfile
-            with zipfile.ZipFile("Data_manager_split_datasets/CityULike/citeulike-a-master.zip", 'r') as zip_ref:
-                zip_ref.extractall("Data_manager_split_datasets/CityULike")
+            with zipfile.ZipFile(filename, 'r') as zip_ref:
+                zip_ref.extractall("Data_manager_split_datasets/CiteULike")
 
             with open('Data_manager_split_datasets/CityULike/citeulike-a-master/users.dat', 'r') as input_file:
                 lines = input_file.readlines()
