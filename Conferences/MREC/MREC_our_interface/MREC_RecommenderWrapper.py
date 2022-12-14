@@ -40,7 +40,7 @@ def URMtoPandasCsvWithScores(path, URM):
         data = data[count:]
         for j in range(len(items)):
             # only users and items matters because the preprocessing is already done in the reader
-            file.write(str(i) + " " + str(items[j]) + " " + str(int(datas[j]))+"\n")
+            file.write(str(i) + "\t" + str(items[j]) + "\t" + str(int(datas[j]))+"\n")
 
 
 class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder):
@@ -93,14 +93,30 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         print("MREC_RecommenderWrapper: Calling matlab.engine ... ")
 
 
-        #self.URM_train= sps.coo_matrix(self.URM_train)
-        # should be here but too slow for local testing URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/train.txt",self.URM_train)
+        self.URM_train= sps.coo_matrix(self.URM_train)
+
+        ##We should re convert the URM in the data structure needed, but sometimes there's a bug, reindexing by 1 both the whole
+        ## user or item columns. It is still not solid so it will not be included in the final project (its a missing requirement)
+        ## its difficult because the matlab parsing function starts from zero index for users, zero for items,
+        # while the splitting matlab function starts from one, zero for items, this causes problem if the matrix is loaded
+        # directly in coo format, and not converted from csv to coo like in preprocessing_interaction_pandas
+        ## we have been forced to use it and not write a custom one because the authors didn't give the information
+        ## on which split setup they were going to use.
+        #URMtoPandasCsvWithScores("./Conferences/MREC/MREC_our_interface/train.txt",self.URM_train)
+
+
+        ##another way could be just doing a "mock" split, in which the train data gets split with 1,0,0 split into train data again,
+        ##but with the small change of indexes needed by the matlab functions
+        #eng = matlab.engine.start_matlab()
+        #matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_our_interface/"
+        #eng.cd(matlab_script_directory)
+        #eng.mock_split(nargout=0)
+
+
+        # can't convert the urm here
         eng = matlab.engine.start_matlab()
         matlab_script_directory = os.getcwd() + "/Conferences/MREC/MREC_github/test"
         eng.cd(matlab_script_directory)
-
-
-
         eng.test_script(alpha,K,max_iter,nargout=0)
 
         # para_pretrain refers to a preexisting trained model. Setting it to False in order to pretrain from scratch
@@ -117,13 +133,14 @@ class MREC_RecommenderWrapper(BaseMatrixFactorizationRecommender, BaseTempFolder
         print(self.USER_factors.shape)
         self.ITEM_factors = genfromtxt("Conferences/MREC/MREC_github/test/Q.txt", delimiter=',')
 
-        import numpy as np
 
 
         assert self.USER_factors.shape[0] == self.URM_train.shape[0]
         assert self.ITEM_factors.shape[0] == self.URM_train.shape[1]
-            #todo fix conflict, add 1 to all users and items id when rewriting urm
+
         assert self.USER_factors.shape[1] == self.ITEM_factors.shape[1]
+
+        self.URM_train= sps.csr_matrix(self.URM_train)
 
         print("MREC_RecommenderWrapper: Loading trained model from temp matlab files ... done!")
 
