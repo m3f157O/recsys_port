@@ -25,9 +25,9 @@ class Movielens1MReader(object):
 
         super(Movielens1MReader, self).__init__()
 
-        config=get_config_preproc('ml-1m')
-        config.dataset='ml-1m'
-        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m"
+        config=get_config_preproc('ml-1m-main')
+        config.dataset='ml-1m-main'
+        config.final_config_dict['data_path']="Conferences/RGCF/RGCF_github/dataset/ml-1m-main"
         init_seed(config['seed'], config['reproducibility'])
 
         #pre_splitted_path += "data_split/"
@@ -42,6 +42,7 @@ class Movielens1MReader(object):
 
 
         try:
+            raise FileNotFoundError
             print("Movielens20MReader: Attempting to load pre-splitted data")
 
             for attrib_name, attrib_object in dataIO.load_data(pre_splitted_filename).items():
@@ -95,7 +96,7 @@ class Movielens1MReader(object):
             The ideal solution would have been passing in to the Wrapper explicitly, but the DataLoader object
             is not compatible with DataIO
             """
-            train_data, valid_data, test_data = data_preparation(config, dataset,True)
+            train_data, valid_data, test_data = data_preparation(config, dataset, True)
 
 
 
