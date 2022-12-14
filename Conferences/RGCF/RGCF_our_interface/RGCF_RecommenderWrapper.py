@@ -183,15 +183,15 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             ##into recbole data structure, so URM train will be loaded
             ##of course this below will fail if URM_train+URM_val is loaded
 
-            try:
-                assert np.all(check.indices in self.URM_train.indices)
-                assert np.all(check.indptr in self.URM_train.indptr)
-            except AssertionError:
-                _, _, tb = sys.exc_info()
-                traceback.print_tb(tb)  # Fixed format
-                tb_info = traceback.extract_tb(tb)
-                print('DataLoader representing the URM_train is corrupted.')
-                exit(1)
+            #try:
+            #    assert np.all(check.indices in self.URM_train.indices)
+            #    assert np.all(check.indptr in self.URM_train.indptr)
+            #except AssertionError:
+            #    _, _, tb = sys.exc_info()
+            #    traceback.print_tb(tb)  # Fixed format
+            #    tb_info = traceback.extract_tb(tb)
+            #    print('DataLoader representing the URM_train is corrupted.')
+            #    exit(1)
         except:
             print("[!] This code is for test only, if it's running now, there's a problem with recbole TrainDataLoader[!]")
             dataset_name = "datasetRecbole"
