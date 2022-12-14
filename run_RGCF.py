@@ -47,7 +47,7 @@ def read_data_split_and_search(dataset_name,
 
 
 
-    if dataset_name == "ml-1m":
+    if dataset_name == "ml-1m-main":
 
 
         dataset = Movielens1MReader("Conferences/RGCF/RGCF_github/dataset/")
