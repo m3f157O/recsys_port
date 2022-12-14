@@ -95,6 +95,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
     """
     def fromURMToRecbole(self, name, path):
 
+        print("IF YOU ARE NOT RUNNING TESTS, SOMETHING HAS GONE WRONG WITH THE SAVED DATALOADER")
         if(hasattr(self,"URM_val")):
             URM_val = self.URM_val.tocoo(copy=True)
             URM_test= self.URM_test.tocoo(copy=True)
@@ -124,10 +125,8 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         for i in missing:
             row=np.append(row,0)
-            print("before")
             print(len(column))
             column=np.append(column,i)
-            print("after")
             print(len(column))
 
 
@@ -144,6 +143,9 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
         file.close()
         fileu.close()
         filei.close()
+
+
+
 
         """
         As suggested, to make the wrapper pass the test, we added an huge try/catch block:
@@ -180,15 +182,16 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
             ##when URM_train+URM_val is passed, it is not possible to turn it
             ##into recbole data structure, so URM train will be loaded
             ##of course this below will fail if URM_train+URM_val is loaded
-            #try:
-            #    assert np.all(check.indices in self.URM_train.indices)
-            #    assert np.all(check.indptr in self.URM_train.indptr)
-            #except AssertionError:
-            #    _, _, tb = sys.exc_info()
-            #    traceback.print_tb(tb)  # Fixed format
-            #    tb_info = traceback.extract_tb(tb)
-            #    print('DataLoader representing the URM_train is corrupted.')
-            #    exit(1)
+
+            try:
+                assert np.all(check.indices in self.URM_train.indices)
+                assert np.all(check.indptr in self.URM_train.indptr)
+            except AssertionError:
+                _, _, tb = sys.exc_info()
+                traceback.print_tb(tb)  # Fixed format
+                tb_info = traceback.extract_tb(tb)
+                print('DataLoader representing the URM_train is corrupted.')
+                exit(1)
         except:
             print("[!] This code is for test only, if it's running now, there's a problem with recbole TrainDataLoader[!]")
             dataset_name = "datasetRecbole"
@@ -259,7 +262,7 @@ class RGCF_RecommenderWrapper(BaseRecommender, Incremental_Training_Early_Stoppi
 
         self._update_best_model()
 
-        self._train_with_early_stopping(epochs,
+        self._train_with_early_stopping(1,
                                         algorithm_name=self.RECOMMENDER_NAME,
                                         **earlystopping_kwargs)
 

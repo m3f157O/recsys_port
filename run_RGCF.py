@@ -71,7 +71,9 @@ def read_data_split_and_search(dataset_name,
 
 
 
-    URM_train_last_test = URM_train + URM_validation
+    URM_train_last_test = URM_train #Because of recbole data types, it is not possible to merge the matrices.
+    ##URM_train cannot be turned back into a recbole data structure, so it will be loaded from file.
+    ##It is also not possible to pass it through the datareader as it is not compatible with DataIO
 
     # Ensure IMPLICIT data and disjoint test-train split
     assert_implicit_data([URM_train, URM_validation, URM_test])
@@ -145,21 +147,17 @@ def read_data_split_and_search(dataset_name,
                                              "validation_metric": metric_to_optimize,
                                              }
 
-            # This is a simple version of the tuning code that is reported below and uses SearchSingleCase
-            # You may use this for a simpler testing
-            recommender_instance = RGCF_RecommenderWrapper(URM_train)
-            #
-            """
-            This is needed for the Wrapper to load the correct DataLoader, an object previously
-            saved from DataReader. It would have been good to pass it directly from the DataReader
-            to the Wrapper, but unluckily it is not compatible with DataIO. Reading
-            from file is the only solution remaining. Of course dataset_name will be saved
-            as a model attribute 
-            """
-
 
             #
-            # evaluator_test.evaluateRecommender(recommender_instance)
+            """
+            To load the correct DataLoader, an object previously
+            saved from DataReader, the wrapper will need to read from a file.
+            For now, we chose to pass that file name as an hyperparameter.
+            It would have been good to pass it directly from the DataReader
+            to the Wrapper, but unluckily TrainDataLoader is not compatible with DataIO. Reading
+            from file is the only solution remaining. To make it work dataset_name should be saved
+            """
+
 
             # Fit the DL model, select the optimal number of epochs and save the result
             hyperparameterSearch = SearchSingleCase(RGCF_RecommenderWrapper,
