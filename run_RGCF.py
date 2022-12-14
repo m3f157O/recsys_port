@@ -311,7 +311,7 @@ if __name__ == '__main__':
     # Done: Replace with dataset names
     ##[!] WE COULDN'T UNDERSTAND WHICH VERSION OF YELP IT IS
     ##atomic file dataset are all available here https://drive.google.com/drive/folders/1so0lckI6N6_niVEYaBu-LIcpOdZf99kj
-    dataset_list = ["ml-1m","Amazon_Books","yelp2018",]
+    dataset_list = ["ml-1m-main","Amazon_Books","yelp2018",]
 
     for dataset_name in dataset_list:
         read_data_split_and_search(dataset_name,
