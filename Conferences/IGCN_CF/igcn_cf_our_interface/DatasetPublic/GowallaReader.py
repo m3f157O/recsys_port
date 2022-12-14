@@ -43,6 +43,7 @@ class GowallaReader(DataReader):
 
 
         try:
+            raise FileNotFoundError
             print("GowallaReader: Attempting to load pre-splitted data")
 
             ##attrib name is file name
@@ -62,7 +63,7 @@ class GowallaReader(DataReader):
 
             import requests
             print('Downloading started')
-            url = "https://drive.google.com/u/0/uc?id=1p7z92cI63A6aOGjt5ciJKbQ9tb6yUJ1_&export=download&confirm=no_antivirus"
+            url = "https://drive.google.com/u/0/uc?id=1QsGyi1UO844_jxd_r6PQpf7UHx8PayvL&export=download&confirm=no_antivirus"
             # Downloading the file by sending the request to the URL
             req = requests.get(url)
 

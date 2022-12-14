@@ -60,7 +60,7 @@ class AmazonReader(DataReader):
 
             print("AmazonReader: loading URM")
 
-            url = "https://drive.google.com/u/0/uc?id=1l7HJgrA2aYc8ZGExXUAx1Btr7QOOd-3b&export=download&confirm=no_antivirus"
+            url = "https://drive.google.com/u/0/uc?id=1QsGyi1UO844_jxd_r6PQpf7UHx8PayvL&export=download&confirm=no_antivirus"
 
             import requests
             req = requests.get(url)
